@@ -1,4 +1,7 @@
 codex-usage-indicator@stone.dev.shell-extension.zip
+ai-code-usage-indicator@ivo.dev.shell-extension.zip
+*.shell-extension.zip
 schemas/gschemas.compiled
 .codex
 dist/
+

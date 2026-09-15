@@ -1,63 +1,164 @@
-# Codex Usage Indicator
+# AI Code Usage Indicator
 
-GNOME Shell extension for GNOME Shell `50` that shows remaining Codex usage in the top bar and displays the current 5-hour and weekly windows in the popup.
+[![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2050-blue.svg)](https://extensions.gnome.org)
+[![Version](https://img.shields.io/badge/version-15-green.svg)](https://github.com/ivo-lopes/codex-usage-indicator/releases)
+[![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
-## Features
+A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 45, 46, 47, 48, 49, and 50**) that monitors real-time quotas, rolling rate limits, token usage, and countdown timers for your AI coding assistants directly in the GNOME top bar and popup menu.
 
-- Automatically reads the bearer token from the local Codex CLI auth file at `~/.codex/auth.json`
-- Top-bar label showing remaining or used Codex usage
-- Popup with the latest fetch timestamp plus account and Codex model-specific 5-hour and weekly usage progress bars
-- Notification when a limit resets to at least 95% remaining before its scheduled reset
-- Configurable refresh interval
-- Toggle to show `left` or `used` values
+### Supported Coding Assistants:
+- 🟢 **OpenAI Codex CLI**
+- 🟣 **Claude Code** (Anthropic)
+- 🔵 **Antigravity CLI** (`agy` / Google Gemini)
 
-## Files
+---
 
-- `extension.js`: panel indicator and popup
-- `prefs.js`: settings UI
-- `codexAuth.js`: local Codex CLI auth reader
-- `usageApi.js`: HTTP requests and response normalization
-- `schemas/`: GSettings schema
+## Key Features
 
-## Local install
+- **Multi-Assistant Top Panel Bar**:
+  - **All Mode**: Display compact status badges for all active assistants side-by-side in the top bar with their official symbolic icons.
+  - **Cycle Mode**: Show one assistant at a time with click-to-cycle functionality.
+- **Detailed Popup Menu**:
+  - **5-Hour Rolling Limit Window**: Smooth Cairo-based progress bar with real-time percentage and countdown to quota reset.
+  - **Weekly Quota Window**: Long-term quota capacity tracking with reset timestamps.
+  - **Active Model Breakdown**: Detailed list of active models (e.g. Gemini 2.5 Pro, Claude 3.7 Sonnet, GPT-4o) with remaining capacity and token counts.
+  - **Rate Limit Reset Credits & Notifications**: Tracks bonus rate-limit resets and desktop notifications whenever a quota window resets early.
+- **Zero-Config Local Authentication**:
+  - **Codex CLI**: Automatically discovers bearer credentials in `~/.codex/auth.json`.
+  - **Claude Code**: Integrates seamlessly with OAuth credentials in `~/.claude/.credentials.json`, `~/.claude.json`, and local token caches in `~/.claude/stats-cache.json`. Supports optional custom token override in preferences.
+  - **Antigravity CLI**: Directly interfaces with GNOME Keyring (`gi://Secret`, service: `gemini`, username: `antigravity`) via native GObject Introspection. No terminal wrappers or shell hacks required.
+- **Real-Time Antigravity Quota Parser**:
+  - Interrogates `agy --print /usage` asynchronously via non-blocking `Gio.Subprocess`.
+  - Features intelligent 45-second telemetry caching to maintain instantaneous UI responsiveness without spawning extraneous processes.
+- **Modern Preferences Dialog (Libadwaita / GTK4)**:
+  - Configure background polling interval (60s to 3600s).
+  - Select display metrics: Remaining quota (`left`), Consumed quota (`used`), or Numeric percentage (`percent`).
+  - Toggle individual assistants on or off.
+  - Interactive **Test connection** buttons for instant diagnostics.
 
-1. Sign in with the Codex CLI so `~/.codex/auth.json` exists:
+---
 
+## Architecture & How It Works
+
+```
+.
+├── extension.js               # Top bar indicators, layout controller, and popup menu
+├── prefs.js                   # Libadwaita preferences page (GTK4 / Adw)
+├── constants.js               # Endpoints, schema identifiers, and display modes
+├── limitReset.js              # Early quota reset detection and desktop notifications
+├── resetCreditExpiry.js       # Reset credit expiration calculator
+├── icons/                     # Official symbolic and brand SVG/PNG icons
+│   ├── codex-symbolic.svg
+│   ├── claude-symbolic.svg
+│   ├── antigravity-symbolic.svg
+│   └── antigravity-symbolic.png
+├── providers/                 # Pluggable telemetry provider architecture
+│   ├── baseProvider.js        # BaseProvider abstract class & UsageSummary contract
+│   ├── codexProvider.js       # OpenAI Codex CLI authentication & WHAM API adapter
+│   ├── claudeProvider.js      # Claude Code OAuth & local token statistics adapter
+│   ├── antigravityProvider.js # Antigravity Keyring & CLI quota parser adapter
+│   └── index.js               # ProviderManager orchestration & parallel polling
+├── schemas/                   # GSettings schema definitions
+└── tests/                     # Automated unit and integration test suite
+```
+
+### Telemetry Pipeline
+1. **`ProviderManager`**: Coordinates enabled providers and polls their telemetry asynchronously via `Promise.allSettled`.
+2. **`BaseProvider`**: Enforces a normalized schema (`UsageSummary`), standardizing 5-hour windows, weekly limits, model statistics, and reset times across all providers.
+3. **Resilience & Fallback**:
+   - If Claude Code API is offline, the provider automatically falls back to reading `~/.claude/stats-cache.json` for token totals and daily model breakdowns.
+   - If Antigravity CLI is offline, local session totals from `~/.gemini/antigravity-cli/brain` are displayed gracefully.
+
+---
+
+## Installation
+
+### Method 1: Using gnome-extensions (Recommended)
+
+1. Clone or copy the repository into your GNOME Shell extensions directory:
    ```bash
-   codex login
+   mkdir -p ~/.local/share/gnome-shell/extensions/ai-code-usage-indicator@ivo.dev
+   cp -r . ~/.local/share/gnome-shell/extensions/ai-code-usage-indicator@ivo.dev
    ```
 
-2. Copy this directory to `~/.local/share/gnome-shell/extensions/codex-usage-indicator@stone.dev`
-3. Compile the schema in place:
-
+2. Compile the GSettings schemas:
    ```bash
-   glib-compile-schemas schemas
+   glib-compile-schemas ~/.local/share/gnome-shell/extensions/ai-code-usage-indicator@ivo.dev/schemas
    ```
 
-4. Enable the extension:
-
+3. Enable the extension:
    ```bash
-   gnome-extensions enable codex-usage-indicator@stone.dev
+   gnome-extensions enable ai-code-usage-indicator@ivo.dev
    ```
 
-5. Open extension preferences and set:
-   - `Update interval`
-   - `Display value`
-   - optionally test the Codex CLI token
+4. *(Wayland sessions)* If newly installed, log out and log back in, or restart your session so GNOME Shell discovers the new extension UUID.
 
-## Tests
+---
 
-Run the test suite with:
+### Method 2: Pack as Extension Zip
+
+You can generate a distributable zip bundle:
 
 ```bash
+gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --force
+```
+
+Then install the generated archive:
+```bash
+gnome-extensions install --force ai-code-usage-indicator@ivo.dev.shell-extension.zip
+```
+
+---
+
+## Configuration & Preferences
+
+Open preferences from your terminal or through the GNOME Extensions application:
+
+```bash
+gnome-extensions prefs ai-code-usage-indicator@ivo.dev
+```
+
+### Available Settings:
+- **Update interval**: Set how frequently (in seconds) the extension fetches fresh quotas in the background (default: 300 seconds).
+- **Display mode**:
+  - `Remaining quota (left)`: e.g. `74% left`
+  - `Consumed quota (used)`: e.g. `26% used`
+  - `Percentage (%)`: e.g. `74%`
+- **Top bar layout**:
+  - `Show all enabled assistants`: Shows multiple icons side-by-side.
+  - `Cycle one at a time`: Displays a single assistant, clicking toggles to the next.
+- **Assistants**: Enable or disable Codex, Claude Code, or Antigravity individually.
+- **Test Connection**: Run instant diagnostics on your local token files or GNOME Keyring entries.
+
+---
+
+## Running the Test Suite
+
+All provider adapters, API clients, reset logic, and HTTP endpoints are covered by automated unit tests using `gjs`:
+
+```bash
+# Run all tests
 gjs -m tests/usageApi.test.js
 gjs -m tests/usageApiHttp.test.js
 gjs -m tests/limitReset.test.js
 gjs -m tests/resetCreditExpiry.test.js
+gjs -m tests/codexProvider.test.js
+gjs -m tests/claudeProvider.test.js
+gjs -m tests/antigravityProvider.test.js
 ```
 
-## Notes
+---
 
-- The extension intentionally does not store cookies or browser session state.
-- The extension does not persist bearer tokens. It reads the current Codex CLI access token from `~/.codex/auth.json` when refreshing.
-- If the Codex CLI token expires, run `codex login` or start Codex CLI to refresh it.
+## Privacy & Security
+
+- **Read-only**: The extension never alters your CLI configuration files, session histories, or cloud parameters.
+- **Local Secret Storage**:
+  - Antigravity tokens are accessed using the native Linux Secret Service API (`libsecret` / GNOME Keyring).
+  - No plain-text credentials are leaked or sent to third-party endpoints.
+- **Direct Telemetry**: All requests communicate exclusively with the official API endpoints of the respective AI providers (ChatGPT, Anthropic, Google).
+
+---
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
