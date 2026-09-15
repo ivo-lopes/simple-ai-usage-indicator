@@ -1,3 +1,10 @@
+/**
+ * @file extension.js
+ * @description Main entry point for AI Code Usage Indicator GNOME Shell Extension.
+ * Displays AI coding assistant status indicators in the GNOME panel status area
+ * with support for multi-indicator layouts and detailed breakdown popup menus.
+ */
+
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -9,62 +16,59 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-import {CodexCliAuthError, loadCodexCliAuth} from './codexAuth.js';
 import {
+    BAR_DISPLAY_ALL,
+    BAR_DISPLAY_CYCLE,
+    DEFAULT_ENABLED_PROVIDERS,
     DEFAULT_UPDATE_INTERVAL_SECONDS,
     DISPLAY_MODE_LEFT,
+    DISPLAY_MODE_PERCENT,
     DISPLAY_MODE_USED,
+    PROVIDER_ANTIGRAVITY,
+    PROVIDER_CLAUDE,
+    PROVIDER_CODEX,
 } from './constants.js';
 import {
     detectEarlyLimitResets,
     formatLimitResetMessage,
 } from './limitReset.js';
+import {ProviderManager} from './providers/index.js';
 import {formatResetCreditExpiryList} from './resetCreditExpiry.js';
-import {UsageApiClient, UsageApiError} from './usageApi.js';
 
 const PROGRESS_BAR_WIDTH = 360;
 const PROGRESS_BAR_HEIGHT = 7;
 const PANEL_ICON_SIZE = 16;
-const MENU_TITLE_STYLE = 'color: #fff;';
+const MENU_TITLE_STYLE = 'color: #fff; font-weight: 700;';
 
-const CodexUsageIndicator = GObject.registerClass(
-class CodexUsageIndicator extends PanelMenu.Button {
+/**
+ * Panel menu button displaying AI assistant metrics in the top bar.
+ */
+const AiCodeUsageIndicator = GObject.registerClass(
+class AiCodeUsageIndicator extends PanelMenu.Button {
+    /**
+     * Initializes the indicator button, registers settings listeners, and starts refresh loop.
+     *
+     * @param {AiCodeUsageExtension} extension - Owning extension instance
+     */
     _init(extension) {
-        super._init(0.5, _('Codex Usage Indicator'));
+        super._init(0.5, _('AI Code Usage Indicator'));
 
         this._extension = extension;
         this._settings = extension.getSettings();
-        this._client = new UsageApiClient();
+        this._providerManager = new ProviderManager({settings: this._settings});
         this._menuOpenStateChangedId = null;
         this._refreshSourceId = null;
         this._refreshInFlight = null;
         this._state = {
-            summary: null,
-            auth: null,
+            summaries: new Map(),
             lastUpdated: null,
-            error: null,
+            previousSnapshots: new Map(),
         };
 
-        const box = new St.BoxLayout({
+        this._panelBox = new St.BoxLayout({
             style_class: 'panel-status-menu-box',
         });
-        this._icon = new St.Icon({
-            gicon: Gio.icon_new_for_string(GLib.build_filenamev([
-                this._extension.path,
-                'icons',
-                'codex-symbolic.svg',
-            ])),
-            icon_size: PANEL_ICON_SIZE,
-            style_class: 'system-status-icon',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        this._label = new St.Label({
-            text: _('--'),
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        box.add_child(this._icon);
-        box.add_child(this._label);
-        this.add_child(box);
+        this.add_child(this._panelBox);
 
         this._buildMenu();
         this._menuOpenStateChangedId = this.menu.connect('open-state-changed', (_menu, isOpen) => {
@@ -79,6 +83,24 @@ class CodexUsageIndicator extends PanelMenu.Button {
         );
         this._settings.connectObject(
             'changed::display-mode',
+            () => this._renderCurrentState(),
+            this,
+        );
+        this._settings.connectObject(
+            'changed::bar-display-mode',
+            () => this._renderCurrentState(),
+            this,
+        );
+        this._settings.connectObject(
+            'changed::enabled-providers',
+            () => {
+                this._renderCurrentState();
+                void this.refresh();
+            },
+            this,
+        );
+        this._settings.connectObject(
+            'changed::active-provider',
             () => this._renderCurrentState(),
             this,
         );
@@ -101,7 +123,7 @@ class CodexUsageIndicator extends PanelMenu.Button {
             x_align: Clutter.ActorAlign.START,
         }));
         this._refreshTimestampLabel = new St.Label({
-            text: formatLastUpdatedValue(this._state),
+            text: formatLastUpdatedValue(this._state.lastUpdated),
             style_class: 'dim-label',
             x_align: Clutter.ActorAlign.END,
         });
@@ -112,7 +134,13 @@ class CodexUsageIndicator extends PanelMenu.Button {
         this.menu.addMenuItem(this._refreshItem);
 
         this.menu.addAction(_('Settings'), () => {
-            this._extension.openPreferences();
+            try {
+                this._extension.openPreferences().catch(err => {
+                    reportError(err, '[ai-code-usage-indicator] openPreferences failed');
+                });
+            } catch (err) {
+                reportError(err, '[ai-code-usage-indicator] openPreferences failed');
+            }
         });
     }
 
@@ -121,97 +149,188 @@ class CodexUsageIndicator extends PanelMenu.Button {
             return this._refreshInFlight;
 
         this._refreshTimestampLabel.text = _('Refreshing...');
-        this._refreshInFlight = this._refreshUsage()
+        this._refreshInFlight = this._refreshAllUsage()
             .catch(error => {
-                reportError(error, '[codex-usage-indicator] refresh failed');
+                reportError(error, '[ai-code-usage-indicator] refresh failed');
             })
             .finally(() => {
                 this._refreshInFlight = null;
                 try {
                     this._renderCurrentState();
                 } catch (error) {
-                    reportError(error, '[codex-usage-indicator] render failed');
+                    reportError(error, '[ai-code-usage-indicator] render failed');
                 }
             });
 
         return this._refreshInFlight;
     }
 
-    async _refreshUsage() {
-        try {
-            const auth = await loadCodexCliAuth();
-            const summary = await this._client.fetchSummary(auth.accessToken, auth.accountId);
-            const lastUpdated = GLib.DateTime.new_now_local();
-            const limitResets = detectEarlyLimitResets(
-                createLimitResetSnapshot(
-                    this._state.summary,
-                    this._state.auth,
-                    this._state.lastUpdated,
-                ),
-                createLimitResetSnapshot(summary, auth, lastUpdated),
-            );
-            this._state = {
-                summary,
-                auth,
-                lastUpdated,
-                error: null,
-            };
-            this._notifyLimitResets(limitResets);
-        } catch (error) {
-            this._state = {
-                ...this._state,
-                error: formatRefreshError(error),
-            };
-            reportError(error, '[codex-usage-indicator] usage refresh failed');
-        }
-    }
+    async _refreshAllUsage() {
+        const summaries = await this._providerManager.fetchAllUsage();
+        const lastUpdated = GLib.DateTime.new_now_local();
 
-    _notifyLimitResets(limitResets) {
-        if (limitResets.length === 0)
-            return;
+        // Detect early limit resets for Codex
+        const codexSummary = summaries.get(PROVIDER_CODEX);
+        if (codexSummary && !codexSummary.error) {
+            const prevSnapshot = this._state.previousSnapshots.get(PROVIDER_CODEX);
+            const currentSnapshot = {
+                accountId: codexSummary.account || 'codex',
+                observedAt: lastUpdated.to_unix(),
+                summary: codexSummary.raw || codexSummary,
+            };
 
-        try {
-            Main.notify(
-                _('Codex limit reset 🎉'),
-                limitResets.map(formatLimitResetMessage).join('\n'),
-            );
-        } catch (error) {
-            reportError(error, '[codex-usage-indicator] limit reset notification failed');
+            if (prevSnapshot) {
+                const limitResets = detectEarlyLimitResets(prevSnapshot, currentSnapshot);
+                if (limitResets.length > 0) {
+                    try {
+                        Main.notify(
+                            _('Codex limit reset 🎉'),
+                            limitResets.map(formatLimitResetMessage).join('\n'),
+                        );
+                    } catch {}
+                }
+            }
+            this._state.previousSnapshots.set(PROVIDER_CODEX, currentSnapshot);
         }
+
+        this._state.summaries = summaries;
+        this._state.lastUpdated = lastUpdated;
     }
 
     _renderCurrentState() {
         const displayMode = this._getDisplayMode();
+        const barDisplayMode = this._getBarDisplayMode();
+        const enabledProviders = this._providerManager.getEnabledProviders();
 
-        this._setLabel(formatPanelLabel(this._state, displayMode));
-        this._refreshTimestampLabel.text = formatLastUpdatedValue(this._state);
-        this._renderUsage(this._state, displayMode);
+        this._renderPanelBar(enabledProviders, displayMode, barDisplayMode);
+        this._refreshTimestampLabel.text = formatLastUpdatedValue(this._state.lastUpdated);
+        this._renderPopupUsage(enabledProviders, displayMode);
     }
 
-    _renderUsage(state, displayMode) {
+    _renderPanelBar(enabledProviders, displayMode, barDisplayMode) {
+        this._panelBox.destroy_all_children();
+
+        if (enabledProviders.length === 0) {
+            const label = new St.Label({
+                text: _('AI: off'),
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            this._panelBox.add_child(label);
+            return;
+        }
+
+        const activeId = this._getActiveProviderId();
+        const providersToShow = barDisplayMode === BAR_DISPLAY_CYCLE
+            ? [enabledProviders.find(p => p.id === activeId) || enabledProviders[0]]
+            : enabledProviders;
+
+        for (let i = 0; i < providersToShow.length; i++) {
+            const provider = providersToShow[i];
+            const summary = this._state.summaries.get(provider.id);
+
+            const providerBox = new St.BoxLayout({
+                style_class: 'panel-status-menu-box',
+                style: i > 0 ? 'margin-left: 8px;' : '',
+            });
+
+            const iconPath = GLib.build_filenamev([
+                this._extension.path,
+                'icons',
+                provider.iconFileName,
+            ]);
+
+            const icon = new St.Icon({
+                gicon: Gio.icon_new_for_string(iconPath),
+                icon_size: PANEL_ICON_SIZE,
+                style_class: 'system-status-icon',
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+
+            const labelText = formatProviderPanelLabel(provider, summary, displayMode);
+            const label = new St.Label({
+                text: labelText,
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+
+            providerBox.add_child(icon);
+            providerBox.add_child(label);
+            this._panelBox.add_child(providerBox);
+        }
+    }
+
+    _renderPopupUsage(enabledProviders, displayMode) {
         this._usageSection.removeAll();
 
-        this._usageSection.addMenuItem(createInfoMenuItem(
-            formatUsageTitle(state),
-            formatUsageSummary(state, displayMode),
-            formatUsageMeta(state),
-        ));
-
-        const windows = getVisibleWindows(state.summary);
-        if (windows.length === 0) {
+        if (enabledProviders.length === 0) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
-                state.error ?? _('No 5h or week data available.'),
+                _('No AI assistants enabled. Go to Settings to enable them.'),
                 {reactive: false, can_focus: false},
             ));
             return;
         }
 
-        for (const window of windows) {
+        for (let i = 0; i < enabledProviders.length; i++) {
+            const provider = enabledProviders[i];
+            const summary = this._state.summaries.get(provider.id);
+
+            if (i > 0)
+                this._usageSection.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+            this._renderProviderSection(provider, summary, displayMode);
+        }
+    }
+
+    _renderProviderSection(provider, summary, displayMode) {
+        // Section Header: Icon + Name + Plan + Account
+        const headerItem = createProviderHeaderMenuItem(this._extension.path, provider, summary);
+        this._usageSection.addMenuItem(headerItem);
+
+        if (!summary) {
+            this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
+                _('Fetching usage data...'),
+                {reactive: false, can_focus: false},
+            ));
+            return;
+        }
+
+        if (summary.error) {
+            this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
+                String(summary.error?.message || summary.error),
+                {reactive: false, can_focus: false},
+            ));
+            return;
+        }
+
+        // Primary window (e.g. 5-hour window)
+        if (summary.primaryWindow) {
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
-                window.title,
-                window,
+                summary.primaryWindow.label || _('5-hour window'),
+                summary.primaryWindow,
                 displayMode,
             ));
+        }
+
+        // Secondary window (e.g. Weekly window)
+        if (summary.weekWindow) {
+            this._usageSection.addMenuItem(createUsageProgressMenuItem(
+                summary.weekWindow.label || _('Weekly limit'),
+                summary.weekWindow,
+                displayMode,
+            ));
+        }
+
+        // Additional models or quota details
+        if (summary.models && summary.models.length > 0) {
+            const modelsItem = createModelsSummaryMenuItem(summary.models);
+            if (modelsItem)
+                this._usageSection.addMenuItem(modelsItem);
+        }
+
+        // Extra credits / resets
+        if (summary.extraCredits) {
+            const creditsItem = createExtraCreditsMenuItem(summary.extraCredits);
+            if (creditsItem)
+                this._usageSection.addMenuItem(creditsItem);
         }
     }
 
@@ -236,13 +355,29 @@ class CodexUsageIndicator extends PanelMenu.Button {
         );
     }
 
-    _setLabel(text) {
-        this._label.text = text;
-    }
-
     _getDisplayMode() {
         const mode = this._settings.get_string('display-mode');
-        return mode === DISPLAY_MODE_USED ? DISPLAY_MODE_USED : DISPLAY_MODE_LEFT;
+        if (mode === DISPLAY_MODE_USED)
+            return DISPLAY_MODE_USED;
+        if (mode === DISPLAY_MODE_PERCENT)
+            return DISPLAY_MODE_PERCENT;
+        return DISPLAY_MODE_LEFT;
+    }
+
+    _getBarDisplayMode() {
+        try {
+            return this._settings.get_string('bar-display-mode') || BAR_DISPLAY_ALL;
+        } catch {
+            return BAR_DISPLAY_ALL;
+        }
+    }
+
+    _getActiveProviderId() {
+        try {
+            return this._settings.get_string('active-provider') || PROVIDER_CODEX;
+        } catch {
+            return PROVIDER_CODEX;
+        }
     }
 
     destroy() {
@@ -256,23 +391,38 @@ class CodexUsageIndicator extends PanelMenu.Button {
             this.menu.disconnect(this._menuOpenStateChangedId);
             this._menuOpenStateChangedId = null;
         }
-        this._client.destroy();
+        this._providerManager.destroy();
         super.destroy();
     }
 });
 
-export default class CodexUsageExtension extends Extension {
+/**
+ * GNOME Shell Extension class lifecycle controller.
+ */
+export default class AiCodeUsageExtension extends Extension {
+    /**
+     * Instantiates the indicator button and attaches it to the GNOME Shell status area.
+     */
     enable() {
-        this._indicator = new CodexUsageIndicator(this);
+        this._indicator = new AiCodeUsageIndicator(this);
         Main.panel.addToStatusArea(this.uuid, this._indicator, 0, 'right');
     }
 
+    /**
+     * Destroys the indicator and unregisters all hooks.
+     */
     disable() {
         this._indicator?.destroy();
         this._indicator = null;
     }
 }
 
+/**
+ * Standardized error reporter logging either to globalThis.logError or console.error.
+ *
+ * @param {Error|any} error - Exception to report
+ * @param {string} context - Log prefix context
+ */
 function reportError(error, context) {
     if (typeof globalThis.logError === 'function') {
         globalThis.logError(error, context);
@@ -285,42 +435,75 @@ function reportError(error, context) {
     console.error(`${context}: ${detail}`);
 }
 
-function createInfoMenuItem(title, subtitle = '', meta = '') {
+/**
+ * Builds the visual header for a provider section inside the popup menu.
+ *
+ * @param {string} extensionPath - Filesystem path to extension root
+ * @param {import('./providers/baseProvider.js').BaseProvider} provider - Provider adapter
+ * @param {import('./providers/baseProvider.js').UsageSummary} [summary] - Telemetry summary
+ * @returns {PopupMenu.PopupBaseMenuItem} Constructed header menu item
+ */
+function createProviderHeaderMenuItem(extensionPath, provider, summary) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
         reactive: false,
         can_focus: false,
     });
 
-    const content = new St.BoxLayout({
+    const row = new St.BoxLayout({
+        vertical: false,
+        x_expand: true,
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+
+    const iconPath = GLib.build_filenamev([extensionPath, 'icons', provider.iconFileName]);
+    const icon = new St.Icon({
+        gicon: Gio.icon_new_for_string(iconPath),
+        icon_size: 18,
+        style_class: 'system-status-icon',
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+    row.add_child(icon);
+
+    const titleBox = new St.BoxLayout({
         vertical: true,
         x_expand: true,
+        style: 'margin-left: 10px;',
     });
-    content.add_child(new St.Label({
-        text: title,
+
+    const titleLabel = new St.Label({
+        text: provider.name,
         style: MENU_TITLE_STYLE,
         x_align: Clutter.ActorAlign.START,
-    }));
+    });
+    titleBox.add_child(titleLabel);
 
-    if (subtitle) {
-        content.add_child(new St.Label({
-            text: subtitle,
+    const subtitleParts = [];
+    if (summary?.planType)
+        subtitleParts.push(summary.planType);
+    if (summary?.account)
+        subtitleParts.push(summary.account);
+
+    if (subtitleParts.length > 0) {
+        titleBox.add_child(new St.Label({
+            text: subtitleParts.join('  ·  '),
             style_class: 'dim-label',
             x_align: Clutter.ActorAlign.START,
         }));
     }
 
-    if (meta) {
-        content.add_child(new St.Label({
-            text: meta,
-            style_class: 'dim-label',
-            x_align: Clutter.ActorAlign.START,
-        }));
-    }
-
-    menuItem.add_child(content);
+    row.add_child(titleBox);
+    menuItem.add_child(row);
     return menuItem;
 }
 
+/**
+ * Builds a progress bar row representing an active usage window (e.g. 5 hours or weekly).
+ *
+ * @param {string} title - Section title (e.g. '5-hour window')
+ * @param {import('./providers/baseProvider.js').UsageWindow} window - Quota window details
+ * @param {string} displayMode - 'left' | 'used' | 'percent'
+ * @returns {PopupMenu.PopupBaseMenuItem}
+ */
 function createUsageProgressMenuItem(title, window, displayMode) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
         reactive: false,
@@ -334,17 +517,18 @@ function createUsageProgressMenuItem(title, window, displayMode) {
 
     content.add_child(new St.Label({
         text: title,
-        style: MENU_TITLE_STYLE,
+        style: 'color: #ddd; font-weight: 600; font-size: 0.95em;',
         x_align: Clutter.ActorAlign.START,
     }));
 
     content.add_child(new St.Label({
         text: formatWindowValue(window, displayMode),
-        style: 'font-weight: 700; font-size: 1.08em;',
+        style: 'font-weight: 700; font-size: 1.05em; margin-top: 2px;',
         x_align: Clutter.ActorAlign.START,
     }));
 
-    content.add_child(createProgressBar(getWindowProgressPercent(window, displayMode), displayMode));
+    const progressPercent = getWindowProgressPercent(window, displayMode);
+    content.add_child(createProgressBar(progressPercent, displayMode));
 
     const subtitle = formatWindowSubtitle(window);
     if (subtitle) {
@@ -359,6 +543,108 @@ function createUsageProgressMenuItem(title, window, displayMode) {
     return menuItem;
 }
 
+/**
+ * Builds the popup menu section displaying individual model tokens or active quotas.
+ *
+ * @param {Array<Object>} models - Model usage list
+ * @returns {PopupMenu.PopupBaseMenuItem|null}
+ */
+function createModelsSummaryMenuItem(models) {
+    if (!models || models.length === 0)
+        return null;
+
+    const menuItem = new PopupMenu.PopupBaseMenuItem({
+        reactive: false,
+        can_focus: false,
+    });
+
+    const content = new St.BoxLayout({
+        vertical: true,
+        x_expand: true,
+        style: 'margin-top: 4px;',
+    });
+
+    content.add_child(new St.Label({
+        text: _('Active Models & Quota'),
+        style: 'color: #bbb; font-weight: 600; font-size: 0.9em;',
+        x_align: Clutter.ActorAlign.START,
+    }));
+
+    for (const model of models.slice(0, 3)) {
+        const lineBox = new St.BoxLayout({
+            vertical: false,
+            x_expand: true,
+            style: 'margin-top: 2px;',
+        });
+        lineBox.add_child(new St.Label({
+            text: model.name || model.limitName || _('Model'),
+            style_class: 'dim-label',
+            x_expand: true,
+            x_align: Clutter.ActorAlign.START,
+        }));
+
+        const val = model.formattedTokens || model.tier || (model.usedPercent !== undefined ? `${Math.round(model.usedPercent * 100)}%` : '');
+        lineBox.add_child(new St.Label({
+            text: val,
+            style: 'color: #ccc; font-size: 0.9em;',
+            x_align: Clutter.ActorAlign.END,
+        }));
+        content.add_child(lineBox);
+    }
+
+    menuItem.add_child(content);
+    return menuItem;
+}
+
+/**
+ * Builds a footer label for bonus reset credits or stored conversation sessions.
+ *
+ * @param {Object} credits - Credits or session stats object
+ * @returns {PopupMenu.PopupBaseMenuItem|null}
+ */
+function createExtraCreditsMenuItem(credits) {
+    if (!credits)
+        return null;
+
+    const menuItem = new PopupMenu.PopupBaseMenuItem({
+        reactive: false,
+        can_focus: false,
+    });
+
+    const content = new St.BoxLayout({
+        vertical: false,
+        x_expand: true,
+    });
+
+    let text = '';
+    if (typeof credits.availableCount === 'number') {
+        text = `${credits.availableCount} ${_('rate limit resets available')}`;
+    } else if (credits.conversations) {
+        text = `${credits.conversations} ${_('CLI sessions stored locally')}`;
+    } else if (credits.totalSessions) {
+        text = `${credits.totalSessions} ${_('total Claude Code sessions')}`;
+    }
+
+    if (!text)
+        return null;
+
+    content.add_child(new St.Label({
+        text,
+        style_class: 'dim-label',
+        x_align: Clutter.ActorAlign.START,
+    }));
+
+    menuItem.add_child(content);
+    return menuItem;
+}
+
+/**
+ * Creates a rounded Clutter progress bar actor with dynamic status color.
+ *
+ * @param {number|null} percent - Normalized fraction (0.0 to 1.0)
+ * @param {string} displayMode - 'left' | 'used' | 'percent'
+ * @returns {St.Widget} Clutter actor containing track and fill bar
+ */
 function createProgressBar(percent, displayMode) {
     const normalized = normalizeProgressPercent(percent);
     const fillWidth = normalized === null
@@ -383,8 +669,8 @@ function createProgressBar(percent, displayMode) {
         style: [
             'background-color: rgba(255, 255, 255, 0.16);',
             `border-radius: ${Math.floor(PROGRESS_BAR_HEIGHT / 2)}px;`,
-            'margin-top: 6px;',
-            'margin-bottom: 5px;',
+            'margin-top: 5px;',
+            'margin-bottom: 4px;',
         ].join(' '),
     });
 
@@ -396,304 +682,101 @@ function createProgressBar(percent, displayMode) {
     return track;
 }
 
-function formatPanelLabel(state, displayMode) {
-    if (!state.summary && state.error)
-        return _('!');
+/**
+ * Formats the compact status label for an assistant in the GNOME panel top bar.
+ *
+ * @param {import('./providers/baseProvider.js').BaseProvider} provider - Provider instance
+ * @param {import('./providers/baseProvider.js').UsageSummary} [summary] - Telemetry data
+ * @param {string} displayMode - User's chosen display mode
+ * @returns {string} Text to render in top panel
+ */
+function formatProviderPanelLabel(provider, summary, displayMode) {
+    if (!summary)
+        return '--';
 
-    if (!state.summary)
-        return _('--');
+    if (summary.error)
+        return '!';
 
-    const value = displayMode === DISPLAY_MODE_USED ? state.summary.used : state.summary.left;
-    const suffix = displayMode === DISPLAY_MODE_USED ? _('used') : _('left');
+    // If percent is available
+    if (summary.percent !== null) {
+        if (displayMode === DISPLAY_MODE_USED) {
+            return `${Math.round(summary.percent * 100)}%`;
+        } else if (displayMode === DISPLAY_MODE_PERCENT) {
+            return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}%`;
+        } else {
+            return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}% left`;
+        }
+    }
 
-    if (value !== null)
-        return `${formatCompact(value)} ${suffix}`;
+    // If numeric values are available
+    const val = displayMode === DISPLAY_MODE_USED ? summary.used : summary.left;
+    if (val !== null && val !== undefined) {
+        const suffix = displayMode === DISPLAY_MODE_USED ? _('used') : _('left');
+        return `${formatCompact(val)} ${suffix}`;
+    }
 
-    const percent = displayMode === DISPLAY_MODE_USED
-        ? state.summary.percent
-        : state.summary.leftPercent;
-    if (percent !== null)
-        return `${Math.round(percent * 100)}% ${suffix}`;
+    if (summary.primaryWindow?.status)
+        return summary.primaryWindow.status;
 
-    return _('n/a');
+    if (summary.primaryWindow?.usedFormatted)
+        return summary.primaryWindow.usedFormatted;
+
+    return _('OK');
 }
 
-function formatLastUpdatedValue(state) {
-    if (!state.lastUpdated)
+/**
+ * Formats the last refreshed timestamp into a human-readable date/time string.
+ *
+ * @param {GLib.DateTime|null} lastUpdated - GLib DateTime instance
+ * @returns {string} Formatted timestamp string (YYYY-MM-DD HH:MM)
+ */
+function formatLastUpdatedValue(lastUpdated) {
+    if (!lastUpdated)
         return _('never');
 
-    return state.lastUpdated.format('%F %R');
+    return lastUpdated.format('%F %R');
 }
 
-function formatUsageTitle(state) {
-    const email = state.summary?.email?.trim();
-    if (email)
-        return email;
-
-    return _('Codex CLI account');
-}
-
-function formatUsageSummary(state, displayMode) {
-    if (!state.summary && state.error)
-        return state.error;
-
-    if (!state.summary)
-        return _('Waiting for data...');
-
-    const parts = [];
-    if (state.summary.planType)
-        parts.push(formatPlanType(state.summary.planType));
-
-    const resetCreditsText = formatResetCredits(state.summary.rateLimitResetCredits);
-    if (resetCreditsText)
-        parts.push(resetCreditsText);
-
-    const summaryText = parts.length > 0
-        ? parts.join(' · ')
-        : formatSummary(state.summary, displayMode);
-    return state.error ? `${summaryText} (${_('stale')})` : summaryText;
-}
-
-function formatUsageMeta(state) {
-    const parts = [];
-
-    const resetExpiryText = formatResetCreditExpiryList(state.summary?.rateLimitResetCredits);
-    if (resetExpiryText)
-        parts.push(resetExpiryText);
-
-    if (state.error && state.summary)
-        parts.push(state.error);
-
-    return parts.join('  •  ');
-}
-
-function formatRefreshError(error) {
-    if (error instanceof CodexCliAuthError)
-        return error.message;
-
-    if (error instanceof UsageApiError && error.isAuthError)
-        return _('Codex CLI token was rejected. Run codex login.');
-
-    if (error instanceof Error)
-        return error.message;
-
-    return _('Unknown error');
-}
-
-function createLimitResetSnapshot(summary, auth, observedAt) {
-    return {
-        accountId: getUsageAccountId(summary, auth),
-        observedAt: observedAt?.to_unix?.(),
-        summary,
-    };
-}
-
-function getUsageAccountId(summary, auth) {
-    for (const value of [
-        auth?.accountId,
-        summary?.accountId,
-        summary?.userId,
-        summary?.email,
-    ]) {
-        if (typeof value === 'string' && value.trim())
-            return value.trim();
-    }
-
-    return null;
-}
-
-function formatSummary(summary, displayMode) {
-    const contextParts = [];
-    if (summary.planType)
-        contextParts.push(formatPlanType(summary.planType));
-    if (summary.limitName)
-        contextParts.push(summary.limitName);
-
-    const summaryPrefix = contextParts.length > 0 ? `${contextParts.join(' · ')} · ` : '';
-    const resetText = formatResetText(summary.resetAt, summary.resetAfterSeconds);
-
-    if (displayMode === DISPLAY_MODE_USED) {
-        if (summary.used !== null && summary.limit !== null) {
-            const percent = summary.percent !== null
-                ? ` (${Math.round(summary.percent * 100)}% used)`
-                : '';
-            return `${summaryPrefix}${formatNumber(summary.used)} used of ${formatNumber(summary.limit)}${percent}${resetText}`;
-        }
-
-        if (summary.used !== null)
-            return `${summaryPrefix}${formatNumber(summary.used)} used${resetText}`;
-
-        if (summary.percent !== null)
-            return `${summaryPrefix}${Math.round(summary.percent * 100)}% used${resetText}`;
-    } else {
-        if (summary.left !== null && summary.limit !== null) {
-            const percent = summary.leftPercent !== null
-                ? ` (${Math.round(summary.leftPercent * 100)}% left)`
-                : '';
-            return `${summaryPrefix}${formatNumber(summary.left)} left of ${formatNumber(summary.limit)}${percent}${resetText}`;
-        }
-
-        if (summary.left !== null)
-            return `${summaryPrefix}${formatNumber(summary.left)} left${resetText}`;
-
-        if (summary.leftPercent !== null)
-            return `${summaryPrefix}${Math.round(summary.leftPercent * 100)}% left${resetText}`;
-    }
-
-    return _('Usage data available, but no totals were recognized.');
-}
-
-function formatPlanType(planType) {
-    const normalized = String(planType).trim();
-    if (!normalized)
-        return '';
-
-    const knownNames = {
-        free: 'Free',
-        go: 'Go',
-        plus: 'Plus',
-        pro: 'Pro',
-        team: 'Team',
-        enterprise: 'Enterprise',
-        edu: 'Edu',
-        business: 'Business',
-        prolite: 'Pro Lite',
-    };
-
-    return knownNames[normalized.toLowerCase()]
-        ?? normalized
-            .replace(/[_-]+/g, ' ')
-            .replace(/\b\w/g, char => char.toUpperCase());
-}
-
-function formatResetCredits(rateLimitResetCredits) {
-    const availableCount = rateLimitResetCredits?.availableCount;
-    if (availableCount === null || availableCount === undefined)
-        return '';
-
-    return `${formatNumber(availableCount)} ${_('resets available')}`;
-}
-
-function getVisibleWindows(summary) {
-    if (!summary)
-        return [];
-
-    const windows = [];
-    addRateLimitWindows(windows, summary.rateLimit, null);
-    addRateLimitWindows(windows, summary.codeReviewRateLimit, _('Code review'));
-
-    for (const rateLimit of getAdditionalRateLimitItems(summary.additionalRateLimits))
-        addRateLimitWindows(windows, rateLimit, rateLimit.limitName);
-
-    if (windows.length === 0) {
-        if (summary.primaryWindow)
-            windows.push({title: formatLimitWindowTitle(null, 'primary', summary.primaryWindow), ...summary.primaryWindow});
-        if (summary.weekWindow)
-            windows.push({title: formatLimitWindowTitle(null, 'secondary', summary.weekWindow), ...summary.weekWindow});
-    }
-
-    return windows;
-}
-
-function addRateLimitWindows(output, rateLimit, limitName) {
-    if (!rateLimit)
-        return;
-
-    let added = false;
-
-    if (rateLimit.primaryWindow) {
-        output.push({
-            title: formatLimitWindowTitle(limitName, 'primary', rateLimit.primaryWindow),
-            ...rateLimit.primaryWindow,
-        });
-        added = true;
-    }
-
-    if (rateLimit.secondaryWindow) {
-        output.push({
-            title: formatLimitWindowTitle(limitName, 'secondary', rateLimit.secondaryWindow),
-            ...rateLimit.secondaryWindow,
-        });
-        added = true;
-    }
-
-    if (added)
-        return;
-
-    for (const window of rateLimit.windows ?? []) {
-        output.push({
-            title: formatLimitWindowTitle(limitName, null, window),
-            ...window,
-        });
-    }
-}
-
-function getAdditionalRateLimitItems(value) {
-    if (Array.isArray(value))
-        return value;
-
-    if (!value || typeof value !== 'object')
-        return [];
-
-    return Object.values(value);
-}
-
-function formatLimitWindowTitle(limitName, kind, window) {
-    const prefix = typeof limitName === 'string' && limitName.trim()
-        ? `${limitName.trim()} `
-        : '';
-
-    if (isPrimaryWindow(window))
-        return `${prefix}${_('5 hour usage limit')}`;
-
-    if (isWeekWindow(window))
-        return `${prefix}${_('Weekly usage limit')}`;
-
-    // Older responses may omit a duration. Only then use the API field name
-    // as a fallback; an explicit duration always determines the label.
-    if (window?.windowSeconds === null && kind === 'primary')
-        return `${prefix}${_('5 hour usage limit')}`;
-
-    if (window?.windowSeconds === null && kind === 'secondary')
-        return `${prefix}${_('Weekly usage limit')}`;
-
-    const label = typeof window?.label === 'string' && window.label.trim()
-        ? window.label.trim()
-        : _('Usage');
-    return `${prefix}${label} ${_('usage limit')}`;
-}
-
-function isPrimaryWindow(window) {
-    return window?.period !== 'weekly' &&
-        window?.windowSeconds !== null &&
-        Math.abs(window.windowSeconds - 5 * 3600) <= 2 * 3600;
-}
-
-function isWeekWindow(window) {
-    return window?.period === 'weekly' || (
-        window?.windowSeconds !== null &&
-        Math.abs(window.windowSeconds - 7 * 86400) <= 86400
-    );
-}
-
+/**
+ * Formats the primary numeric metric string for a usage window in the popup menu.
+ *
+ * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
+ * @param {string} displayMode - 'left' | 'used' | 'percent'
+ * @returns {string}
+ */
 function formatWindowValue(window, displayMode) {
+    if (window.status)
+        return window.status;
+
+    if (window.usedFormatted)
+        return window.usedFormatted;
+
     if (displayMode === DISPLAY_MODE_USED) {
-        if (window.used !== null)
+        if (window.used !== null && window.used !== undefined)
             return `${formatCompact(window.used)} used`;
 
-        if (window.percent !== null)
-            return `${Math.round(window.percent * 100)}% used`;
+        if (window.usedPercent !== null && window.usedPercent !== undefined)
+            return `${Math.round(window.usedPercent * 100)}% used`;
     } else {
-        if (window.left !== null)
+        if (window.left !== null && window.left !== undefined)
             return `${formatCompact(window.left)} remaining`;
 
-        if (window.leftPercent !== null)
+        if (window.leftPercent !== null && window.leftPercent !== undefined)
             return `${Math.round(window.leftPercent * 100)}% remaining`;
+
+        if (window.usedPercent !== null && window.usedPercent !== undefined)
+            return `${Math.round((1 - window.usedPercent) * 100)}% remaining`;
     }
 
-    return _('Unavailable');
+    return _('Available');
 }
 
+/**
+ * Builds the secondary descriptive line underneath a window progress bar.
+ *
+ * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
+ * @returns {string} Subtitle text separated by bullet dots
+ */
 function formatWindowSubtitle(window) {
     const parts = [];
 
@@ -701,25 +784,33 @@ function formatWindowSubtitle(window) {
     if (resetText)
         parts.push(resetText);
 
-    if (window.limit !== null)
+    if (window.limit !== null && window.limit !== undefined)
         parts.push(`${formatNumber(window.limit)} total`);
 
-    if (window.used !== null)
+    if (window.used !== null && window.used !== undefined)
         parts.push(`${formatNumber(window.used)} used`);
 
     return parts.join('  •  ');
 }
 
+/**
+ * Resolves and formats window reset countdown or clock time string.
+ *
+ * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
+ * @returns {string}
+ */
 function formatWindowReset(window) {
+    if (typeof window.resetsAt === 'string') {
+        try {
+            const date = new Date(window.resetsAt);
+            return `Resets ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
+        } catch {}
+    }
+
     if (typeof window.resetAt === 'number' && Number.isFinite(window.resetAt)) {
         const resetDateTime = GLib.DateTime.new_from_unix_local(Math.round(window.resetAt));
-        const now = GLib.DateTime.new_now_local();
-
-        if (resetDateTime && now && isSameDay(resetDateTime, now))
-            return `Resets ${resetDateTime.format('%H:%M')}`;
-
         if (resetDateTime)
-            return `Resets ${resetDateTime.format('%b %d, %Y %H:%M')}`;
+            return `Resets ${resetDateTime.format('%H:%M')}`;
     }
 
     if (typeof window.resetAfterSeconds === 'number' && Number.isFinite(window.resetAfterSeconds))
@@ -728,33 +819,35 @@ function formatWindowReset(window) {
     return '';
 }
 
-function isSameDay(left, right) {
-    return left.get_year() === right.get_year() &&
-        left.get_month() === right.get_month() &&
-        left.get_day_of_month() === right.get_day_of_month();
-}
+/**
+ * Derives normalized 0.0..1.0 value for the progress bar fill based on displayMode.
+ *
+ * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
+ * @param {string} displayMode - 'left' | 'used' | 'percent'
+ * @returns {number|null}
+ */
+function getWindowProgressPercent(window, displayMode) {
+    if (window.usedPercent !== null && window.usedPercent !== undefined) {
+        return displayMode === DISPLAY_MODE_USED
+            ? window.usedPercent
+            : Math.max(1 - window.usedPercent, 0);
+    }
 
-function getWindowUsedPercent(window) {
-    if (typeof window.percent === 'number' && Number.isFinite(window.percent))
-        return window.percent;
-
-    if (typeof window.leftPercent === 'number' && Number.isFinite(window.leftPercent))
-        return 1 - window.leftPercent;
+    if (window.percent !== null && window.percent !== undefined) {
+        return displayMode === DISPLAY_MODE_USED
+            ? window.percent
+            : Math.max(1 - window.percent, 0);
+    }
 
     return null;
 }
 
-function getWindowProgressPercent(window, displayMode) {
-    if (displayMode === DISPLAY_MODE_USED)
-        return getWindowUsedPercent(window);
-
-    if (typeof window.leftPercent === 'number' && Number.isFinite(window.leftPercent))
-        return window.leftPercent;
-
-    const usedPercent = getWindowUsedPercent(window);
-    return usedPercent !== null ? 1 - usedPercent : null;
-}
-
+/**
+ * Clamps numeric values strictly between 0.0 and 1.0.
+ *
+ * @param {number|null} percent
+ * @returns {number|null}
+ */
 function normalizeProgressPercent(percent) {
     if (typeof percent !== 'number' || !Number.isFinite(percent))
         return null;
@@ -762,30 +855,45 @@ function normalizeProgressPercent(percent) {
     return Math.max(0, Math.min(percent, 1));
 }
 
+/**
+ * Computes Adwaita color hex based on fill fraction and whether it represents remaining or used quota.
+ *
+ * @param {number} percent - Normalized fraction (0.0 to 1.0)
+ * @param {string} displayMode - 'left' | 'used' | 'percent'
+ * @returns {string} Hex color code
+ */
 function getProgressColor(percent, displayMode) {
     if (displayMode !== DISPLAY_MODE_USED) {
-        if (percent <= 0.1)
+        if (percent <= 0.15)
             return '#ed333b';
-
-        if (percent <= 0.3)
+        if (percent <= 0.35)
             return '#f6d32d';
-
         return '#2ec27e';
     }
 
-    if (percent >= 0.9)
+    if (percent >= 0.85)
         return '#ed333b';
-
-    if (percent >= 0.7)
+    if (percent >= 0.65)
         return '#f6d32d';
-
     return '#62a0ea';
 }
 
+/**
+ * Formats a number with locale-specific thousands separators.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
 function formatNumber(value) {
     return new Intl.NumberFormat().format(Math.round(value));
 }
 
+/**
+ * Formats numeric values into compact notation (e.g. 1.2k, 4.5M).
+ *
+ * @param {number} value
+ * @returns {string}
+ */
 function formatCompact(value) {
     return new Intl.NumberFormat(undefined, {
         notation: 'compact',
@@ -793,19 +901,12 @@ function formatCompact(value) {
     }).format(value);
 }
 
-function formatResetText(resetAt, resetAfterSeconds) {
-    if (typeof resetAfterSeconds === 'number' && Number.isFinite(resetAfterSeconds))
-        return `, resets in ${formatDuration(resetAfterSeconds)}`;
-
-    if (typeof resetAt === 'number' && Number.isFinite(resetAt)) {
-        const resetDateTime = GLib.DateTime.new_from_unix_local(Math.round(resetAt));
-        if (resetDateTime)
-            return `, resets ${resetDateTime.format('%b %d %R')}`;
-    }
-
-    return '';
-}
-
+/**
+ * Formats seconds into human-readable duration strings (e.g. "4h 12m", "35m", "15s").
+ *
+ * @param {number} totalSeconds
+ * @returns {string}
+ */
 function formatDuration(totalSeconds) {
     const seconds = Math.max(0, Math.round(totalSeconds));
     const hours = Math.floor(seconds / 3600);
@@ -813,12 +914,10 @@ function formatDuration(totalSeconds) {
 
     if (hours > 0 && minutes > 0)
         return `${hours}h ${minutes}m`;
-
     if (hours > 0)
         return `${hours}h`;
-
     if (minutes > 0)
         return `${minutes}m`;
-
     return `${seconds}s`;
 }
+
