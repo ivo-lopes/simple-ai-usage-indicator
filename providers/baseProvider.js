@@ -48,13 +48,28 @@ export class BaseProvider {
      * @param {Object} options
      * @param {string} options.id - Provider unique identifier (e.g. 'codex')
      * @param {string} options.name - Human-readable display name (e.g. 'Codex CLI')
-     * @param {string} options.iconFileName - Symbolic icon filename in icons/ (e.g. 'codex-symbolic.svg')
+     * @param {string} options.iconFileName - Symbolic/white icon filename in icons/ (e.g. 'codex-symbolic.svg')
+     * @param {string} [options.colorIconFileName] - Brand colored icon filename in icons/ (e.g. 'codex-color.svg')
      */
-    constructor({id, name, iconFileName}) {
+    constructor({id, name, iconFileName, colorIconFileName = null}) {
         this.id = id;
         this.name = name;
         this.iconFileName = iconFileName;
+        this.colorIconFileName = colorIconFileName || iconFileName;
     }
+
+    /**
+     * Resolves the icon filename based on preferred visual style ('symbolic' or 'color').
+     *
+     * @param {string} [style='symbolic'] - 'symbolic' (monochrome white) or 'color' (vibrant brand)
+     * @returns {string} Icon filename
+     */
+    getIconFileName(style = 'symbolic') {
+        if (style === 'color')
+            return this.colorIconFileName;
+        return this.iconFileName;
+    }
+
 
     /**
      * Check if local authentication is available and return its status.

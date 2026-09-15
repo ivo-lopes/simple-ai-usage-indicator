@@ -28,8 +28,15 @@ export const BAR_DISPLAY_ALL = 'all';
 /** Top bar layout: display a single active assistant, cycling on click */
 export const BAR_DISPLAY_CYCLE = 'cycle';
 
+/** Icon appearance style: monochrome white / symbolic */
+export const ICON_STYLE_SYMBOLIC = 'symbolic';
+
+/** Icon appearance style: vibrant brand color */
+export const ICON_STYLE_COLOR = 'color';
+
 /** Unique identifier for OpenAI Codex CLI provider */
 export const PROVIDER_CODEX = 'codex';
+
 
 /** Unique identifier for Anthropic Claude Code provider */
 export const PROVIDER_CLAUDE = 'claude';

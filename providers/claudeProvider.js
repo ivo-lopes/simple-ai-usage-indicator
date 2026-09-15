@@ -37,6 +37,7 @@ export class ClaudeProvider extends BaseProvider {
             id: PROVIDER_CLAUDE,
             name: 'Claude Code',
             iconFileName: 'claude-symbolic.svg',
+            colorIconFileName: 'claude-color.svg',
         });
         this._settings = settings;
         this._session = new Soup.Session({timeout: 20});

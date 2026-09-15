@@ -27,6 +27,11 @@
       <summary>Active provider</summary>
       <description>Currently focused or active provider.</description>
     </key>
+    <key name="icon-style" type="s">
+      <default>'symbolic'</default>
+      <summary>Icon style</summary>
+      <description>Icon theme appearance: 'symbolic' (monochrome white) or 'color' (vibrant brand colors).</description>
+    </key>
     <key name="claude-token" type="s">
       <default>''</default>
       <summary>Custom Claude token</summary>
@@ -34,3 +39,4 @@
     </key>
   </schema>
 </schemalist>
+

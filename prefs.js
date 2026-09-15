@@ -20,6 +20,8 @@ import {
     DISPLAY_MODE_LEFT,
     DISPLAY_MODE_PERCENT,
     DISPLAY_MODE_USED,
+    ICON_STYLE_COLOR,
+    ICON_STYLE_SYMBOLIC,
     PROVIDER_ANTIGRAVITY,
     PROVIDER_CLAUDE,
     PROVIDER_CODEX,
@@ -120,6 +122,24 @@ class AiCodeUsagePreferencesPage extends Adw.PreferencesPage {
             );
         });
         group.add(barRow);
+
+        const currentIconStyle = this._getIconStyle();
+        const iconStyleRow = new Adw.ComboRow({
+            title: _('Icon style'),
+            subtitle: _('Choose monochrome white or vibrant brand colors in the panel and menu.'),
+            model: Gtk.StringList.new([
+                _('Monochrome white (Symbolic)'),
+                _('Vibrant brand colors (Color)'),
+            ]),
+            selected: currentIconStyle === ICON_STYLE_COLOR ? 1 : 0,
+        });
+        iconStyleRow.connect('notify::selected', combo => {
+            this._settings.set_string(
+                'icon-style',
+                combo.selected === 1 ? ICON_STYLE_COLOR : ICON_STYLE_SYMBOLIC,
+            );
+        });
+        group.add(iconStyleRow);
 
         return group;
     }
@@ -299,6 +319,20 @@ class AiCodeUsagePreferencesPage extends Adw.PreferencesPage {
             return this._settings.get_string('bar-display-mode') || BAR_DISPLAY_ALL;
         } catch {
             return BAR_DISPLAY_ALL;
+        }
+    }
+
+    /**
+     * Reads icon style mode ('symbolic' or 'color').
+     *
+     * @private
+     * @returns {string}
+     */
+    _getIconStyle() {
+        try {
+            return this._settings.get_string('icon-style') || ICON_STYLE_SYMBOLIC;
+        } catch {
+            return ICON_STYLE_SYMBOLIC;
         }
     }
 });

@@ -24,6 +24,8 @@ import {
     DISPLAY_MODE_LEFT,
     DISPLAY_MODE_PERCENT,
     DISPLAY_MODE_USED,
+    ICON_STYLE_COLOR,
+    ICON_STYLE_SYMBOLIC,
     PROVIDER_ANTIGRAVITY,
     PROVIDER_CLAUDE,
     PROVIDER_CODEX,
@@ -104,6 +106,12 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
             () => this._renderCurrentState(),
             this,
         );
+        this._settings.connectObject(
+            'changed::icon-style',
+            () => this._renderCurrentState(),
+            this,
+        );
+
 
         this._restartRefreshTimer();
         this._renderCurrentState();
@@ -200,14 +208,15 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
     _renderCurrentState() {
         const displayMode = this._getDisplayMode();
         const barDisplayMode = this._getBarDisplayMode();
+        const iconStyle = this._getIconStyle();
         const enabledProviders = this._providerManager.getEnabledProviders();
 
-        this._renderPanelBar(enabledProviders, displayMode, barDisplayMode);
+        this._renderPanelBar(enabledProviders, displayMode, barDisplayMode, iconStyle);
         this._refreshTimestampLabel.text = formatLastUpdatedValue(this._state.lastUpdated);
-        this._renderPopupUsage(enabledProviders, displayMode);
+        this._renderPopupUsage(enabledProviders, displayMode, iconStyle);
     }
 
-    _renderPanelBar(enabledProviders, displayMode, barDisplayMode) {
+    _renderPanelBar(enabledProviders, displayMode, barDisplayMode, iconStyle = ICON_STYLE_SYMBOLIC) {
         this._panelBox.destroy_all_children();
 
         if (enabledProviders.length === 0) {
@@ -233,16 +242,18 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
                 style: i > 0 ? 'margin-left: 8px;' : '',
             });
 
+            const iconFileName = provider.getIconFileName ? provider.getIconFileName(iconStyle) : provider.iconFileName;
             const iconPath = GLib.build_filenamev([
                 this._extension.path,
                 'icons',
-                provider.iconFileName,
+                iconFileName,
             ]);
 
+            const isColor = iconStyle === ICON_STYLE_COLOR;
             const icon = new St.Icon({
                 gicon: Gio.icon_new_for_string(iconPath),
                 icon_size: PANEL_ICON_SIZE,
-                style_class: 'system-status-icon',
+                style_class: isColor ? 'panel-icon' : 'system-status-icon',
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
@@ -258,7 +269,7 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
         }
     }
 
-    _renderPopupUsage(enabledProviders, displayMode) {
+    _renderPopupUsage(enabledProviders, displayMode, iconStyle = ICON_STYLE_SYMBOLIC) {
         this._usageSection.removeAll();
 
         if (enabledProviders.length === 0) {
@@ -276,13 +287,13 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
             if (i > 0)
                 this._usageSection.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-            this._renderProviderSection(provider, summary, displayMode);
+            this._renderProviderSection(provider, summary, displayMode, iconStyle);
         }
     }
 
-    _renderProviderSection(provider, summary, displayMode) {
+    _renderProviderSection(provider, summary, displayMode, iconStyle = ICON_STYLE_SYMBOLIC) {
         // Section Header: Icon + Name + Plan + Account
-        const headerItem = createProviderHeaderMenuItem(this._extension.path, provider, summary);
+        const headerItem = createProviderHeaderMenuItem(this._extension.path, provider, summary, iconStyle);
         this._usageSection.addMenuItem(headerItem);
 
         if (!summary) {
@@ -380,6 +391,14 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
         }
     }
 
+    _getIconStyle() {
+        try {
+            return this._settings.get_string('icon-style') || ICON_STYLE_SYMBOLIC;
+        } catch {
+            return ICON_STYLE_SYMBOLIC;
+        }
+    }
+
     destroy() {
         if (this._refreshSourceId) {
             GLib.Source.remove(this._refreshSourceId);
@@ -441,9 +460,10 @@ function reportError(error, context) {
  * @param {string} extensionPath - Filesystem path to extension root
  * @param {import('./providers/baseProvider.js').BaseProvider} provider - Provider adapter
  * @param {import('./providers/baseProvider.js').UsageSummary} [summary] - Telemetry summary
+ * @param {string} [iconStyle='symbolic'] - 'symbolic' or 'color'
  * @returns {PopupMenu.PopupBaseMenuItem} Constructed header menu item
  */
-function createProviderHeaderMenuItem(extensionPath, provider, summary) {
+function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyle = ICON_STYLE_SYMBOLIC) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
         reactive: false,
         can_focus: false,
@@ -455,11 +475,13 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary) {
         y_align: Clutter.ActorAlign.CENTER,
     });
 
-    const iconPath = GLib.build_filenamev([extensionPath, 'icons', provider.iconFileName]);
+    const iconFileName = provider.getIconFileName ? provider.getIconFileName(iconStyle) : provider.iconFileName;
+    const iconPath = GLib.build_filenamev([extensionPath, 'icons', iconFileName]);
+    const isColor = iconStyle === ICON_STYLE_COLOR;
     const icon = new St.Icon({
         gicon: Gio.icon_new_for_string(iconPath),
         icon_size: 18,
-        style_class: 'system-status-icon',
+        style_class: isColor ? 'panel-icon' : 'system-status-icon',
         y_align: Clutter.ActorAlign.CENTER,
     });
     row.add_child(icon);
