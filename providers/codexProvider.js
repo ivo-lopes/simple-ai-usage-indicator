@@ -25,6 +25,7 @@ export class CodexProvider extends BaseProvider {
             name: 'Codex CLI',
             iconFileName: 'codex-symbolic.svg',
             colorIconFileName: 'codex-color.svg',
+            blackIconFileName: 'codex-black.svg',
         });
         this._client = new UsageApiClient();
     }

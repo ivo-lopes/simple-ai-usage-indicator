@@ -31,6 +31,9 @@ export const BAR_DISPLAY_CYCLE = 'cycle';
 /** Icon appearance style: monochrome white / symbolic */
 export const ICON_STYLE_SYMBOLIC = 'symbolic';
 
+/** Icon appearance style: monochrome black */
+export const ICON_STYLE_BLACK = 'black';
+
 /** Icon appearance style: vibrant brand color */
 export const ICON_STYLE_COLOR = 'color';
 

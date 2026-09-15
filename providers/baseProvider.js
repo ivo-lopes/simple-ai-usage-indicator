@@ -50,23 +50,27 @@ export class BaseProvider {
      * @param {string} options.name - Human-readable display name (e.g. 'Codex CLI')
      * @param {string} options.iconFileName - Symbolic/white icon filename in icons/ (e.g. 'codex-symbolic.svg')
      * @param {string} [options.colorIconFileName] - Brand colored icon filename in icons/ (e.g. 'codex-color.svg')
+     * @param {string} [options.blackIconFileName] - Monochrome black icon filename in icons/ (e.g. 'codex-black.svg')
      */
-    constructor({id, name, iconFileName, colorIconFileName = null}) {
+    constructor({id, name, iconFileName, colorIconFileName = null, blackIconFileName = null}) {
         this.id = id;
         this.name = name;
         this.iconFileName = iconFileName;
         this.colorIconFileName = colorIconFileName || iconFileName;
+        this.blackIconFileName = blackIconFileName || iconFileName;
     }
 
     /**
-     * Resolves the icon filename based on preferred visual style ('symbolic' or 'color').
+     * Resolves the icon filename based on preferred visual style ('symbolic', 'black', or 'color').
      *
-     * @param {string} [style='symbolic'] - 'symbolic' (monochrome white) or 'color' (vibrant brand)
+     * @param {string} [style='symbolic'] - 'symbolic' (white), 'black', or 'color' (vibrant brand)
      * @returns {string} Icon filename
      */
     getIconFileName(style = 'symbolic') {
         if (style === 'color')
             return this.colorIconFileName;
+        if (style === 'black')
+            return this.blackIconFileName;
         return this.iconFileName;
     }
 

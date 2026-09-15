@@ -24,6 +24,7 @@ import {
     DISPLAY_MODE_LEFT,
     DISPLAY_MODE_PERCENT,
     DISPLAY_MODE_USED,
+    ICON_STYLE_BLACK,
     ICON_STYLE_COLOR,
     ICON_STYLE_SYMBOLIC,
     PROVIDER_ANTIGRAVITY,
@@ -249,11 +250,11 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
                 iconFileName,
             ]);
 
-            const isColor = iconStyle === ICON_STYLE_COLOR;
+            const isCustomStyle = iconStyle === ICON_STYLE_COLOR || iconStyle === ICON_STYLE_BLACK;
             const icon = new St.Icon({
                 gicon: Gio.icon_new_for_string(iconPath),
                 icon_size: PANEL_ICON_SIZE,
-                style_class: isColor ? 'panel-icon' : 'system-status-icon',
+                style_class: isCustomStyle ? 'panel-icon' : 'system-status-icon',
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
@@ -477,11 +478,11 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
 
     const iconFileName = provider.getIconFileName ? provider.getIconFileName(iconStyle) : provider.iconFileName;
     const iconPath = GLib.build_filenamev([extensionPath, 'icons', iconFileName]);
-    const isColor = iconStyle === ICON_STYLE_COLOR;
+    const isCustomStyle = iconStyle === ICON_STYLE_COLOR || iconStyle === ICON_STYLE_BLACK;
     const icon = new St.Icon({
         gicon: Gio.icon_new_for_string(iconPath),
         icon_size: 18,
-        style_class: isColor ? 'panel-icon' : 'system-status-icon',
+        style_class: isCustomStyle ? 'panel-icon' : 'system-status-icon',
         y_align: Clutter.ActorAlign.CENTER,
     });
     row.add_child(icon);

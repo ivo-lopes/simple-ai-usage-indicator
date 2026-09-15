@@ -20,6 +20,7 @@ import {
     DISPLAY_MODE_LEFT,
     DISPLAY_MODE_PERCENT,
     DISPLAY_MODE_USED,
+    ICON_STYLE_BLACK,
     ICON_STYLE_COLOR,
     ICON_STYLE_SYMBOLIC,
     PROVIDER_ANTIGRAVITY,
@@ -124,20 +125,30 @@ class AiCodeUsagePreferencesPage extends Adw.PreferencesPage {
         group.add(barRow);
 
         const currentIconStyle = this._getIconStyle();
+        const iconStyleValues = [
+            ICON_STYLE_SYMBOLIC,
+            ICON_STYLE_BLACK,
+            ICON_STYLE_COLOR,
+        ];
+        let selectedIconIndex = 0;
+        if (currentIconStyle === ICON_STYLE_BLACK)
+            selectedIconIndex = 1;
+        else if (currentIconStyle === ICON_STYLE_COLOR)
+            selectedIconIndex = 2;
+
         const iconStyleRow = new Adw.ComboRow({
             title: _('Icon style'),
-            subtitle: _('Choose monochrome white or vibrant brand colors in the panel and menu.'),
+            subtitle: _('Choose monochrome white, monochrome black, or vibrant brand colors in the panel and menu.'),
             model: Gtk.StringList.new([
                 _('Monochrome white (Symbolic)'),
+                _('Monochrome black (Black)'),
                 _('Vibrant brand colors (Color)'),
             ]),
-            selected: currentIconStyle === ICON_STYLE_COLOR ? 1 : 0,
+            selected: selectedIconIndex,
         });
         iconStyleRow.connect('notify::selected', combo => {
-            this._settings.set_string(
-                'icon-style',
-                combo.selected === 1 ? ICON_STYLE_COLOR : ICON_STYLE_SYMBOLIC,
-            );
+            const chosen = iconStyleValues[combo.selected] || ICON_STYLE_SYMBOLIC;
+            this._settings.set_string('icon-style', chosen);
         });
         group.add(iconStyleRow);
 

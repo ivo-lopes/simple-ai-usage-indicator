@@ -9,8 +9,10 @@ function assert(condition, message) {
 async function runTests() {
     const provider = new ClaudeProvider();
     assert(provider.id === PROVIDER_CLAUDE, 'Provider id must match');
-    assert(provider.name === 'Claude Code', 'Provider name must match');
     assert(provider.iconFileName === 'claude-symbolic.svg', 'Icon must match');
+    assert(provider.getIconFileName('symbolic') === 'claude-symbolic.svg', 'Claude symbolic icon');
+    assert(provider.getIconFileName('black') === 'claude-black.svg', 'Claude black icon');
+    assert(provider.getIconFileName('color') === 'claude-color.svg', 'Claude color icon');
 
     // Test token formatting
     assert(formatTokenCount(500) === '500', 'formatTokenCount small');

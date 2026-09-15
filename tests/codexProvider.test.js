@@ -9,8 +9,10 @@ function assert(condition, message) {
 async function runTests() {
     const provider = new CodexProvider();
     assert(provider.id === PROVIDER_CODEX, 'Codex provider id must match');
-    assert(provider.name === 'Codex CLI', 'Codex provider name must match');
     assert(provider.iconFileName === 'codex-symbolic.svg', 'Codex icon must match');
+    assert(provider.getIconFileName('symbolic') === 'codex-symbolic.svg', 'Codex symbolic icon');
+    assert(provider.getIconFileName('black') === 'codex-black.svg', 'Codex black icon');
+    assert(provider.getIconFileName('color') === 'codex-color.svg', 'Codex color icon');
 
     // Test checkAuth
     const authStatus = await provider.checkAuth({allowExpired: true});

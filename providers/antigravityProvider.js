@@ -38,6 +38,7 @@ export class AntigravityProvider extends BaseProvider {
             name: 'Antigravity CLI',
             iconFileName: 'antigravity-symbolic.svg',
             colorIconFileName: 'antigravity-color.svg',
+            blackIconFileName: 'antigravity-black.svg',
         });
         this._session = new Soup.Session({timeout: 10});
         this._schema = new Secret.Schema(

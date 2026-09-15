@@ -1,7 +1,7 @@
 # Simple AI Usage Indicator
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2050-blue.svg)](https://extensions.gnome.org)
-[![Version](https://img.shields.io/badge/version-16-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
+[![Version](https://img.shields.io/badge/version-17-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
 A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 45, 46, 47, 48, 49, and 50**) that monitors real-time quotas, rolling rate limits, token usage, and countdown timers for your AI coding assistants directly in the GNOME top bar and popup menu.
@@ -18,8 +18,9 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 - **Multi-Assistant Top Panel Bar**:
   - **All Mode**: Display compact status badges for all active assistants side-by-side in the top bar with their official icons.
   - **Cycle Mode**: Show one assistant at a time with click-to-cycle functionality.
-- **Customizable Icon Styles (White vs Vibrant Brand Colors)**:
-  - **Monochrome White (Symbolic)**: Classic GNOME Shell aesthetic that blends seamlessly with dark and light shell themes. Features the new official white Claude Code glyph, OpenAI prompt swirl, and Google Antigravity white mark.
+- **Customizable Icon Styles (White, Black, or Vibrant Brand Colors)**:
+  - **Monochrome White (Symbolic)**: Classic GNOME Shell aesthetic that blends seamlessly with dark shell themes.
+  - **Monochrome Black (Black)**: Sleek high-contrast dark style, ideal for light panel themes or customized setups.
   - **Vibrant Brand Colors (Color)**: Eye-catching official brand colors (OpenAI emerald green `#10A37F`, Claude terracotta orange `#D97757`, and Google Antigravity blue).
 - **Detailed Popup Menu**:
   - **5-Hour Rolling Limit Window**: Smooth Cairo-based progress bar with real-time percentage and countdown to quota reset.
@@ -36,7 +37,7 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 - **Modern Preferences Dialog (Libadwaita / GTK4)**:
   - Configure background polling interval (60s to 3600s).
   - Select display metrics: Remaining quota (`left`), Consumed quota (`used`), or Numeric percentage (`percent`).
-  - Toggle between **Monochrome White** and **Vibrant Brand Colors** icon styles.
+  - Toggle between **Monochrome White**, **Monochrome Black**, and **Vibrant Brand Colors** icon styles.
   - Toggle individual assistants on or off.
   - Interactive **Test connection** buttons for instant diagnostics.
 
@@ -51,12 +52,15 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 ├── constants.js               # Endpoints, schema identifiers, and display modes
 ├── limitReset.js              # Early quota reset detection and desktop notifications
 ├── resetCreditExpiry.js       # Reset credit expiration calculator
-├── icons/                     # Complete white & colored icon sets
+├── icons/                     # Complete white, black & colored icon sets
 │   ├── codex-symbolic.svg     # Codex monochrome white icon
+│   ├── codex-black.svg        # Codex monochrome black icon
 │   ├── codex-color.svg        # Codex / OpenAI emerald green icon
 │   ├── claude-symbolic.svg    # Claude Code white icon (UXWing)
+│   ├── claude-black.svg       # Claude Code black icon (UXWing)
 │   ├── claude-color.svg       # Claude Code terracotta color icon
 │   ├── antigravity-symbolic.svg # Google Antigravity white icon
+│   ├── antigravity-black.svg  # Google Antigravity black icon
 │   └── antigravity-color.svg  # Google Antigravity official color icon
 ├── providers/                 # Pluggable telemetry provider architecture
 │   ├── baseProvider.js        # BaseProvider abstract class & UsageSummary contract
@@ -132,6 +136,7 @@ gnome-extensions prefs ai-code-usage-indicator@ivo.dev
   - `Percentage (%)`: e.g. `74%`
 - **Icon style**:
   - `Monochrome white (Symbolic)`: Clean white icons.
+  - `Monochrome black (Black)`: High-contrast black icons.
   - `Vibrant brand colors (Color)`: Full-color brand logos for Codex (green), Claude Code (orange), and Antigravity (blue).
 - **Top bar layout**:
   - `Show all enabled assistants`: Shows multiple icons side-by-side.

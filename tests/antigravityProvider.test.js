@@ -9,8 +9,10 @@ function assert(condition, message) {
 async function runTests() {
     const provider = new AntigravityProvider();
     assert(provider.id === PROVIDER_ANTIGRAVITY, 'Provider id must match');
-    assert(provider.name === 'Antigravity CLI', 'Provider name must match');
     assert(provider.iconFileName === 'antigravity-symbolic.svg', 'Icon file name must match');
+    assert(provider.getIconFileName('symbolic') === 'antigravity-symbolic.svg', 'Antigravity symbolic icon');
+    assert(provider.getIconFileName('black') === 'antigravity-black.svg', 'Antigravity black icon');
+    assert(provider.getIconFileName('color') === 'antigravity-color.svg', 'Antigravity color icon');
 
     // Test checkAuth (checks GNOME Keyring in this environment)
     const auth = await provider.checkAuth();

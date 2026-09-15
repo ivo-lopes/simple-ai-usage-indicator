@@ -2,7 +2,7 @@
   "uuid": "ai-code-usage-indicator@ivo.dev",
   "name": "AI Code Usage Indicator",
   "description": "Shows usage and quotas for OpenAI Codex CLI, Claude Code, and Antigravity CLI in the GNOME top bar.",
-  "version": 16,
+  "version": 17,
   "shell-version": [
     "45",
     "46",
