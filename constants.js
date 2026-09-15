@@ -1,14 +1,11 @@
 /**
  * @file constants.js
  * @description Centralized configuration constants, schema IDs, display modes, and API endpoints
- * for the AI Code Usage Indicator GNOME Shell extension.
+ * for the Simple AI Usage Indicator GNOME Shell extension.
  */
 
-/** Primary GSettings schema ID for the rebranded AI Code Usage Indicator */
-export const SETTINGS_SCHEMA_ID = 'org.gnome.shell.extensions.ai-code-usage-indicator';
-
-/** Legacy GSettings schema ID preserved for backward compatibility */
-export const LEGACY_SETTINGS_SCHEMA_ID = 'org.gnome.shell.extensions.codex-usage-indicator';
+/** Primary GSettings schema ID for Simple AI Usage Indicator */
+export const SETTINGS_SCHEMA_ID = 'org.gnome.shell.extensions.simple-ai-usage-indicator';
 
 /** Default interval between background usage refreshes (5 minutes) */
 export const DEFAULT_UPDATE_INTERVAL_SECONDS = 300;

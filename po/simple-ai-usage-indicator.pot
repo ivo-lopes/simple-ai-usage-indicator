@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: extension.js:88
-msgid "AI Code Usage Indicator"
+msgid "Simple AI Usage Indicator"
 msgstr ""
 
 #: extension.js:161

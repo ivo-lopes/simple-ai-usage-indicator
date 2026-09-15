@@ -1,6 +1,6 @@
 /**
  * @file prefs.js
- * @description Modern Libadwaita / GTK4 preferences dialog for AI Code Usage Indicator.
+ * @description Modern Libadwaita / GTK4 preferences dialog for Simple AI Usage Indicator.
  * Provides controls for update intervals, display formats, top bar layouts,
  * assistant enablement toggles, and real-time authentication test buttons.
  */
@@ -32,8 +32,8 @@ import {ProviderManager} from './providers/index.js';
 /**
  * Preferences page rendered inside Adw.PreferencesWindow.
  */
-const AiCodeUsagePreferencesPage = GObject.registerClass(
-class AiCodeUsagePreferencesPage extends Adw.PreferencesPage {
+const SimpleAiUsagePreferencesPage = GObject.registerClass(
+class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
     /**
      * @param {Gio.Settings} settings - Extension GSettings instance
      */
@@ -351,14 +351,14 @@ class AiCodeUsagePreferencesPage extends Adw.PreferencesPage {
 /**
  * Extension preferences entry point for GNOME Extensions app / gnome-extensions prefs.
  */
-export default class AiCodeUsagePreferences extends ExtensionPreferences {
+export default class SimpleAiUsagePreferences extends ExtensionPreferences {
     /**
      * Populates preferences window with the modern Libadwaita preferences page.
      *
      * @param {Adw.PreferencesWindow} window
      */
     fillPreferencesWindow(window) {
-        const page = new AiCodeUsagePreferencesPage(this.getSettings());
+        const page = new SimpleAiUsagePreferencesPage(this.getSettings());
         window.add(page);
     }
 }

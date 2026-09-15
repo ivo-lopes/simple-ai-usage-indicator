@@ -1,6 +1,6 @@
 /**
  * @file extension.js
- * @description Main entry point for AI Code Usage Indicator GNOME Shell Extension.
+ * @description Main entry point for Simple AI Usage Indicator GNOME Shell Extension.
  * Displays AI coding assistant status indicators in the GNOME panel status area
  * with support for multi-indicator layouts and detailed breakdown popup menus.
  */
@@ -77,15 +77,15 @@ class PopupScrollMenuSection extends PopupMenu.PopupMenuSection {
 /**
  * Panel menu button displaying AI assistant metrics in the top bar.
  */
-const AiCodeUsageIndicator = GObject.registerClass(
-class AiCodeUsageIndicator extends PanelMenu.Button {
+const SimpleAiUsageIndicator = GObject.registerClass(
+class SimpleAiUsageIndicator extends PanelMenu.Button {
     /**
      * Initializes the indicator button, registers settings listeners, and starts refresh loop.
      *
-     * @param {AiCodeUsageExtension} extension - Owning extension instance
+     * @param {SimpleAiUsageExtension} extension - Owning extension instance
      */
     _init(extension) {
-        super._init(0.5, _('AI Code Usage Indicator'));
+        super._init(0.5, _('Simple AI Usage Indicator'));
 
         this._extension = extension;
         this._settings = extension.getSettings();
@@ -176,10 +176,10 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
         this.menu.addAction(_('Settings'), () => {
             try {
                 this._extension.openPreferences().catch(err => {
-                    reportError(err, '[ai-code-usage-indicator] openPreferences failed');
+                    reportError(err, '[simple-ai-usage-indicator] openPreferences failed');
                 });
             } catch (err) {
-                reportError(err, '[ai-code-usage-indicator] openPreferences failed');
+                reportError(err, '[simple-ai-usage-indicator] openPreferences failed');
             }
         });
 
@@ -218,14 +218,14 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
         this._refreshTimestampLabel.text = _('Refreshing...');
         this._refreshInFlight = this._refreshAllUsage()
             .catch(error => {
-                reportError(error, '[ai-code-usage-indicator] refresh failed');
+                reportError(error, '[simple-ai-usage-indicator] refresh failed');
             })
             .finally(() => {
                 this._refreshInFlight = null;
                 try {
                     this._renderCurrentState();
                 } catch (error) {
-                    reportError(error, '[ai-code-usage-indicator] render failed');
+                    reportError(error, '[simple-ai-usage-indicator] render failed');
                 }
             });
 
@@ -477,12 +477,12 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
 /**
  * GNOME Shell Extension class lifecycle controller.
  */
-export default class AiCodeUsageExtension extends Extension {
+export default class SimpleAiUsageExtension extends Extension {
     /**
      * Instantiates the indicator button and attaches it to the GNOME Shell status area.
      */
     enable() {
-        this._indicator = new AiCodeUsageIndicator(this);
+        this._indicator = new SimpleAiUsageIndicator(this);
         Main.panel.addToStatusArea(this.uuid, this._indicator, 0, 'right');
     }
 

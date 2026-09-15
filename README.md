@@ -1,7 +1,7 @@
 # Simple AI Usage Indicator
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2050-blue.svg)](https://extensions.gnome.org)
-[![Version](https://img.shields.io/badge/version-18-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
+[![Version](https://img.shields.io/badge/version-19-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
 A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 45, 46, 47, 48, 49, and 50**) that monitors real-time quotas, rolling rate limits, token usage, and countdown timers for your AI coding assistants directly in the GNOME top bar and popup menu.
@@ -70,10 +70,10 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 │   ├── antigravity-black.svg  # Google Antigravity black icon
 │   └── antigravity-color.svg  # Google Antigravity official color icon
 ├── po/                        # GNU Gettext translation source files
-│   ├── ai-code-usage-indicator.pot # Template catalog
+│   ├── simple-ai-usage-indicator.pot # Template catalog
 │   └── pt_BR.po               # Brazilian Portuguese translation
 ├── locale/                    # Compiled binary message catalogs (.mo)
-│   └── pt_BR/LC_MESSAGES/     # Compiled ai-code-usage-indicator.mo
+│   └── pt_BR/LC_MESSAGES/     # Compiled simple-ai-usage-indicator.mo
 ├── providers/                 # Pluggable telemetry provider architecture
 │   ├── baseProvider.js        # BaseProvider abstract class & UsageSummary contract
 │   ├── codexProvider.js       # OpenAI Codex CLI authentication & WHAM API adapter
@@ -99,18 +99,18 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 
 1. Clone or copy the repository into your GNOME Shell extensions directory:
    ```bash
-   mkdir -p ~/.local/share/gnome-shell/extensions/ai-code-usage-indicator@ivo.dev
-   cp -r . ~/.local/share/gnome-shell/extensions/ai-code-usage-indicator@ivo.dev
+   mkdir -p ~/.local/share/gnome-shell/extensions/simple-ai-usage-indicator@ivo-lopes.github.com
+   cp -r . ~/.local/share/gnome-shell/extensions/simple-ai-usage-indicator@ivo-lopes.github.com
    ```
 
 2. Compile the GSettings schemas:
    ```bash
-   glib-compile-schemas ~/.local/share/gnome-shell/extensions/ai-code-usage-indicator@ivo.dev/schemas
+   glib-compile-schemas ~/.local/share/gnome-shell/extensions/simple-ai-usage-indicator@ivo-lopes.github.com/schemas
    ```
 
 3. Enable the extension:
    ```bash
-   gnome-extensions enable ai-code-usage-indicator@ivo.dev
+   gnome-extensions enable simple-ai-usage-indicator@ivo-lopes.github.com
    ```
 
 4. *(Wayland sessions)* If newly installed, log out and log back in, or restart your session so GNOME Shell discovers the new extension UUID.
@@ -122,12 +122,12 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 You can generate a distributable zip bundle:
 
 ```bash
-gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=po/ --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --force
+gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --force
 ```
 
 Then install the generated archive:
 ```bash
-gnome-extensions install --force ai-code-usage-indicator@ivo.dev.shell-extension.zip
+gnome-extensions install --force simple-ai-usage-indicator@ivo-lopes.github.com.shell-extension.zip
 ```
 
 ---
@@ -137,7 +137,7 @@ gnome-extensions install --force ai-code-usage-indicator@ivo.dev.shell-extension
 Open preferences from your terminal or through the GNOME Extensions application:
 
 ```bash
-gnome-extensions prefs ai-code-usage-indicator@ivo.dev
+gnome-extensions prefs simple-ai-usage-indicator@ivo-lopes.github.com
 ```
 
 ### Available Settings:
