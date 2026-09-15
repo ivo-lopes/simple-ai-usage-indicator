@@ -1,8 +1,8 @@
 {
-  "uuid": "codex-usage-indicator@stone.dev",
-  "name": "Codex Usage Indicator",
-  "description": "Shows Codex usage from the local Codex CLI auth in the GNOME top bar.",
-  "version": 14,
+  "uuid": "ai-code-usage-indicator@ivo.dev",
+  "name": "AI Code Usage Indicator",
+  "description": "Shows usage and quotas for OpenAI Codex CLI, Claude Code, and Antigravity CLI in the GNOME top bar.",
+  "version": 15,
   "shell-version": [
     "45",
     "46",
@@ -11,6 +11,6 @@
     "49",
     "50"
   ],
-  "settings-schema": "org.gnome.shell.extensions.codex-usage-indicator",
-  "url": "https://github.com/stonega/codex-usage-indicator"
+  "settings-schema": "org.gnome.shell.extensions.ai-code-usage-indicator",
+  "url": "https://github.com/ivo-lopes/codex-usage-indicator"
 }
