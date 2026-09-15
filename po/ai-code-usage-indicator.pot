@@ -1,0 +1,252 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-15 19:53-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: extension.js:88
+msgid "AI Code Usage Indicator"
+msgstr ""
+
+#: extension.js:161
+msgid "Refresh now"
+msgstr ""
+
+#: extension.js:176
+msgid "Settings"
+msgstr ""
+
+#: extension.js:218
+msgid "Refreshing..."
+msgstr ""
+
+#: extension.js:254
+msgid "Codex limit reset 🎉"
+msgstr ""
+
+#: extension.js:283
+msgid "AI: off"
+msgstr ""
+
+#: extension.js:336
+msgid "No AI assistants enabled. Go to Settings to enable them."
+msgstr ""
+
+#: extension.js:360
+msgid "Fetching usage data..."
+msgstr ""
+
+#: extension.js:377 extension.js:590
+msgid "5-hour window"
+msgstr ""
+
+#: extension.js:386 extension.js:592
+msgid "Weekly limit"
+msgstr ""
+
+#: extension.js:594
+msgid "Tokens today"
+msgstr ""
+
+#: extension.js:667
+msgid "Active Models & Quota"
+msgstr ""
+
+#: extension.js:679
+msgid "Model"
+msgstr ""
+
+#: extension.js:720
+msgid "rate limit resets available"
+msgstr ""
+
+#: extension.js:722
+msgid "CLI sessions stored locally"
+msgstr ""
+
+#: extension.js:724
+msgid "total Claude Code sessions"
+msgstr ""
+
+#: extension.js:806 extension.js:813
+msgid "left"
+msgstr ""
+
+#: extension.js:813 extension.js:855 extension.js:858 extension.js:890
+msgid "used"
+msgstr ""
+
+#: extension.js:823
+msgid "OK"
+msgstr ""
+
+#: extension.js:834
+msgid "never"
+msgstr ""
+
+#: extension.js:861 extension.js:864 extension.js:867
+msgid "remaining"
+msgstr ""
+
+#: extension.js:870 prefs.js:241
+msgid "Available"
+msgstr ""
+
+#: extension.js:887
+msgid "total"
+msgstr ""
+
+#: extension.js:905 extension.js:912
+msgid "Resets"
+msgstr ""
+
+#: extension.js:916
+msgid "Resets in"
+msgstr ""
+
+#: prefs.js:42
+msgid "General"
+msgstr ""
+
+#: prefs.js:60
+msgid "Display & Refresh"
+msgstr ""
+
+#: prefs.js:61
+msgid "Configure refresh rates and appearance in the top panel."
+msgstr ""
+
+#: prefs.js:73
+msgid "Update interval"
+msgstr ""
+
+#: prefs.js:74
+msgid "Seconds between automatic usage refreshes"
+msgstr ""
+
+#: prefs.js:90
+msgid "Display mode"
+msgstr ""
+
+#: prefs.js:91
+msgid "Choose whether to show remaining quota, consumed quota, or percentage."
+msgstr ""
+
+#: prefs.js:93
+msgid "Remaining quota (left)"
+msgstr ""
+
+#: prefs.js:94
+msgid "Consumed quota (used)"
+msgstr ""
+
+#: prefs.js:95
+msgid "Percentage (%)"
+msgstr ""
+
+#: prefs.js:111
+msgid "Top bar layout"
+msgstr ""
+
+#: prefs.js:112
+msgid "Show all enabled assistants side-by-side or cycle with a click."
+msgstr ""
+
+#: prefs.js:114
+msgid "Show all enabled assistants"
+msgstr ""
+
+#: prefs.js:115
+msgid "Cycle one at a time"
+msgstr ""
+
+#: prefs.js:140
+msgid "Icon style"
+msgstr ""
+
+#: prefs.js:141
+msgid ""
+"Choose monochrome white, monochrome black, or vibrant brand colors in the "
+"panel and menu."
+msgstr ""
+
+#: prefs.js:143
+msgid "Monochrome white (Symbolic)"
+msgstr ""
+
+#: prefs.js:144
+msgid "Monochrome black (Black)"
+msgstr ""
+
+#: prefs.js:145
+msgid "Vibrant brand colors (Color)"
+msgstr ""
+
+#: prefs.js:165
+msgid "Coding Assistants"
+msgstr ""
+
+#: prefs.js:166
+msgid "Manage monitored assistants and test their local authentication."
+msgstr ""
+
+#: prefs.js:188
+msgid "Checking auth..."
+msgstr ""
+
+#: prefs.js:201
+msgid "Local authentication"
+msgstr ""
+
+#: prefs.js:202
+msgid "Checking status..."
+msgstr ""
+
+#: prefs.js:205
+msgid "Test connection"
+msgstr ""
+
+#: prefs.js:216
+msgid "Custom Claude Token (optional)"
+msgstr ""
+
+#: prefs.js:241
+msgid "Not found"
+msgstr ""
+
+#: prefs.js:244
+msgid "Token expired"
+msgstr ""
+
+#: prefs.js:244 prefs.js:279
+msgid "Connected"
+msgstr ""
+
+#: prefs.js:245
+msgid "Not configured"
+msgstr ""
+
+#: prefs.js:248 prefs.js:282
+msgid "Error"
+msgstr ""
+
+#: prefs.js:261
+msgid "Testing connection..."
+msgstr ""
+
+#: prefs.js:266
+msgid "Failed"
+msgstr ""

@@ -44,6 +44,37 @@ const PANEL_ICON_SIZE = 16;
 const MENU_TITLE_STYLE = 'color: #fff; font-weight: 700;';
 
 /**
+ * A scrollable popup menu section that houses multiple provider usage summaries
+ * without exceeding screen height or pushing bottom controls off the display.
+ */
+class PopupScrollMenuSection extends PopupMenu.PopupMenuSection {
+    constructor() {
+        super();
+
+        this._scrollView = new St.ScrollView({
+            style_class: 'vfade',
+            overlay_scrollbars: true,
+            hscrollbar_policy: St.PolicyType.NEVER,
+            vscrollbar_policy: St.PolicyType.AUTOMATIC,
+            enable_mouse_scrolling: true,
+        });
+
+        this._scrollView.clip_to_allocation = true;
+        this._scrollView.set_child(this.box);
+        this.actor = this._scrollView;
+        this.actor._delegate = this;
+        this.setMaxHeight(500);
+    }
+
+    setMaxHeight(maxHeight) {
+        if (maxHeight && maxHeight > 0)
+            this._scrollView.style = `max-height: ${maxHeight}px;`;
+        else
+            this._scrollView.style = '';
+    }
+}
+
+/**
  * Panel menu button displaying AI assistant metrics in the top bar.
  */
 const AiCodeUsageIndicator = GObject.registerClass(
@@ -120,7 +151,7 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
     }
 
     _buildMenu() {
-        this._usageSection = new PopupMenu.PopupMenuSection();
+        this._usageSection = new PopupScrollMenuSection();
         this.menu.addMenuItem(this._usageSection);
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -151,6 +182,33 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
                 reportError(err, '[ai-code-usage-indicator] openPreferences failed');
             }
         });
+
+        this.menu.connectObject(
+            'open-state-changed',
+            (menu, open) => {
+                if (open)
+                    this._updateScrollMaxHeight();
+            },
+            this,
+        );
+    }
+
+    /**
+     * Dynamically adjusts the max-height of the scrollable section to fit within the work area.
+     * @private
+     */
+    _updateScrollMaxHeight() {
+        try {
+            const monitorIndex = Main.layoutManager.primaryIndex ?? 0;
+            const workArea = Main.layoutManager.getWorkAreaForMonitor(monitorIndex);
+            const scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
+            // Reserve space for top panel (~40px), margins (~20px), and bottom fixed items (~140px)
+            const availableHeight = Math.round(workArea.height / scaleFactor) - 200;
+            const maxHeight = Math.max(260, availableHeight);
+            this._usageSection.setMaxHeight(maxHeight);
+        } catch {
+            this._usageSection.setMaxHeight(500);
+        }
     }
 
     async refresh() {
@@ -316,7 +374,7 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
         // Primary window (e.g. 5-hour window)
         if (summary.primaryWindow) {
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
-                summary.primaryWindow.label || _('5-hour window'),
+                formatWindowLabel(summary.primaryWindow.label) || _('5-hour window'),
                 summary.primaryWindow,
                 displayMode,
             ));
@@ -325,7 +383,7 @@ class AiCodeUsageIndicator extends PanelMenu.Button {
         // Secondary window (e.g. Weekly window)
         if (summary.weekWindow) {
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
-                summary.weekWindow.label || _('Weekly limit'),
+                formatWindowLabel(summary.weekWindow.label) || _('Weekly limit'),
                 summary.weekWindow,
                 displayMode,
             ));
@@ -517,6 +575,24 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     row.add_child(titleBox);
     menuItem.add_child(row);
     return menuItem;
+}
+
+/**
+ * Translates standard window labels to the active system locale.
+ *
+ * @param {string|null} [label] - Window label identifier
+ * @returns {string} Translated window label
+ */
+function formatWindowLabel(label) {
+    if (!label)
+        return '';
+    if (label === '5-hour window')
+        return _('5-hour window');
+    if (label === 'Weekly limit')
+        return _('Weekly limit');
+    if (label === 'Tokens today')
+        return _('Tokens today');
+    return label;
 }
 
 /**
@@ -727,7 +803,7 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
         } else if (displayMode === DISPLAY_MODE_PERCENT) {
             return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}%`;
         } else {
-            return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}% left`;
+            return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}% ${_('left')}`;
         }
     }
 
@@ -776,19 +852,19 @@ function formatWindowValue(window, displayMode) {
 
     if (displayMode === DISPLAY_MODE_USED) {
         if (window.used !== null && window.used !== undefined)
-            return `${formatCompact(window.used)} used`;
+            return `${formatCompact(window.used)} ${_('used')}`;
 
         if (window.usedPercent !== null && window.usedPercent !== undefined)
-            return `${Math.round(window.usedPercent * 100)}% used`;
+            return `${Math.round(window.usedPercent * 100)}% ${_('used')}`;
     } else {
         if (window.left !== null && window.left !== undefined)
-            return `${formatCompact(window.left)} remaining`;
+            return `${formatCompact(window.left)} ${_('remaining')}`;
 
         if (window.leftPercent !== null && window.leftPercent !== undefined)
-            return `${Math.round(window.leftPercent * 100)}% remaining`;
+            return `${Math.round(window.leftPercent * 100)}% ${_('remaining')}`;
 
         if (window.usedPercent !== null && window.usedPercent !== undefined)
-            return `${Math.round((1 - window.usedPercent) * 100)}% remaining`;
+            return `${Math.round((1 - window.usedPercent) * 100)}% ${_('remaining')}`;
     }
 
     return _('Available');
@@ -808,10 +884,10 @@ function formatWindowSubtitle(window) {
         parts.push(resetText);
 
     if (window.limit !== null && window.limit !== undefined)
-        parts.push(`${formatNumber(window.limit)} total`);
+        parts.push(`${formatNumber(window.limit)} ${_('total')}`);
 
     if (window.used !== null && window.used !== undefined)
-        parts.push(`${formatNumber(window.used)} used`);
+        parts.push(`${formatNumber(window.used)} ${_('used')}`);
 
     return parts.join('  •  ');
 }
@@ -826,18 +902,18 @@ function formatWindowReset(window) {
     if (typeof window.resetsAt === 'string') {
         try {
             const date = new Date(window.resetsAt);
-            return `Resets ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
+            return `${_('Resets')} ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
         } catch {}
     }
 
     if (typeof window.resetAt === 'number' && Number.isFinite(window.resetAt)) {
         const resetDateTime = GLib.DateTime.new_from_unix_local(Math.round(window.resetAt));
         if (resetDateTime)
-            return `Resets ${resetDateTime.format('%H:%M')}`;
+            return `${_('Resets')} ${resetDateTime.format('%H:%M')}`;
     }
 
     if (typeof window.resetAfterSeconds === 'number' && Number.isFinite(window.resetAfterSeconds))
-        return `Resets in ${formatDuration(window.resetAfterSeconds)}`;
+        return `${_('Resets in')} ${formatDuration(window.resetAfterSeconds)}`;
 
     return '';
 }
