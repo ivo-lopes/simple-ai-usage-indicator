@@ -1,7 +1,7 @@
 # Simple AI Usage Indicator
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2050-blue.svg)](https://extensions.gnome.org)
-[![Version](https://img.shields.io/badge/version-19-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
+[![Version](https://img.shields.io/badge/version-20-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
 A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 45, 46, 47, 48, 49, and 50**) that monitors real-time quotas, rolling rate limits, token usage, and countdown timers for your AI coding assistants directly in the GNOME top bar and popup menu.
@@ -26,6 +26,7 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
   - **Monochrome White (Symbolic)**: Classic GNOME Shell aesthetic that blends seamlessly with dark shell themes.
   - **Monochrome Black (Black)**: Sleek high-contrast dark style, ideal for light panel themes or customized setups.
   - **Vibrant Brand Colors (Color)**: Eye-catching official brand colors (OpenAI emerald green `#10A37F`, Claude terracotta orange `#D97757`, and Google Antigravity blue).
+  - **Perfect Visual Conformity**: All color variations adhere to exact dimensions, bounding boxes, and panel spacing taking the symbolic white icons as reference.
 - **Internationalization (i18n)**:
   - Native Brazilian Portuguese (`pt_BR` / `pt`) translation support via GNU Gettext.
   - Automatically adheres to your desktop language.
@@ -56,6 +57,8 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 .
 ├── extension.js               # Top bar indicators, layout controller, and popup menu
 ├── prefs.js                   # Libadwaita preferences page (GTK4 / Adw)
+├── stylesheet.css             # Panel styling ensuring icon spacing conformity
+├── package.sh                 # EGO-compliant packaging script (enforcing EGO-P-006)
 ├── constants.js               # Endpoints, schema identifiers, and display modes
 ├── limitReset.js              # Early quota reset detection and desktop notifications
 ├── resetCreditExpiry.js       # Reset credit expiration calculator
@@ -80,7 +83,7 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 │   ├── claudeProvider.js      # Claude Code OAuth & local token statistics adapter
 │   ├── antigravityProvider.js # Antigravity Keyring & CLI quota parser adapter
 │   └── index.js               # ProviderManager orchestration & parallel polling
-├── schemas/                   # GSettings schema definitions
+├── schemas/                   # GSettings schema definitions (raw XML only)
 └── tests/                     # Automated unit and integration test suite
 ```
 
@@ -95,7 +98,7 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 
 ## Installation
 
-### Method 1: Using gnome-extensions (Recommended)
+### Method 1: Local Development Installation
 
 1. Clone or copy the repository into your GNOME Shell extensions directory:
    ```bash
@@ -103,7 +106,7 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
    cp -r . ~/.local/share/gnome-shell/extensions/simple-ai-usage-indicator@ivo-lopes.github.com
    ```
 
-2. Compile the GSettings schemas:
+2. Compile the GSettings schemas locally:
    ```bash
    glib-compile-schemas ~/.local/share/gnome-shell/extensions/simple-ai-usage-indicator@ivo-lopes.github.com/schemas
    ```
@@ -117,12 +120,25 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
 
 ---
 
-### Method 2: Pack as Extension Zip
+### Method 2: Pack as Extension Zip (EGO-P-006 Compliant)
 
-You can generate a distributable zip bundle:
+To generate a clean, official zip bundle for [GNOME Extensions (EGO)](https://extensions.gnome.org), run:
 
 ```bash
-gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --force
+./package.sh
+```
+
+This script:
+- Automatically purges any precompiled `schemas/gschemas.compiled` (strictly complying with **EGO-P-006** rule: *Compiled GSettings schemas should not be shipped for 45+ packages*).
+- Validates the test suite.
+- Re-compiles translation message catalogs (`.mo`).
+- Bundles all assets and verifies the archive.
+
+Or manually using `gnome-extensions pack`:
+
+```bash
+rm -f schemas/gschemas.compiled
+gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --force
 ```
 
 Then install the generated archive:

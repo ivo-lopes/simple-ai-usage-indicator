@@ -313,6 +313,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                 gicon: Gio.icon_new_for_string(iconPath),
                 icon_size: PANEL_ICON_SIZE,
                 style_class: isCustomStyle ? 'panel-icon' : 'system-status-icon',
+                style: isCustomStyle ? 'margin: 0 4px; padding: 0 6px;' : '',
                 y_align: Clutter.ActorAlign.CENTER,
             });
 

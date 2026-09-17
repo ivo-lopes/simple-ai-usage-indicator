@@ -1,0 +1,11 @@
+/*
+ * Stylesheet for Simple AI Usage Indicator
+ * Ensures full visual conformity between monochrome white, monochrome black,
+ * and vibrant color icon variations in the GNOME top bar.
+ */
+
+#panel .panel-button .panel-icon {
+    icon-size: 1.091em;
+    padding: 0 6px;
+    margin: 0 4px;
+}
