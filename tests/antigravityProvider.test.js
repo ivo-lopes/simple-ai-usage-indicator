@@ -81,13 +81,22 @@ async function runAsyncTests() {
     try {
         equal(provider.getIconFileName('black'), 'antigravity-black.svg', 'icon contract');
         // Every I/O boundary is stubbed: no login, Keyring, network or CLI required.
-        provider._lookupKeyringSecret = async () => null;
+        provider._lookupKeyringSecret = async () => { throw new Error('Quota refresh must not read Keyring'); };
         provider._getBrainStats = async () => ({conversationCount: 7, sessionCount: 7});
         let calls = [];
         provider._runAgy = async structured => { calls.push(structured); return json; };
         const first = await provider.fetchUsage();
         equal(first.windows.length, 4, 'normalized summary retains all buckets');
         equal(first.percent, 0.5, 'summary fraction');
+        equal(first.account, null, 'quota needs no remotely resolved identity');
+        equal(provider._fetchUserInfo, undefined, 'no auxiliary HTTP method');
+        for (const credential of [null, {token: {access_token: 'synthetic', expiry: '2099-01-01T00:00:00Z'}}]) {
+            let reads = 0;
+            provider._lookupKeyringSecret = async () => { reads++; return credential; };
+            equal((await provider.checkAuth()).available, credential !== null, 'optional auth status with/without local token');
+            await provider.fetchUsage();
+            equal(reads, 1, 'quota refresh never reads credential, including when token exists');
+        }
         const second = await provider.fetchUsage();
         equal(calls.length, 1, 'automatic cache avoids redundant process');
         equal(second.cached, true, 'cached observation identified');

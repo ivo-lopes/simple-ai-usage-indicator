@@ -128,13 +128,13 @@ async function run() {
         assert(await task, 'Pending credential read is discarded after destroy');
         assert(http === 0 && provider._cancellable.is_cancelled(), 'No post-destroy HTTP; cancellable cancelled');
     }
-    const keyring = deferred();
+    const quota = deferred();
     const agy = new AntigravityProvider({agyPath: '/nonexistent/saui-tests'});
-    agy._lookupKeyringSecret = () => keyring.promise;
+    agy._fetchAgyQuota = () => quota.promise;
     const result = agy.fetchUsage().then(() => false, () => true);
     agy.destroy();
-    keyring.resolve(null);
-    assert(await result, 'Pending Keyring cannot start CLI/fallback after destroy');
+    quota.resolve({primary: {}, windows: []});
+    assert(await result, 'Pending quota cannot update the summary after destroy');
     assert(agy._quotaProcess === null && agy._cancellable.is_cancelled(), 'Antigravity resources cancelled');
 
     const managerWork = deferred();

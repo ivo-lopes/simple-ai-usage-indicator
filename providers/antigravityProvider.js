@@ -12,19 +12,16 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Secret from 'gi://Secret';
-import Soup from 'gi://Soup';
 
 import {parseAgyUsage} from './agyUsage.js';
 import {BaseProvider, createEmptySummary} from './baseProvider.js';
 import {
     ANTIGRAVITY_KEYRING_SERVICE,
     ANTIGRAVITY_KEYRING_USERNAME,
-    GOOGLE_USERINFO_ENDPOINT,
     PROVIDER_ANTIGRAVITY,
 } from '../constants.js';
 
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async', 'communicate_utf8_finish');
-Gio._promisify(Soup.Session.prototype, 'send_and_read_async', 'send_and_read_finish');
 
 /**
  * Adapter for monitoring Google Antigravity CLI quota, limits, and active models.
@@ -33,7 +30,7 @@ Gio._promisify(Soup.Session.prototype, 'send_and_read_async', 'send_and_read_fin
  */
 export class AntigravityProvider extends BaseProvider {
     /**
-     * Initializes the AntigravityProvider with GNOME Keyring schema and HTTP session.
+     * Initializes CLI quota tracking and the optional Preferences auth check.
      */
     constructor({agyPath = null} = {}) {
         super({
@@ -44,7 +41,6 @@ export class AntigravityProvider extends BaseProvider {
             blackIconFileName: 'antigravity-black.svg',
         });
         this._cancellable = new Gio.Cancellable();
-        this._session = new Soup.Session({timeout: 10});
         this._schema = new Secret.Schema(
             'org.freedesktop.Secret.Generic',
             Secret.SchemaFlags.NONE,
@@ -63,7 +59,7 @@ export class AntigravityProvider extends BaseProvider {
     }
 
     /**
-     * Frees HTTP sessions and resources.
+     * Cancels local I/O and terminates the active CLI query.
      */
     destroy() {
         this._destroyed = true;
@@ -74,7 +70,6 @@ export class AntigravityProvider extends BaseProvider {
             this._quotaTimeout = null;
         }
         this._cachedQuota = null;
-        this._session.abort();
     }
 
 
@@ -126,18 +121,12 @@ export class AntigravityProvider extends BaseProvider {
 
     /**
      * Fetches current usage and real-time remaining quota for Antigravity CLI.
-     * Resolves Google user profile from OAuth userinfo endpoint, queries `agy --print /usage`
+     * Queries `agy --print /usage` without reading or transmitting a bearer token
      * for exact model quotas and reset dates, and falls back to local session counts if offline.
      *
      * @returns {Promise<import('./baseProvider.js').UsageSummary>}
      */
     async fetchUsage({force = false} = {}) {
-        let secretData = null;
-        try {
-            secretData = await this._lookupKeyringSecret();
-        } catch {
-            // CLI may authenticate through another supported credential store.
-        }
         let quotaData;
         try {
             quotaData = await this._fetchAgyQuota({force});
@@ -156,20 +145,13 @@ export class AntigravityProvider extends BaseProvider {
             summary.quotaUnavailable = true;
             return summary;
         }
-        let userInfo = null;
-        if (secretData?.token?.access_token) {
-            try {
-                userInfo = await this._fetchUserInfo(secretData.token.access_token);
-            } catch {}
-        }
         if (this._destroyed)
             throw new Error('Provider destroyed');
         const primary = quotaData.primary;
         return {
             ...createEmptySummary({
                 providerId: this.id, providerName: this.name, iconFileName: this.iconFileName,
-                account: userInfo?.email || userInfo?.name || 'Google Account',
-                planType: secretData?.auth_method === 'consumer' ? 'Google AI Pro / Ultra' : 'Google Antigravity',
+                planType: 'Antigravity CLI',
             }),
             percent: primary.usedPercent,
             leftPercent: primary.leftPercent,
@@ -291,37 +273,6 @@ export class AntigravityProvider extends BaseProvider {
                 },
             );
         });
-    }
-
-    /**
-     * Queries Google OAuth userinfo endpoint to verify token and obtain user profile.
-     *
-     * @private
-     * @param {string} accessToken - Bearer token
-     * @returns {Promise<Object>} Google user profile JSON
-     */
-    async _fetchUserInfo(accessToken) {
-        if (this._destroyed)
-            throw new Error('Provider destroyed');
-        const message = Soup.Message.new('GET', GOOGLE_USERINFO_ENDPOINT);
-        message.get_request_headers().append('Authorization', `Bearer ${accessToken}`);
-        message.get_request_headers().append('Accept', 'application/json');
-
-        const bytes = await this._session.send_and_read_async(
-            message,
-            GLib.PRIORITY_DEFAULT,
-            this._cancellable,
-        );
-
-        if (this._destroyed)
-            throw new Error('Provider destroyed');
-        const status = message.status_code;
-        if (status < 200 || status >= 300) {
-            throw new Error(`Google UserInfo returned HTTP ${status}`);
-        }
-
-        const text = new TextDecoder().decode(bytes.get_data());
-        return JSON.parse(text);
     }
 
     /**

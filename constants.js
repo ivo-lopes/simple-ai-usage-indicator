@@ -83,10 +83,7 @@ export const CLAUDE_USER_AGENT = 'claude-code/2.1.251';
 /** Required Anthropic beta header for accessing OAuth usage telemetry */
 export const CLAUDE_BETA_HEADER = 'oauth-2025-04-20';
 
-// --- Antigravity CLI Endpoints & Secret Storage ---
-/** Google OAuth userinfo endpoint to verify token validity and resolve user profile */
-export const GOOGLE_USERINFO_ENDPOINT = 'https://www.googleapis.com/oauth2/v2/userinfo';
-
+// --- Antigravity CLI Secret Storage ---
 /** FreeDesktop Secret Service / GNOME Keyring service label used by Antigravity CLI */
 export const ANTIGRAVITY_KEYRING_SERVICE = 'gemini';
 
