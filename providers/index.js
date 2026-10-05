@@ -41,7 +41,7 @@ export class ProviderManager {
      */
     _initProviders() {
         this._providers.set(PROVIDER_CODEX, new CodexProvider());
-        this._providers.set(PROVIDER_CLAUDE, new ClaudeProvider({settings: this._settings}));
+        this._providers.set(PROVIDER_CLAUDE, new ClaudeProvider());
         this._providers.set(PROVIDER_ANTIGRAVITY, new AntigravityProvider());
     }
 

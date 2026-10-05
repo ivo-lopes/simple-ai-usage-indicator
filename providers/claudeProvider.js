@@ -12,7 +12,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
-import {BaseProvider, createEmptySummary} from './baseProvider.js';
+import {BaseProvider} from './baseProvider.js';
 import {
     CLAUDE_API_BASE_URL,
     CLAUDE_BETA_HEADER,
@@ -32,9 +32,9 @@ Gio._promisify(Soup.Session.prototype, 'send_and_read_async', 'send_and_read_fin
 export class ClaudeProvider extends BaseProvider {
     /**
      * @param {Object} [options]
-     * @param {Gio.Settings|null} [options.settings=null] - Extension GSettings instance for token overrides
+     * @param {Function|null} [options.readJsonFile=null] - Optional filesystem dependency for tests
      */
-    constructor({settings = null} = {}) {
+    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir()} = {}) {
         super({
             id: PROVIDER_CLAUDE,
             name: 'Claude Code',
@@ -42,7 +42,9 @@ export class ClaudeProvider extends BaseProvider {
             colorIconFileName: 'claude-color.svg',
             blackIconFileName: 'claude-black.svg',
         });
-        this._settings = settings;
+        this._readFile = readJsonFile;
+        this._getenv = getenv;
+        this._homeDir = homeDir;
         this._session = new Soup.Session({timeout: 20});
     }
 
@@ -58,7 +60,7 @@ export class ClaudeProvider extends BaseProvider {
      * @returns {string}
      */
     getCredentialsPath() {
-        return GLib.build_filenamev([GLib.get_home_dir(), '.claude', '.credentials.json']);
+        return GLib.build_filenamev([this._homeDir, '.claude', '.credentials.json']);
     }
 
     /**
@@ -66,7 +68,7 @@ export class ClaudeProvider extends BaseProvider {
      * @returns {string}
      */
     getConfigPath() {
-        return GLib.build_filenamev([GLib.get_home_dir(), '.claude.json']);
+        return GLib.build_filenamev([this._homeDir, '.claude.json']);
     }
 
     /**
@@ -74,13 +76,13 @@ export class ClaudeProvider extends BaseProvider {
      * @returns {string}
      */
     getStatsCachePath() {
-        return GLib.build_filenamev([GLib.get_home_dir(), '.claude', 'stats-cache.json']);
+        return GLib.build_filenamev([this._homeDir, '.claude', 'stats-cache.json']);
     }
 
 
     /**
      * Checks local Claude credentials availability.
-     * Evaluates custom token settings, environment variables, ~/.claude/.credentials.json,
+     * Evaluates OAuth credentials and environment variables, ~/.claude/.credentials.json,
      * and ~/.claude.json.
      *
      * @returns {Promise<{available: boolean, details: string, path: string, account?: string}>}
@@ -89,18 +91,12 @@ export class ClaudeProvider extends BaseProvider {
         const credPath = this.getCredentialsPath();
         const configPath = this.getConfigPath();
 
-        const customToken = this._getCustomToken();
-        if (customToken) {
-            return {
-                available: true,
-                details: 'Using custom token from settings/env',
-                path: 'custom',
-            };
-        }
-
         const credPayload = await this._readJsonFile(credPath);
         const oauth = credPayload?.claudeAiOauth;
-        const accessToken = oauth?.accessToken?.trim();
+        const accessToken = this._getOAuthToken(credPayload);
+        if (accessToken && !oauth?.accessToken) {
+            return {available: true, details: 'Using OAuth token from environment', path: 'env:CLAUDE_CODE_OAUTH_TOKEN'};
+        }
 
         if (accessToken) {
             const exp = oauth?.expiresAt ? new Date(oauth.expiresAt).toLocaleTimeString() : 'Unknown';
@@ -118,8 +114,8 @@ export class ClaudeProvider extends BaseProvider {
         if (oauthAccount?.emailAddress) {
             const plan = oauthAccount.seatTier || oauthAccount.organizationType || 'Claude User';
             return {
-                available: true,
-                details: `Connected as ${oauthAccount.emailAddress} (${plan})`,
+                available: false,
+                details: `Account profile found (${plan}), but no OAuth credential. Run claude login.`,
                 path: configPath,
                 account: oauthAccount.emailAddress,
             };
@@ -146,7 +142,7 @@ export class ClaudeProvider extends BaseProvider {
 
         const oauth = credPayload?.claudeAiOauth;
         const oauthAccount = configPayload?.oauthAccount;
-        const token = this._getCustomToken() || oauth?.accessToken?.trim();
+        const token = this._getOAuthToken(credPayload);
 
         const account = oauthAccount?.emailAddress || oauth?.subscriptionType || null;
         const planType = formatClaudePlan(oauthAccount?.seatTier || oauth?.subscriptionType);
@@ -166,22 +162,13 @@ export class ClaudeProvider extends BaseProvider {
         return this._normalizeLocalSummary(statsPayload, account, planType, null);
     }
 
-    /**
-     * Retrieves custom token from extension GSettings or environment variables.
-     *
-     * @private
-     * @returns {string|null}
-     */
-    _getCustomToken() {
-        const settingToken = this._settings?.get_string?.('claude-token')?.trim();
-        if (settingToken)
-            return settingToken;
-
-        const envToken = GLib.getenv('CLAUDE_CODE_OAUTH_TOKEN') || GLib.getenv('ANTHROPIC_API_KEY');
-        if (envToken && envToken.trim())
-            return envToken.trim();
-
-        return null;
+    /** Only subscription OAuth credentials can query this quota endpoint. */
+    _getOAuthToken(payload) {
+        const stored = payload?.claudeAiOauth?.accessToken;
+        if (typeof stored === 'string' && stored.trim())
+            return stored.trim();
+        const env = this._getenv('CLAUDE_CODE_OAUTH_TOKEN');
+        return typeof env === 'string' && env.trim() ? env.trim() : null;
     }
 
     /**
@@ -210,10 +197,14 @@ export class ClaudeProvider extends BaseProvider {
         const text = new TextDecoder().decode(bytes.get_data());
 
         if (status < 200 || status >= 300) {
-            throw new Error(`Claude API returned HTTP ${status}: ${text.substring(0, 100)}`);
+            throw new Error(`Claude API returned HTTP ${status}`);
         }
 
-        return JSON.parse(text);
+        try {
+            return JSON.parse(text);
+        } catch {
+            throw new Error('Claude API returned invalid JSON');
+        }
     }
 
     /**
@@ -332,7 +323,7 @@ export class ClaudeProvider extends BaseProvider {
             } : null,
             raw: statsPayload,
             lastUpdated: new Date(),
-            error: apiError ? `Remote API: ${apiError.message}` : null,
+            error: apiError ? 'Claude quota API unavailable; showing local statistics.' : null,
         };
     }
 
@@ -344,6 +335,8 @@ export class ClaudeProvider extends BaseProvider {
      * @returns {Promise<Object|null>} Parsed JSON or null if missing/invalid
      */
     async _readJsonFile(path) {
+        if (this._readFile)
+            return this._readFile(path);
         try {
             const [contents] = await Gio.File.new_for_path(path).load_contents_async(null);
             return JSON.parse(new TextDecoder().decode(contents));

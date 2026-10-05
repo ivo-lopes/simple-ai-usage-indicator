@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+
 import {ClaudeProvider, formatTokenCount} from '../providers/claudeProvider.js';
 import {PROVIDER_CLAUDE} from '../constants.js';
 
@@ -9,7 +12,15 @@ function assert(condition, message) {
 }
 
 async function runTests() {
-    const provider = new ClaudeProvider();
+    let credentials = null;
+    let config = null;
+    let env = null;
+    const provider = new ClaudeProvider({
+        homeDir: '/nonexistent/saui-unit',
+        getenv: name => name === 'CLAUDE_CODE_OAUTH_TOKEN' ? env : null,
+        readJsonFile: async path => path.endsWith('.credentials.json') ? credentials :
+            (path.endsWith('.claude.json') ? config : null),
+    });
     assert(provider.id === PROVIDER_CLAUDE, 'Provider id must match');
     assert(provider.iconFileName === 'claude-symbolic.svg', 'Icon must match');
     assert(provider.getIconFileName('symbolic') === 'claude-symbolic.svg', 'Claude symbolic icon');
@@ -79,11 +90,48 @@ async function runTests() {
     assert(localSummary.primaryWindow.label === 'Tokens today', 'Local primary label');
     assert(localSummary.primaryWindow.usedFormatted === '9.0k', 'Local formatted tokens');
 
+    assert(!(await provider.checkAuth()).available, 'Absent official/env OAuth is unavailable');
+    credentials = {claudeAiOauth: {accessToken: 'synthetic-local-oauth', subscriptionType: 'pro'}};
+    env = 'synthetic-env-oauth';
+    assert((await provider.checkAuth()).available, 'Official OAuth found');
+    assert(provider._getOAuthToken(credentials) === 'synthetic-local-oauth', 'Official OAuth has priority');
+    let apiCalls = 0;
+    provider._fetchUsageApi = async token => {
+        apiCalls++;
+        assert(token === 'synthetic-local-oauth', 'Correct credential source');
+        return mockApiData;
+    };
+    await provider.fetchUsage();
+    assert(apiCalls === 1, 'Official credential queries quota');
+    credentials = null;
+    assert((await provider.checkAuth()).path === 'env:CLAUDE_CODE_OAUTH_TOKEN', 'Environment OAuth fallback');
+    env = null;
+    config = {oauthAccount: {emailAddress: 'fixture@example.invalid'}};
+    assert(!(await provider.checkAuth()).available, 'Account metadata alone is not an OAuth credential');
+    await provider.fetchUsage();
+    assert(apiCalls === 1, 'No OAuth means no API request');
+    env = 'synthetic-env-oauth';
+    provider._fetchUsageApi = async () => { throw new Error('synthetic-env-oauth echoed server body'); };
+    const safe = await provider.fetchUsage();
+    assert(!safe.error.includes(env), 'Remote errors cannot expose credential');
+    const keyOnly = new ClaudeProvider({
+        readJsonFile: async () => null,
+        getenv: name => name === 'ANTHROPIC_API_KEY' ? 'synthetic-api-key' : null,
+    });
+    assert(!(await keyOnly.checkAuth()).available, 'API key is not an OAuth quota token');
+    keyOnly.destroy();
+    const root = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent();
+    const read = name => new TextDecoder().decode(root.get_child(name).load_contents(null)[1]);
+    assert(!read('schemas/org.gnome.shell.extensions.simple-ai-usage-indicator.gschema.xml').includes('claude-token'), 'Schema stores no Claude secret');
+    assert(!read('prefs.js').includes('PasswordEntryRow'), 'Preferences offers no persisted token');
+    assert(!read('providers/claudeProvider.js').includes('get_string'), 'Provider does not read GSettings');
     provider.destroy();
-    log('claudeProvider tests passed');
+    print('claudeProvider tests passed (offline)');
 }
 
-runTests().catch(err => {
-    log('claudeProvider test failed: ' + (err.stack || err));
-    imports.system.exit(1);
-});
+const loop = new GLib.MainLoop(null, false);
+let testError = null;
+runTests().catch(error => { testError = error; }).finally(() => loop.quit());
+loop.run();
+if (testError)
+    throw testError;

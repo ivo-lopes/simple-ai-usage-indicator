@@ -214,17 +214,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         authRow.add_suffix(checkButton);
         expander.add_row(authRow);
 
-        if (provider.id === PROVIDER_CLAUDE) {
-            const tokenRow = new Adw.PasswordEntryRow({
-                title: _('Custom Claude Token (optional)'),
-            });
-            tokenRow.text = this._settings.get_string('claude-token') || '';
-            tokenRow.connect('changed', entry => {
-                this._settings.set_string('claude-token', entry.text.trim());
-            });
-            expander.add_row(tokenRow);
-        }
-
         void this._checkProviderAuth(provider, authRow, expander);
 
         return expander;

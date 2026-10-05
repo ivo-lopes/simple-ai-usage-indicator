@@ -46,7 +46,7 @@ license provenance.
   - **Rate Limit Reset Credits & Notifications**: Tracks bonus rate-limit resets and desktop notifications whenever a quota window resets early.
 - **Zero-Config Local Authentication**:
   - **Codex CLI**: Automatically discovers bearer credentials in `~/.codex/auth.json`.
-  - **Claude Code**: Integrates seamlessly with OAuth credentials in `~/.claude/.credentials.json`, `~/.claude.json`, and local token caches in `~/.claude/stats-cache.json`. Supports optional custom token override in preferences.
+  - **Claude Code**: Integrates seamlessly with OAuth credentials in `~/.claude/.credentials.json`, `~/.claude.json`, and local token caches in `~/.claude/stats-cache.json`. Uses local OAuth credentials or the session environment variable `CLAUDE_CODE_OAUTH_TOKEN`; the extension does not persist manual tokens.
   - **Antigravity CLI**: Directly interfaces with GNOME Keyring (`gi://Secret`, service: `gemini`, username: `antigravity`) via native GObject Introspection. No terminal wrappers or shell hacks required.
 - **Real-Time Antigravity Quota Parser**:
   - Prioritizes `agy --print /usage --output-format json` via non-blocking `Gio.Subprocess` (verified with CLI 1.2.17).
@@ -220,3 +220,20 @@ The complete license was copied from upstream commit `ebf5609` (2026-09-16),
 after the shared ancestor `f2bd496`. [NOTICE](NOTICE) records that history and
 attributes the inherited code without inventing copyright notices. The source
 and translation catalogs are available in this repository.
+
+## Removing a legacy Claude token
+
+Versions through v21 offered a manual Claude token field stored in GSettings/dconf.
+The field and schema key have been removed. The extension neither reads nor
+migrates the old value; existing non-secret settings and the schema ID are unchanged.
+To delete that legacy value without displaying it, run:
+
+```bash
+dconf reset /org/gnome/shell/extensions/simple-ai-usage-indicator/claude-token
+```
+
+Use `claude login` for the local OAuth credential. If needed,
+`CLAUDE_CODE_OAUTH_TOKEN` must be present in the GNOME Shell/preferences process
+environment, not just a terminal. `~/.claude.json` account metadata alone does
+not establish authentication. `ANTHROPIC_API_KEY` authenticates the Anthropic
+inference API, not this subscription OAuth quota endpoint, and is not used here.

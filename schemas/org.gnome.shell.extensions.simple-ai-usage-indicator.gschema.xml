@@ -34,10 +34,5 @@
       <summary>Icon style</summary>
       <description>Icon theme appearance: 'symbolic' (monochrome white), 'black' (monochrome black), or 'color' (colored generic icons).</description>
     </key>
-    <key name="claude-token" type="s">
-      <default>''</default>
-      <summary>Custom Claude token</summary>
-      <description>Optional custom Anthropic OAuth or API token.</description>
-    </key>
   </schema>
 </schemalist>
