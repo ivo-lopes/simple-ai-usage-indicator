@@ -106,3 +106,20 @@ SAUI-7/8 (credential handling), SAUI-11 (general package hygiene), SAUI-12/13
 (compatibility/upstream sync), SAUI-16/17 (CI and remaining environment-independent
 tests), SAUI-18/19 (complete i18n/accessibility). Only changes necessary to the
 urgent criteria were made; these items were not marked complete or duplicated.
+
+## v21 release preparation — 2026-10-05
+
+After the urgent-task validation above, Ivo Lopes explicitly requested publishing
+the next GitHub release. Metadata and the README version badge now identify 21;
+the earlier version-20 disposition remains the historical validation record.
+The release packages the completed SAUI-1, SAUI-9 and SAUI-10 changes. Its notes
+retain the test limitations above. The packaging command reruns all eight test
+files, compiles both translations and checks the runtime/asset/legal allowlist.
+All passed again for v21, together with strict schema validation, shell syntax
+and diff checks, archive/source byte comparisons, SVG inspection and a bounded
+credential-pattern scan. The v21 ZIP also passed isolated GNOME Shell 48.7
+enable (ACTIVE) and disable (INACTIVE), with no extension JavaScript errors.
+Archive: 69,481 bytes, 31 regular files. SHA256:
+`add347a4533b29892bc0fd4fad5e86e0b0c4d2eb71901d418ca4f7f3c670d344`.
+GitHub publication is separate from EGO: no upload or change to the pending
+GNOME Extensions submission is authorized or performed by this release step.

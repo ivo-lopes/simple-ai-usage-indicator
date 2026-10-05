@@ -1,7 +1,7 @@
 # Simple AI Usage Indicator
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2050-blue.svg)](https://extensions.gnome.org)
-[![Version](https://img.shields.io/badge/version-20-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
+[![Version](https://img.shields.io/badge/version-21-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
 A GNOME Shell extension for GNOME Shell **45–50** that displays usage and quotas
