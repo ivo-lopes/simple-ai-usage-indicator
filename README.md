@@ -262,3 +262,14 @@ transitional and new St APIs. Isolated lifecycle smoke tests passed on GNOME
 bus with synthetic login1 responses; this does not validate a complete desktop
 session. Real lifecycle tests on 45/46/47/49/50 and the full theme/accessibility
 matrix remain NOT TESTED; see HARDENING.md.
+
+To reproduce the optional Fedora 45/GNOME 51 container lab:
+
+```bash
+docker build --network host -f tests/integration/Containerfile -t saui-gnome51-lab tests/integration
+docker run --rm --network none --mount type=bind,src="$PWD",dst=/saui,readonly saui-gnome51-lab python3 /saui/tests/integration/gnome-shell-smoke.py /saui/simple-ai-usage-indicator@ivo-lopes.github.com.shell-extension.zip --expected-major 51 --isolated-system-bus --login1-stub /saui/tests/integration/login1-stub.js --prefs
+```
+
+Only the lab build needs network. Runtime is isolated and does not mount the host
+system bus or credential directories. The base image is pinned; installed distro
+package updates may change the resulting Shell version, which the smoke verifies.
