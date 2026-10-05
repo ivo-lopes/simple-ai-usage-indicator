@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-05",
+  "project": "Ivo Lopes personal Simple AI Usage Indicator; Mindsite Plane only backlog",
+  "states": [
+    {
+      "saui": 1,
+      "name": "Corrigir reset semanal do Antigravity usando dados estruturados do CLI",
+      "state": "Done"
+    },
+    {
+      "saui": 2,
+      "name": "Corrigir apresentação de resets longos com data, hora e duração relativa",
+      "state": "Done"
+    },
+    {
+      "saui": 3,
+      "name": "Generalizar o modelo de quotas para múltiplas janelas e buckets",
+      "state": "Backlog"
+    },
+    {
+      "saui": 4,
+      "name": "Tornar o subprocesso do Antigravity cancelável e seguro no lifecycle da extensão",
+      "state": "Done"
+    },
+    {
+      "saui": 5,
+      "name": "Separar e ampliar testes do parser/adapter Antigravity",
+      "state": "Done"
+    },
+    {
+      "saui": 6,
+      "name": "Corrigir semântica de fallback e cache do Antigravity",
+      "state": "Done"
+    },
+    {
+      "saui": 7,
+      "name": "Remover armazenamento de token Claude em texto claro no GSettings",
+      "state": "Done"
+    },
+    {
+      "saui": 8,
+      "name": "Reduzir exposição de credenciais e chamadas auxiliares no provider Antigravity",
+      "state": "Done"
+    },
+    {
+      "saui": 9,
+      "name": "Restaurar licença do fork, atribuição upstream e cabeçalhos SPDX",
+      "state": "Done"
+    },
+    {
+      "saui": 10,
+      "name": "Auditar copyright e trademarks dos ícones e assets de terceiros",
+      "state": "Done"
+    },
+    {
+      "saui": 11,
+      "name": "Higienizar o pacote EGO e remover assets não utilizados",
+      "state": "Done"
+    },
+    {
+      "saui": 12,
+      "name": "Atualizar compatibilidade para GNOME Shell 51 e reconciliar correções do upstream",
+      "state": "Done"
+    },
+    {
+      "saui": 13,
+      "name": "Criar rotina explícita de sincronização e revisão de mudanças do upstream",
+      "state": "Done"
+    },
+    {
+      "saui": 14,
+      "name": "Refatorar extension.js para reduzir superfície de revisão EGO",
+      "state": "In Progress"
+    },
+    {
+      "saui": 15,
+      "name": "Revisar lifecycle assíncrono para impedir atualização após disable",
+      "state": "Done"
+    },
+    {
+      "saui": 16,
+      "name": "Adicionar CI com lint, testes, schema/i18n e validação do pacote",
+      "state": "Done"
+    },
+    {
+      "saui": 17,
+      "name": "Tornar os testes independentes de credenciais e ambiente local",
+      "state": "Done"
+    },
+    {
+      "saui": 18,
+      "name": "Completar i18n, formatação de datas e estados de erro",
+      "state": "Done"
+    },
+    {
+      "saui": 19,
+      "name": "Revisar tema, HIG e acessibilidade da top bar e popup",
+      "state": "Done"
+    },
+    {
+      "saui": 20,
+      "name": "Fortalecer contratos dos providers Codex e Claude contra mudanças de API",
+      "state": "Backlog"
+    },
+    {
+      "saui": 21,
+      "name": "Limpar metadata.json e atualizar metadados públicos do GitHub",
+      "state": "Done"
+    },
+    {
+      "saui": 22,
+      "name": "Habilitar canal de suporte público e templates de issue",
+      "state": "Done"
+    },
+    {
+      "saui": 23,
+      "name": "Criar documentação de segurança, privacidade e dependências externas",
+      "state": "Done"
+    },
+    {
+      "saui": 24,
+      "name": "Criar checklist de pré-submissão e release para GNOME Extensions",
+      "state": "Done"
+    },
+    {
+      "saui": 25,
+      "name": "Adicionar CHANGELOG e política de versionamento/release",
+      "state": "Done"
+    }
+  ],
+  "transientTransport401": "Recovered without modifying credentials; final states read back from API."
+}

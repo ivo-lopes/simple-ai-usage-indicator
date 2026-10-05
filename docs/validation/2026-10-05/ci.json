@@ -1,0 +1,13 @@
+{
+  "codeCommit": "0a38ecc6a6062e19c5b4dfaace9853dcfe558bd6",
+  "runId": 37374846937,
+  "runURL": "https://github.com/ivo-lopes/simple-ai-usage-indicator/actions/runs/37374846937",
+  "conclusion": "success",
+  "artifactId": 11369979564,
+  "artifactName": "simple-ai-usage-indicator-0a38ecc6a6062e19c5b4dfaace9853dcfe558bd6",
+  "artifactEnvelopeDigest": "sha256:2863ae8ac5e2f75eec9b568b0cd079f2fdc3b4ee198554ce812c19b7908f4b25",
+  "extensionZipBytes": 66510,
+  "extensionZipSHA256": "a220ba1f9200a8f88321e3b377f330a4595dd9a07ab0c85726c2bfbac52e1263",
+  "regularFiles": 31,
+  "allMembersEqualCurrentSourceAndNativeInstalledMembers": true
+}
