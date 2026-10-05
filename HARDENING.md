@@ -61,7 +61,7 @@ No new providers, broad quota/UI refactor or release automation were added.
 
 | Test / command | Result and evidence |
 |---|---|
-| `npm ci --ignore-scripts --no-audit --no-fund`, `npm run lint` | PASS locally and remotely; pinned Oxlint 1.87.0, two installed packages, explicit GJS globals, no formatting rules |
+| `npm ci --ignore-scripts --no-audit --no-fund`, `npm run lint` | PASS locally and remotely; pinned Oxlint 1.87.0 with native platform bindings only, explicit GJS globals, no formatting rules |
 | Linter negative control with an undefined global | PASS — rejected as expected; production sources lint clean |
 | `node --check --input-type=module` for tracked JS; `bash -n` | PASS through scripts/validate.sh |
 | All twelve `tests/*.test.js` with GJS | PASS locally and on a clean Ubuntu 24.04 CI runner, without AI CLIs/credentials; 67 Antigravity assertions retained |
@@ -80,6 +80,8 @@ No new providers, broad quota/UI refactor or release automation were added.
 | Live Claude/Codex authentication and quota requests | NOT TESTED in this wave — security/default-suite checks use synthetic credentials; no need to access private accounts |
 
 CI evidence: [successful initial run 37356034409](https://github.com/ivo-lopes/simple-ai-usage-indicator/actions/runs/37356034409).
+A subsequent [successful hardening run 37357652371](https://github.com/ivo-lopes/simple-ai-usage-indicator/actions/runs/37357652371)
+validated commit `61a66f7679173bcf7adfb0bc3746466e58abf41c`.
 All steps and artifact upload passed; the downloaded artifact contains the
 expected 31 runtime/legal files and no Claude secret schema key. Final commit
 CI evidence is recorded in Plane and the execution report.

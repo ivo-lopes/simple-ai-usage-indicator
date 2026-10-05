@@ -203,7 +203,7 @@ System dependencies: GJS, GNOME Shell packaging tools, libsecret/Soup 3 GI
 bindings, GLib tools, gettext, unzip, Python 3 and Node.js 22 (CI).
 
 ESLint's flat config was evaluated, but its dependency tree is unnecessary here.
-Oxlint 1.87.0 has no JavaScript dependencies and one installed platform binding;
+Oxlint 1.87.0 has no JavaScript dependencies and uses platform-specific native bindings;
 it checks syntax/correctness and undeclared variables with explicit GJS globals,
 without formatter rules or runtime dependencies. `node --check` also validates
 all tracked ES modules without executing their GI/resource imports.
