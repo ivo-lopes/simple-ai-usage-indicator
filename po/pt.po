@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: simple-ai-usage-indicator\n"
 "Report-Msgid-Bugs-To: https://github.com/ivo-lopes/simple-ai-usage-indicator/"
 "issues\n"
-"POT-Creation-Date: 2026-10-05 17:42-0300\n"
+"POT-Creation-Date: 2026-10-05 17:52-0300\n"
 "PO-Revision-Date: 2026-10-05 17:00-0300\n"
 "Last-Translator: Ivo Lopes <ivolopesneto@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
@@ -57,7 +57,8 @@ msgstr "Cota indisponível"
 
 #: extension.js:345
 msgid "No AI assistants enabled. Go to Settings to enable them."
-msgstr "Nenhum assistente de IA habilitado. Abra as configurações para habilitá-los."
+msgstr ""
+"Nenhum assistente de IA habilitado. Abra as configurações para habilitá-los."
 
 #: extension.js:394
 msgid "Stale quota"
@@ -165,7 +166,7 @@ msgstr "Exibição e atualização"
 msgid "Configure refresh rates and appearance in the top panel."
 msgstr "Configurar taxas de atualização e aparência no painel superior."
 
-#: prefs.js:78
+#: prefs.js:78 prefs.js:89
 msgid "Update interval"
 msgstr "Intervalo de atualização"
 
@@ -173,146 +174,150 @@ msgstr "Intervalo de atualização"
 msgid "Seconds between automatic usage refreshes"
 msgstr "Segundos entre atualizações automáticas de uso"
 
-#: prefs.js:96
+#: prefs.js:104
 msgid "Display mode"
 msgstr "Modo de exibição"
 
-#: prefs.js:97
+#: prefs.js:105
 msgid "Choose whether to show remaining quota, consumed quota, or percentage."
 msgstr "Escolha entre cota restante, cota consumida ou percentual."
 
-#: prefs.js:99
+#: prefs.js:107
 msgid "Remaining quota (left)"
 msgstr "Cota restante (restante)"
 
-#: prefs.js:100
+#: prefs.js:108
 msgid "Consumed quota (used)"
 msgstr "Cota consumida (usado)"
 
-#: prefs.js:101
+#: prefs.js:109
 msgid "Percentage (%)"
 msgstr "Porcentagem (%)"
 
-#: prefs.js:118
+#: prefs.js:126
 msgid "Top bar layout"
 msgstr "Layout da barra superior"
 
-#: prefs.js:119
+#: prefs.js:127
 msgid "Show all enabled assistants or only the selected assistant."
-msgstr "Mostre todos os assistentes habilitados ou apenas o assistente selecionado."
+msgstr ""
+"Mostre todos os assistentes habilitados ou apenas o assistente selecionado."
 
-#: prefs.js:121
+#: prefs.js:129
 msgid "Show all enabled assistants"
 msgstr "Exibir todos os assistentes habilitados"
 
-#: prefs.js:122
+#: prefs.js:130
 msgid "Show selected assistant"
 msgstr "Mostrar assistente selecionado"
 
-#: prefs.js:148
+#: prefs.js:156
 msgid "Icon style"
 msgstr "Estilo dos ícones"
 
-#: prefs.js:149
+#: prefs.js:157
 msgid ""
 "Choose themed symbolic, black, or colored generic icons in the panel and "
 "menu."
-msgstr "Escolha ícones genéricos simbólicos do tema, pretos ou coloridos para o painel e menu."
+msgstr ""
+"Escolha ícones genéricos simbólicos do tema, pretos ou coloridos para o "
+"painel e menu."
 
-#: prefs.js:151
+#: prefs.js:159
 msgid "Symbolic (theme color)"
 msgstr "Simbólico (cor do tema)"
 
-#: prefs.js:152
+#: prefs.js:160
 msgid "Monochrome black (Black)"
 msgstr "Preto monocromático (Preto)"
 
-#: prefs.js:153
+#: prefs.js:161
 msgid "Colored icons (Color)"
 msgstr "Ícones coloridos (Colorido)"
 
-#: prefs.js:168
+#: prefs.js:176
 msgid "Coding Assistants"
 msgstr "Assistentes de Código"
 
-#: prefs.js:169
+#: prefs.js:177
 msgid "Manage monitored assistants and test their local authentication."
 msgstr "Gerencie os assistentes monitorados e teste sua autenticação local."
 
-#: prefs.js:185
+#: prefs.js:193
 msgid "Checking auth..."
 msgstr "Verificando autenticação..."
 
-#: prefs.js:199
+#: prefs.js:207
 msgid "Local authentication"
 msgstr "Autenticação local"
 
-#: prefs.js:200
+#: prefs.js:208
 msgid "Checking status..."
 msgstr "Verificando status..."
 
-#: prefs.js:203
+#: prefs.js:211
 msgid "Test connection"
 msgstr "Testar conexão"
 
-#: prefs.js:224
+#: prefs.js:232
 msgid "Available"
 msgstr "Disponível"
 
-#: prefs.js:224
+#: prefs.js:232
 msgid "Not found"
 msgstr "Não encontrado"
 
-#: prefs.js:227
+#: prefs.js:235
 msgid "Token expired"
 msgstr "Token expirado"
 
-#: prefs.js:227 prefs.js:260
+#: prefs.js:235 prefs.js:268
 msgid "Connected"
 msgstr "Conectado"
 
-#: prefs.js:228
+#: prefs.js:236
 msgid "Not configured"
 msgstr "Não configurado"
 
-#: prefs.js:232
+#: prefs.js:240
 msgid "Authentication check unavailable."
 msgstr "Verificação de autenticação indisponível."
 
-#: prefs.js:233 prefs.js:265
+#: prefs.js:241 prefs.js:273
 msgid "Error"
 msgstr "Erro"
 
-#: prefs.js:240
+#: prefs.js:248
 msgid "Testing connection..."
 msgstr "Testando conexão..."
 
-#: prefs.js:246
+#: prefs.js:254
 #, javascript-format
 msgid "Error: %s"
 msgstr "Erro: %s"
 
-#: prefs.js:247
+#: prefs.js:255
 msgid "Failed"
 msgstr "Falha"
 
-#: prefs.js:257
+#: prefs.js:265
 #, javascript-format
 msgid "%s%% used"
 msgstr "%s%% usado"
 
-#: prefs.js:259
+#: prefs.js:267
 #, javascript-format
 msgid "Success! %s"
 msgstr "Sucesso! %s"
 
-#: prefs.js:264
+#: prefs.js:272
 msgid "Test failed. Check authentication and connectivity."
 msgstr "O teste falhou. Verifique a autenticação e a conexão."
 
 #: providers/antigravityProvider.js:65
 msgid "Credentials not found in GNOME Keyring. Run agy to log in."
-msgstr "Credenciais não encontradas no chaveiro do GNOME. Execute agy para entrar."
+msgstr ""
+"Credenciais não encontradas no chaveiro do GNOME. Execute agy para entrar."
 
 #: providers/antigravityProvider.js:83
 #, javascript-format
@@ -330,7 +335,9 @@ msgstr "Consulta ao chaveiro indisponível"
 #: providers/antigravityProvider.js:107
 msgid ""
 "Antigravity quota unavailable. Check CLI authentication and connectivity."
-msgstr "Cota do Antigravity indisponível. Verifique a autenticação do CLI e a conexão."
+msgstr ""
+"Cota do Antigravity indisponível. Verifique a autenticação do CLI e a "
+"conexão."
 
 #: providers/claudeProvider.js:68
 msgid "Using OAuth token from environment"
@@ -348,7 +355,8 @@ msgstr "Usuário do Claude"
 #: providers/claudeProvider.js:88
 #, javascript-format
 msgid "Account profile found (%s), but no OAuth credential. Run claude login."
-msgstr "Perfil da conta encontrado (%s), sem credencial OAuth. Execute claude login."
+msgstr ""
+"Perfil da conta encontrado (%s), sem credencial OAuth. Execute claude login."
 
 #: providers/claudeProvider.js:96
 #, javascript-format
@@ -397,12 +405,16 @@ msgstr "Dados de uso indisponíveis. Verifique a autenticação e a conexão."
 #: codexAuth.js:43
 #, javascript-format
 msgid "Codex CLI auth at %s does not contain an access token. Run codex login."
-msgstr "A autenticação do Codex CLI em %s não contém token de acesso. Execute codex login."
+msgstr ""
+"A autenticação do Codex CLI em %s não contém token de acesso. Execute codex "
+"login."
 
 #: codexAuth.js:52
 msgid ""
 "Codex CLI token is expired. Run codex login or start Codex CLI to refresh it."
-msgstr "O token do Codex CLI expirou. Execute codex login ou abra o Codex CLI para renová-lo."
+msgstr ""
+"O token do Codex CLI expirou. Execute codex login ou abra o Codex CLI para "
+"renová-lo."
 
 #: codexAuth.js:73
 #, javascript-format

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: simple-ai-usage-indicator\n"
 "Report-Msgid-Bugs-To: https://github.com/ivo-lopes/simple-ai-usage-indicator/"
 "issues\n"
-"POT-Creation-Date: 2026-10-05 17:42-0300\n"
+"POT-Creation-Date: 2026-10-05 17:52-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,7 +165,7 @@ msgstr ""
 msgid "Configure refresh rates and appearance in the top panel."
 msgstr ""
 
-#: prefs.js:78
+#: prefs.js:78 prefs.js:89
 msgid "Update interval"
 msgstr ""
 
@@ -173,140 +173,140 @@ msgstr ""
 msgid "Seconds between automatic usage refreshes"
 msgstr ""
 
-#: prefs.js:96
+#: prefs.js:104
 msgid "Display mode"
 msgstr ""
 
-#: prefs.js:97
+#: prefs.js:105
 msgid "Choose whether to show remaining quota, consumed quota, or percentage."
 msgstr ""
 
-#: prefs.js:99
+#: prefs.js:107
 msgid "Remaining quota (left)"
 msgstr ""
 
-#: prefs.js:100
+#: prefs.js:108
 msgid "Consumed quota (used)"
 msgstr ""
 
-#: prefs.js:101
+#: prefs.js:109
 msgid "Percentage (%)"
 msgstr ""
 
-#: prefs.js:118
+#: prefs.js:126
 msgid "Top bar layout"
 msgstr ""
 
-#: prefs.js:119
+#: prefs.js:127
 msgid "Show all enabled assistants or only the selected assistant."
 msgstr ""
 
-#: prefs.js:121
+#: prefs.js:129
 msgid "Show all enabled assistants"
 msgstr ""
 
-#: prefs.js:122
+#: prefs.js:130
 msgid "Show selected assistant"
 msgstr ""
 
-#: prefs.js:148
+#: prefs.js:156
 msgid "Icon style"
 msgstr ""
 
-#: prefs.js:149
+#: prefs.js:157
 msgid ""
 "Choose themed symbolic, black, or colored generic icons in the panel and "
 "menu."
 msgstr ""
 
-#: prefs.js:151
+#: prefs.js:159
 msgid "Symbolic (theme color)"
 msgstr ""
 
-#: prefs.js:152
+#: prefs.js:160
 msgid "Monochrome black (Black)"
 msgstr ""
 
-#: prefs.js:153
+#: prefs.js:161
 msgid "Colored icons (Color)"
 msgstr ""
 
-#: prefs.js:168
+#: prefs.js:176
 msgid "Coding Assistants"
 msgstr ""
 
-#: prefs.js:169
+#: prefs.js:177
 msgid "Manage monitored assistants and test their local authentication."
 msgstr ""
 
-#: prefs.js:185
+#: prefs.js:193
 msgid "Checking auth..."
 msgstr ""
 
-#: prefs.js:199
+#: prefs.js:207
 msgid "Local authentication"
 msgstr ""
 
-#: prefs.js:200
+#: prefs.js:208
 msgid "Checking status..."
 msgstr ""
 
-#: prefs.js:203
+#: prefs.js:211
 msgid "Test connection"
 msgstr ""
 
-#: prefs.js:224
+#: prefs.js:232
 msgid "Available"
 msgstr ""
 
-#: prefs.js:224
+#: prefs.js:232
 msgid "Not found"
 msgstr ""
 
-#: prefs.js:227
+#: prefs.js:235
 msgid "Token expired"
 msgstr ""
 
-#: prefs.js:227 prefs.js:260
+#: prefs.js:235 prefs.js:268
 msgid "Connected"
 msgstr ""
 
-#: prefs.js:228
+#: prefs.js:236
 msgid "Not configured"
 msgstr ""
 
-#: prefs.js:232
+#: prefs.js:240
 msgid "Authentication check unavailable."
 msgstr ""
 
-#: prefs.js:233 prefs.js:265
+#: prefs.js:241 prefs.js:273
 msgid "Error"
 msgstr ""
 
-#: prefs.js:240
+#: prefs.js:248
 msgid "Testing connection..."
 msgstr ""
 
-#: prefs.js:246
+#: prefs.js:254
 #, javascript-format
 msgid "Error: %s"
 msgstr ""
 
-#: prefs.js:247
+#: prefs.js:255
 msgid "Failed"
 msgstr ""
 
-#: prefs.js:257
+#: prefs.js:265
 #, javascript-format
 msgid "%s%% used"
 msgstr ""
 
-#: prefs.js:259
+#: prefs.js:267
 #, javascript-format
 msgid "Success! %s"
 msgstr ""
 
-#: prefs.js:264
+#: prefs.js:272
 msgid "Test failed. Check authentication and connectivity."
 msgstr ""
 

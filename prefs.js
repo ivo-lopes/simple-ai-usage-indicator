@@ -73,18 +73,26 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             value: this._settings.get_int('update-interval-seconds') || DEFAULT_UPDATE_INTERVAL_SECONDS,
         });
 
-        const refreshRow = new Adw.SpinRow({
+        const refreshRow = new Adw.ActionRow({
             use_markup: false,
             title: _('Update interval'),
             subtitle: _('Seconds between automatic usage refreshes'),
+        });
+        // A native SpinButton exposes its labeled value consistently through AT-SPI.
+        const refreshSpin = new Gtk.SpinButton({
             adjustment,
             climb_rate: 1,
             digits: 0,
+            numeric: true,
+            valign: Gtk.Align.CENTER,
         });
+        refreshSpin.update_property([Gtk.AccessibleProperty.LABEL], [_('Update interval')]);
+        refreshRow.add_suffix(refreshSpin);
+        refreshRow.activatable_widget = refreshSpin;
 
         this._settings.bind(
             'update-interval-seconds',
-            refreshRow,
+            refreshSpin,
             'value',
             Gio.SettingsBindFlags.DEFAULT,
         );
