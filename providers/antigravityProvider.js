@@ -43,6 +43,7 @@ export class AntigravityProvider extends BaseProvider {
             colorIconFileName: 'antigravity-color.svg',
             blackIconFileName: 'antigravity-black.svg',
         });
+        this._cancellable = new Gio.Cancellable();
         this._session = new Soup.Session({timeout: 10});
         this._schema = new Secret.Schema(
             'org.freedesktop.Secret.Generic',
@@ -66,6 +67,7 @@ export class AntigravityProvider extends BaseProvider {
      */
     destroy() {
         this._destroyed = true;
+        this._cancellable.cancel();
         this._quotaProcess?.force_exit();
         if (this._quotaTimeout) {
             GLib.Source.remove(this._quotaTimeout);
@@ -85,6 +87,8 @@ export class AntigravityProvider extends BaseProvider {
     async checkAuth() {
         try {
             const secretData = await this._lookupKeyringSecret();
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             if (!secretData) {
                 return {
                     available: false,
@@ -114,7 +118,7 @@ export class AntigravityProvider extends BaseProvider {
         } catch (error) {
             return {
                 available: false,
-                details: `Keyring lookup failed: ${error.message}`,
+                details: 'Keyring lookup unavailable',
                 path: 'keyring://gemini/antigravity',
             };
         }
@@ -138,12 +142,16 @@ export class AntigravityProvider extends BaseProvider {
         try {
             quotaData = await this._fetchAgyQuota({force});
         } catch {
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             const summary = createEmptySummary({
                 providerId: this.id, providerName: this.name,
                 iconFileName: this.iconFileName,
                 error: 'Antigravity quota unavailable. Check CLI authentication and connectivity.',
             });
             const stats = await this._getBrainStats();
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             summary.extraCredits = {conversations: stats.conversationCount};
             summary.quotaUnavailable = true;
             return summary;
@@ -154,6 +162,8 @@ export class AntigravityProvider extends BaseProvider {
                 userInfo = await this._fetchUserInfo(secretData.token.access_token);
             } catch {}
         }
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
         const primary = quotaData.primary;
         return {
             ...createEmptySummary({
@@ -210,6 +220,8 @@ export class AntigravityProvider extends BaseProvider {
     }
 
     async _runAgy(structured) {
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
         const agyPath = this._agyPath || GLib.find_program_in_path('agy') ||
             GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin', 'agy']);
         const argv = [agyPath, '--print', '/usage', '--print-timeout', '8s'];
@@ -255,6 +267,8 @@ export class AntigravityProvider extends BaseProvider {
      * @returns {Promise<Object|null>} Parsed JSON credential object or null
      */
     _lookupKeyringSecret() {
+        if (this._destroyed)
+            return Promise.reject(new Error('Provider destroyed'));
         return new Promise((resolve, reject) => {
             Secret.password_lookup(
                 this._schema,
@@ -262,7 +276,7 @@ export class AntigravityProvider extends BaseProvider {
                     'service': ANTIGRAVITY_KEYRING_SERVICE,
                     'username': ANTIGRAVITY_KEYRING_USERNAME,
                 },
-                null,
+                this._cancellable,
                 (source, result) => {
                     try {
                         const password = Secret.password_lookup_finish(result);
@@ -287,6 +301,8 @@ export class AntigravityProvider extends BaseProvider {
      * @returns {Promise<Object>} Google user profile JSON
      */
     async _fetchUserInfo(accessToken) {
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
         const message = Soup.Message.new('GET', GOOGLE_USERINFO_ENDPOINT);
         message.get_request_headers().append('Authorization', `Bearer ${accessToken}`);
         message.get_request_headers().append('Accept', 'application/json');
@@ -294,9 +310,11 @@ export class AntigravityProvider extends BaseProvider {
         const bytes = await this._session.send_and_read_async(
             message,
             GLib.PRIORITY_DEFAULT,
-            null,
+            this._cancellable,
         );
 
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
         const status = message.status_code;
         if (status < 200 || status >= 300) {
             throw new Error(`Google UserInfo returned HTTP ${status}`);
@@ -314,14 +332,15 @@ export class AntigravityProvider extends BaseProvider {
      */
     async _getBrainStats() {
         const brainDir = GLib.build_filenamev([GLib.get_home_dir(), '.gemini', 'antigravity-cli', 'brain']);
+        let enumerator = null;
         try {
             const dir = Gio.File.new_for_path(brainDir);
-            const enumerator = await new Promise((resolve, reject) => {
+            enumerator = await new Promise((resolve, reject) => {
                 dir.enumerate_children_async(
                     'standard::name',
                     Gio.FileQueryInfoFlags.NONE,
                     GLib.PRIORITY_DEFAULT,
-                    null,
+                    this._cancellable,
                     (source, res) => {
                         try {
                             resolve(dir.enumerate_children_finish(res));
@@ -335,7 +354,7 @@ export class AntigravityProvider extends BaseProvider {
             let count = 0;
             while (true) {
                 const fileInfos = await new Promise((resolve, reject) => {
-                    enumerator.next_files_async(10, GLib.PRIORITY_DEFAULT, null, (s, r) => {
+                    enumerator.next_files_async(10, GLib.PRIORITY_DEFAULT, this._cancellable, (s, r) => {
                         try {
                             resolve(enumerator.next_files_finish(r));
                         } catch (e) {
@@ -348,10 +367,11 @@ export class AntigravityProvider extends BaseProvider {
                 count += fileInfos.length;
             }
 
-            enumerator.close(null);
             return {conversationCount: count, sessionCount: count};
         } catch {
             return {conversationCount: 0, sessionCount: 0};
+        } finally {
+            enumerator?.close(null);
         }
     }
 }

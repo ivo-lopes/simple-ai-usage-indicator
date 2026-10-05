@@ -71,6 +71,8 @@ export class UsageApiError extends Error {
 
 export class UsageApiClient {
     constructor({apiBaseUrl = API_BASE_URL, proxyResolver = null} = {}) {
+        this._destroyed = false;
+        this._cancellable = new Gio.Cancellable();
         this._apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
         const sessionProperties = {timeout: 30};
         if (proxyResolver)
@@ -79,6 +81,8 @@ export class UsageApiClient {
     }
 
     async fetchSummary(token, accountId = null) {
+        if (this._destroyed)
+            throw new UsageApiError('Usage client destroyed');
         const normalizedAccountId = normalizeAccountId(accountId);
         const payloadPromise = this._getJson(SUMMARY_ENDPOINT, token, normalizedAccountId);
         const resetCreditsPromise = normalizedAccountId
@@ -90,10 +94,14 @@ export class UsageApiClient {
             payloadPromise,
             resetCreditsPromise,
         ]);
+        if (this._destroyed)
+            throw new UsageApiError('Usage client destroyed');
         return normalizeSummary(payload, resetCreditsPayload);
     }
 
     destroy() {
+        this._destroyed = true;
+        this._cancellable.cancel();
         this._session.abort();
     }
 
@@ -109,6 +117,8 @@ export class UsageApiClient {
     }
 
     async _getJson(path, token, accountId = null) {
+        if (this._destroyed)
+            throw new UsageApiError('Usage client destroyed');
         const normalizedToken = normalizeBearerToken(token ?? '');
         if (!normalizedToken)
             throw new UsageApiError('A bearer token is required.');
@@ -130,9 +140,11 @@ export class UsageApiClient {
         const bytes = await this._session.send_and_read_async(
             message,
             GLib.PRIORITY_DEFAULT,
-            null,
+            this._cancellable,
         );
 
+        if (this._destroyed)
+            throw new UsageApiError('Usage client destroyed');
         const statusCode = message.status_code;
         const body = decodeBytes(bytes);
         let payload = null;
@@ -146,8 +158,8 @@ export class UsageApiClient {
         }
 
         if (statusCode < 200 || statusCode >= 300) {
-            const messageText = getErrorMessage(payload, statusCode);
-            throw new UsageApiError(messageText, {statusCode, payload});
+            // A server error body can echo request credentials; never surface it.
+            throw new UsageApiError(`Request failed with HTTP ${statusCode}.`, {statusCode});
         }
 
         return payload;
@@ -159,36 +171,6 @@ export function decodeBytes(bytes) {
     return new TextDecoder().decode(data);
 }
 
-function getErrorMessage(payload, statusCode) {
-    for (const value of [
-        payload?.message,
-        payload?.error,
-        payload?.detail,
-        payload?.title,
-    ]) {
-        const message = normalizeErrorMessage(value);
-        if (message)
-            return message;
-    }
-
-    return `Request failed with HTTP ${statusCode}.`;
-}
-
-function normalizeErrorMessage(value) {
-    if (typeof value === 'string' && value.trim())
-        return value.trim();
-
-    if (!value || typeof value !== 'object')
-        return '';
-
-    for (const key of ['message', 'detail', 'title', 'code', 'type']) {
-        const nested = normalizeErrorMessage(value[key]);
-        if (nested)
-            return nested;
-    }
-
-    return '';
-}
 
 export function normalizeSummary(payload, resetCreditsPayload = null) {
     const rateLimit = normalizeRateLimitSection(payload?.rate_limit, 'rate_limit');

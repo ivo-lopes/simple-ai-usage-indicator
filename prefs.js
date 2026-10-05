@@ -46,11 +46,32 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             icon_name: 'preferences-system-symbolic',
         });
 
+        this._disposed = false;
+        this._signals = [];
         this._settings = settings;
+        this.connect('unrealize', () => this.dispose());
         this._providerManager = new ProviderManager({settings});
 
         this.add(this._buildGeneralGroup());
         this.add(this._buildAssistantsGroup());
+    }
+
+    _connect(object, signal, callback) {
+        const id = object.connect(signal, (...args) => {
+            if (!this._disposed)
+                callback(...args);
+        });
+        this._signals.push([object, id]);
+    }
+
+    dispose() {
+        if (this._disposed)
+            return;
+        this._disposed = true;
+        for (const [object, id] of this._signals)
+            object.disconnect(id);
+        this._signals = [];
+        this._providerManager.destroy();
     }
 
     /**
@@ -99,7 +120,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             ]),
             selected: currentDisplayMode === DISPLAY_MODE_USED ? 1 : (currentDisplayMode === DISPLAY_MODE_PERCENT ? 2 : 0),
         });
-        displayRow.connect('notify::selected', combo => {
+        this._connect(displayRow, 'notify::selected', combo => {
             let mode = DISPLAY_MODE_LEFT;
             if (combo.selected === 1)
                 mode = DISPLAY_MODE_USED;
@@ -119,7 +140,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             ]),
             selected: currentBarMode === BAR_DISPLAY_CYCLE ? 1 : 0,
         });
-        barRow.connect('notify::selected', combo => {
+        this._connect(barRow, 'notify::selected', combo => {
             this._settings.set_string(
                 'bar-display-mode',
                 combo.selected === 1 ? BAR_DISPLAY_CYCLE : BAR_DISPLAY_ALL,
@@ -149,7 +170,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             ]),
             selected: selectedIconIndex,
         });
-        iconStyleRow.connect('notify::selected', combo => {
+        this._connect(iconStyleRow, 'notify::selected', combo => {
             const chosen = iconStyleValues[combo.selected] || ICON_STYLE_SYMBOLIC;
             this._settings.set_string('icon-style', chosen);
         });
@@ -196,7 +217,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         const isEnabled = this._isProviderEnabled(provider.id);
         expander.set_enable_expansion(isEnabled);
 
-        expander.connect('notify::enable-expansion', () => {
+        this._connect(expander, 'notify::enable-expansion', () => {
             this._setProviderEnabled(provider.id, expander.get_enable_expansion());
         });
 
@@ -208,7 +229,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             label: _('Test connection'),
             valign: Gtk.Align.CENTER,
         });
-        checkButton.connect('clicked', () => {
+        this._connect(checkButton, 'clicked', () => {
             void this._testProvider(provider, authRow, expander);
         });
         authRow.add_suffix(checkButton);
@@ -228,14 +249,20 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
      * @param {Adw.ExpanderRow} expander
      */
     async _checkProviderAuth(provider, authRow, expander) {
+        if (this._disposed)
+            return;
         try {
             const auth = await provider.checkAuth({allowExpired: true});
+            if (this._disposed)
+                return;
             const statusText = auth.details || (auth.available ? _('Available') : _('Not found'));
             authRow.subtitle = statusText;
             expander.subtitle = auth.available
                 ? (auth.expired ? _('Token expired') : _('Connected'))
                 : _('Not configured');
         } catch (error) {
+            if (this._disposed)
+                return;
             authRow.subtitle = error.message;
             expander.subtitle = _('Error');
         }
@@ -250,9 +277,13 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
      * @param {Adw.ExpanderRow} expander
      */
     async _testProvider(provider, authRow, expander) {
+        if (this._disposed)
+            return;
         authRow.subtitle = _('Testing connection...');
         try {
             const usage = await provider.fetchUsage({force: true});
+            if (this._disposed)
+                return;
             if (usage.error) {
                 authRow.subtitle = `Error: ${usage.error.message || usage.error}`;
                 expander.subtitle = _('Failed');
@@ -270,6 +301,8 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             authRow.subtitle = `Success! ${parts.join(' · ')}`;
             expander.subtitle = _('Connected');
         } catch (error) {
+            if (this._disposed)
+                return;
             authRow.subtitle = `Test failed: ${error.message}`;
             expander.subtitle = _('Error');
         }
@@ -351,6 +384,10 @@ export default class SimpleAiUsagePreferences extends ExtensionPreferences {
      */
     fillPreferencesWindow(window) {
         const page = new SimpleAiUsagePreferencesPage(this.getSettings());
+        window.connect('close-request', () => {
+            page.dispose();
+            return false;
+        });
         window.add(page);
     }
 }

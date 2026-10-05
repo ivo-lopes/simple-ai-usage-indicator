@@ -34,7 +34,7 @@ export class ClaudeProvider extends BaseProvider {
      * @param {Object} [options]
      * @param {Function|null} [options.readJsonFile=null] - Optional filesystem dependency for tests
      */
-    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir()} = {}) {
+    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir(), apiBaseUrl = CLAUDE_API_BASE_URL, proxyResolver = null} = {}) {
         super({
             id: PROVIDER_CLAUDE,
             name: 'Claude Code',
@@ -42,16 +42,24 @@ export class ClaudeProvider extends BaseProvider {
             colorIconFileName: 'claude-color.svg',
             blackIconFileName: 'claude-black.svg',
         });
+        this._destroyed = false;
+        this._cancellable = new Gio.Cancellable();
         this._readFile = readJsonFile;
         this._getenv = getenv;
         this._homeDir = homeDir;
-        this._session = new Soup.Session({timeout: 20});
+        this._apiBaseUrl = apiBaseUrl;
+        const sessionProperties = {timeout: 20};
+        if (proxyResolver)
+            sessionProperties.proxy_resolver = proxyResolver;
+        this._session = new Soup.Session(sessionProperties);
     }
 
     /**
      * Aborts any in-flight HTTP requests and cleans up the Soup session.
      */
     destroy() {
+        this._destroyed = true;
+        this._cancellable.cancel();
         this._session.abort();
     }
 
@@ -151,8 +159,12 @@ export class ClaudeProvider extends BaseProvider {
         if (token) {
             try {
                 const apiData = await this._fetchUsageApi(token);
+                if (this._destroyed)
+                    throw new Error('Provider destroyed');
                 return this._normalizeApiSummary(apiData, statsPayload, account, planType);
             } catch (error) {
+                if (this._destroyed)
+                    throw new Error('Provider destroyed');
                 // If API fails, fall back to local stats cache
                 return this._normalizeLocalSummary(statsPayload, account, planType, error);
             }
@@ -179,7 +191,9 @@ export class ClaudeProvider extends BaseProvider {
      * @returns {Promise<Object>} Raw API JSON payload
      */
     async _fetchUsageApi(token) {
-        const url = `${CLAUDE_API_BASE_URL}${CLAUDE_USAGE_ENDPOINT}`;
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
+        const url = `${this._apiBaseUrl}${CLAUDE_USAGE_ENDPOINT}`;
         const message = Soup.Message.new('GET', url);
         const headers = message.get_request_headers();
         headers.append('Authorization', `Bearer ${token}`);
@@ -190,9 +204,11 @@ export class ClaudeProvider extends BaseProvider {
         const bytes = await this._session.send_and_read_async(
             message,
             GLib.PRIORITY_DEFAULT,
-            null,
+            this._cancellable,
         );
 
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
         const status = message.status_code;
         const text = new TextDecoder().decode(bytes.get_data());
 
@@ -335,12 +351,22 @@ export class ClaudeProvider extends BaseProvider {
      * @returns {Promise<Object|null>} Parsed JSON or null if missing/invalid
      */
     async _readJsonFile(path) {
-        if (this._readFile)
-            return this._readFile(path);
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
+        if (this._readFile) {
+            const value = await this._readFile(path);
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
+            return value;
+        }
         try {
-            const [contents] = await Gio.File.new_for_path(path).load_contents_async(null);
+            const [contents] = await Gio.File.new_for_path(path).load_contents_async(this._cancellable);
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             return JSON.parse(new TextDecoder().decode(contents));
         } catch {
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             return null;
         }
     }

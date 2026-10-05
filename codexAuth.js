@@ -27,9 +27,8 @@ export function getCodexCliAuthPath() {
     return GLib.build_filenamev([basePath, AUTH_FILENAME]);
 }
 
-export async function loadCodexCliAuth({allowExpired = false} = {}) {
-    const path = getCodexCliAuthPath();
-    const payload = await readAuthPayload(path);
+export async function loadCodexCliAuth({allowExpired = false, cancellable = null, path = getCodexCliAuthPath()} = {}) {
+    const payload = await readAuthPayload(path, cancellable);
     const tokens = payload?.tokens && typeof payload.tokens === 'object'
         ? payload.tokens
         : {};
@@ -63,10 +62,10 @@ export async function loadCodexCliAuth({allowExpired = false} = {}) {
     };
 }
 
-async function readAuthPayload(path) {
+async function readAuthPayload(path, cancellable) {
     let contents;
     try {
-        [contents] = await Gio.File.new_for_path(path).load_contents_async(null);
+        [contents] = await Gio.File.new_for_path(path).load_contents_async(cancellable);
     } catch (error) {
         throw new CodexCliAuthError(
             `Codex CLI auth not found at ${path}. Run codex login.`,

@@ -95,6 +95,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     _init(extension) {
         super._init(0.5, _('Simple AI Usage Indicator'));
 
+        this._destroyed = false;
         this._extension = extension;
         this._settings = extension.getSettings();
         this._providerManager = new ProviderManager({settings: this._settings});
@@ -184,6 +185,8 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         this.menu.addAction(_('Settings'), () => {
             try {
                 this._extension.openPreferences().catch(err => {
+                    if (this._destroyed)
+                        return;
                     reportError(err, '[simple-ai-usage-indicator] openPreferences failed');
                 });
             } catch (err) {
@@ -206,6 +209,8 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
      * @private
      */
     _updateScrollMaxHeight() {
+        if (this._destroyed)
+            return;
         try {
             const monitorIndex = Main.layoutManager.primaryIndex ?? 0;
             const workArea = Main.layoutManager.getWorkAreaForMonitor(monitorIndex);
@@ -220,7 +225,9 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     async refresh({force = false} = {}) {
-        if (this._refreshInFlight) {
+        if (this._destroyed)
+            return;
+        while (this._refreshInFlight) {
             if (!force)
                 return this._refreshInFlight;
             await this._refreshInFlight;
@@ -231,7 +238,8 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         this._refreshTimestampLabel.text = _('Refreshing...');
         this._refreshInFlight = this._refreshAllUsage({force})
             .catch(error => {
-                reportError(error, '[simple-ai-usage-indicator] refresh failed');
+                if (!this._destroyed)
+                    reportError(new Error('Provider refresh failed'), '[simple-ai-usage-indicator] refresh failed');
             })
             .finally(() => {
                 this._refreshInFlight = null;
@@ -282,6 +290,8 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     _renderCurrentState() {
+        if (this._destroyed)
+            return;
         const displayMode = this._getDisplayMode();
         const barDisplayMode = this._getBarDisplayMode();
         const iconStyle = this._getIconStyle();
@@ -427,6 +437,8 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     _restartRefreshTimer() {
+        if (this._destroyed)
+            return;
         if (this._refreshSourceId) {
             GLib.Source.remove(this._refreshSourceId);
             this._refreshSourceId = null;
@@ -481,6 +493,8 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._destroyed)
+            return;
         this._destroyed = true;
         if (this._refreshSourceId) {
             GLib.Source.remove(this._refreshSourceId);
@@ -492,7 +506,10 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             this.menu.disconnect(this._menuOpenStateChangedId);
             this._menuOpenStateChangedId = null;
         }
+        this.menu.disconnectObject(this);
         this._providerManager.destroy();
+        this._state.summaries.clear();
+        this._state.previousSnapshots.clear();
         super.destroy();
     }
 });

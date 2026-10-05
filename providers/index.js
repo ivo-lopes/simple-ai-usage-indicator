@@ -29,10 +29,16 @@ export class ProviderManager {
      * @param {Object} [options]
      * @param {Gio.Settings|null} [options.settings=null] - Extension GSettings instance
      */
-    constructor({settings = null} = {}) {
+    constructor({settings = null, providers = null} = {}) {
         this._settings = settings;
+        this._destroyed = false;
         this._providers = new Map();
-        this._initProviders();
+        if (providers) {
+            for (const provider of providers)
+                this._providers.set(provider.id, provider);
+        } else {
+            this._initProviders();
+        }
     }
 
     /**
@@ -89,11 +95,15 @@ export class ProviderManager {
      * @returns {Promise<Map<string, import('./baseProvider.js').UsageSummary>>} Map of providerId -> UsageSummary
      */
     async fetchAllUsage(options = {}) {
+        if (this._destroyed)
+            return new Map();
         const enabled = this.getEnabledProviders();
         const results = await Promise.allSettled(
             enabled.map(provider => provider.fetchUsage(options)),
         );
 
+        if (this._destroyed)
+            return new Map();
         const summaries = new Map();
         enabled.forEach((provider, index) => {
             const res = results[index];
@@ -116,6 +126,9 @@ export class ProviderManager {
      * Destroys all provider instances and aborts active network sessions.
      */
     destroy() {
+        if (this._destroyed)
+            return;
+        this._destroyed = true;
         for (const provider of this._providers.values()) {
             try {
                 provider.destroy();

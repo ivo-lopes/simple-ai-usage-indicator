@@ -7,6 +7,8 @@
  * from ChatGPT WHAM API, and normalizes them into UsageSummary.
  */
 
+import Gio from 'gi://Gio';
+
 import {BaseProvider, createEmptySummary} from './baseProvider.js';
 import {CodexCliAuthError, getCodexCliAuthPath, loadCodexCliAuth} from '../codexAuth.js';
 import {PROVIDER_CODEX} from '../constants.js';
@@ -21,7 +23,7 @@ export class CodexProvider extends BaseProvider {
     /**
      * Initializes the CodexProvider with default identifiers and a dedicated HTTP client.
      */
-    constructor() {
+    constructor({loadAuth = loadCodexCliAuth, authPath = getCodexCliAuthPath, client = null} = {}) {
         super({
             id: PROVIDER_CODEX,
             name: 'Codex CLI',
@@ -29,13 +31,19 @@ export class CodexProvider extends BaseProvider {
             colorIconFileName: 'codex-color.svg',
             blackIconFileName: 'codex-black.svg',
         });
-        this._client = new UsageApiClient();
+        this._destroyed = false;
+        this._cancellable = new Gio.Cancellable();
+        this._loadAuth = loadAuth;
+        this._authPath = authPath;
+        this._client = client || new UsageApiClient();
     }
 
     /**
      * Frees resources and aborts active Soup HTTP sessions.
      */
     destroy() {
+        this._destroyed = true;
+        this._cancellable.cancel();
         this._client.destroy();
     }
 
@@ -47,9 +55,13 @@ export class CodexProvider extends BaseProvider {
      * @returns {Promise<{available: boolean, path: string, account?: string, details: string, expired?: boolean}>}
      */
     async checkAuth({allowExpired = false} = {}) {
-        const path = getCodexCliAuthPath();
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
+        const path = this._authPath();
         try {
-            const auth = await loadCodexCliAuth({allowExpired});
+            const auth = await this._loadAuth({allowExpired, cancellable: this._cancellable});
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             const expiryDetails = auth.expiresAt !== null
                 ? `Expires ${formatTimestamp(auth.expiresAt)}`
                 : 'Expiry unknown';
@@ -61,10 +73,12 @@ export class CodexProvider extends BaseProvider {
                 expired: auth.expiresInSeconds !== null && auth.expiresInSeconds <= 0,
             };
         } catch (error) {
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             return {
                 available: false,
                 path,
-                details: error instanceof CodexCliAuthError ? error.message : String(error),
+                details: error instanceof CodexCliAuthError ? error.message : 'Codex credential check failed',
                 expired: error?.expired ?? false,
             };
         }
@@ -76,10 +90,16 @@ export class CodexProvider extends BaseProvider {
      * @returns {Promise<import('./baseProvider.js').UsageSummary>} Normalized usage summary
      */
     async fetchUsage() {
+        if (this._destroyed)
+            throw new Error('Provider destroyed');
         try {
-            const auth = await loadCodexCliAuth();
+            const auth = await this._loadAuth({cancellable: this._cancellable});
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             const summary = await this._client.fetchSummary(auth.accessToken, auth.accountId);
 
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             const primaryWindow = summary.primaryWindow ? {
                 label: summary.primaryWindow.label || '5-hour window',
                 used: summary.primaryWindow.used,
@@ -131,6 +151,8 @@ export class CodexProvider extends BaseProvider {
                 error: null,
             };
         } catch (error) {
+            if (this._destroyed)
+                throw new Error('Provider destroyed');
             const summary = createEmptySummary({
                 providerId: this.id,
                 providerName: this.name,
