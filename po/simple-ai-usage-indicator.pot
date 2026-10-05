@@ -180,7 +180,7 @@ msgstr ""
 
 #: prefs.js:141
 msgid ""
-"Choose monochrome white, monochrome black, or vibrant brand colors in the "
+"Choose monochrome white, monochrome black, or colored generic icons in the "
 "panel and menu."
 msgstr ""
 
@@ -193,7 +193,7 @@ msgid "Monochrome black (Black)"
 msgstr ""
 
 #: prefs.js:145
-msgid "Vibrant brand colors (Color)"
+msgid "Colored icons (Color)"
 msgstr ""
 
 #: prefs.js:165

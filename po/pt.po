@@ -180,11 +180,10 @@ msgstr "Estilo dos ícones"
 
 #: prefs.js:141
 msgid ""
-"Choose monochrome white, monochrome black, or vibrant brand colors in the "
+"Choose monochrome white, monochrome black, or colored generic icons in the "
 "panel and menu."
 msgstr ""
-"Escolha entre branco monocromático, preto monocromático ou cores originais da "
-"marca no painel e no menu."
+"Escolha entre branco monocromático, preto monocromático ou ícones genéricos coloridos no painel e no menu."
 
 #: prefs.js:143
 msgid "Monochrome white (Symbolic)"
@@ -195,8 +194,8 @@ msgid "Monochrome black (Black)"
 msgstr "Preto monocromático (Preto)"
 
 #: prefs.js:145
-msgid "Vibrant brand colors (Color)"
-msgstr "Cores originais da marca (Colorido)"
+msgid "Colored icons (Color)"
+msgstr "Ícones coloridos (Colorido)"
 
 #: prefs.js:165
 msgid "Coding Assistants"

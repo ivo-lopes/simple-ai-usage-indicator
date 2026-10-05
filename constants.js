@@ -34,7 +34,7 @@ export const ICON_STYLE_SYMBOLIC = 'symbolic';
 /** Icon appearance style: monochrome black */
 export const ICON_STYLE_BLACK = 'black';
 
-/** Icon appearance style: vibrant brand color */
+/** Icon appearance style: colored generic icons */
 export const ICON_STYLE_COLOR = 'color';
 
 /** Unique identifier for OpenAI Codex CLI provider */

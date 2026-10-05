@@ -141,11 +141,11 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
 
         const iconStyleRow = new Adw.ComboRow({
             title: _('Icon style'),
-            subtitle: _('Choose monochrome white, monochrome black, or vibrant brand colors in the panel and menu.'),
+            subtitle: _('Choose monochrome white, monochrome black, or colored generic icons in the panel and menu.'),
             model: Gtk.StringList.new([
                 _('Monochrome white (Symbolic)'),
                 _('Monochrome black (Black)'),
-                _('Vibrant brand colors (Color)'),
+                _('Colored icons (Color)'),
             ]),
             selected: selectedIconIndex,
         });

@@ -25,17 +25,17 @@ license provenance.
 ## Key Features
 
 - **Multi-Assistant Top Panel Bar**:
-  - **All Mode**: Display compact status badges for all active assistants side-by-side in the top bar with their official icons.
+  - **All Mode**: Display compact status badges for all active assistants side-by-side in the top bar with original generic icons.
   - **Cycle Mode**: Show one assistant at a time with click-to-cycle functionality.
 - **Scrollable Popup Menu with Pinned Footer Controls**:
   - Integrated `St.ScrollView` with dynamic monitor workarea calculations (`max-height`).
   - When all assistants are expanded, the menu scrolls smoothly with mouse wheel or touchpad.
   - **Always Visible**: The manual refresh button ("Refresh now" with last-updated timestamp) and "Settings" button remain permanently pinned at the bottom and never disappear off-screen.
-- **Customizable Icon Styles (White, Black, or Vibrant Brand Colors)**:
+- **Customizable Icon Styles (White, Black, or Color)**:
   - **Monochrome White (Symbolic)**: Classic GNOME Shell aesthetic that blends seamlessly with dark shell themes.
   - **Monochrome Black (Black)**: Sleek high-contrast dark style, ideal for light panel themes or customized setups.
-  - **Vibrant Brand Colors (Color)**: Eye-catching official brand colors (OpenAI emerald green `#10A37F`, Claude terracotta orange `#D97757`, and Google Antigravity blue).
-  - **Perfect Visual Conformity**: All color variations adhere to exact dimensions, bounding boxes, and panel spacing taking the symbolic white icons as reference.
+  - **Color**: Distinct neutral colors for the original generic icons. These are not provider logos. See [ASSETS.md](ASSETS.md).
+  - **Consistent icon dimensions**: All color variations adhere to exact dimensions, bounding boxes, and panel spacing taking the symbolic white icons as reference.
 - **Internationalization (i18n)**:
   - Native Brazilian Portuguese (`pt_BR` / `pt`) translation support via GNU Gettext.
   - Automatically adheres to your desktop language.
@@ -57,7 +57,7 @@ license provenance.
 - **Modern Preferences Dialog (Libadwaita / GTK4)**:
   - Configure background polling interval (60s to 3600s).
   - Select display metrics: Remaining quota (`left`), Consumed quota (`used`), or Numeric percentage (`percent`).
-  - Toggle between **Monochrome White**, **Monochrome Black**, and **Vibrant Brand Colors** icon styles.
+  - Toggle between **Monochrome White**, **Monochrome Black**, and **Color** icon styles.
   - Toggle individual assistants on or off.
   - Interactive **Test connection** buttons for instant diagnostics.
 
@@ -75,15 +75,15 @@ license provenance.
 ├── limitReset.js              # Early quota reset detection and desktop notifications
 ├── resetCreditExpiry.js       # Reset credit expiration calculator
 ├── icons/                     # Complete white, black & colored icon sets
-│   ├── codex-symbolic.svg     # Codex monochrome white icon
-│   ├── codex-black.svg        # Codex monochrome black icon
-│   ├── codex-color.svg        # Codex / OpenAI emerald green icon
-│   ├── claude-symbolic.svg    # Claude Code white icon (UXWing)
-│   ├── claude-black.svg       # Claude Code black icon (UXWing)
-│   ├── claude-color.svg       # Claude Code terracotta color icon
-│   ├── antigravity-symbolic.svg # Google Antigravity white icon
-│   ├── antigravity-black.svg  # Google Antigravity black icon
-│   └── antigravity-color.svg  # Google Antigravity official color icon
+│   ├── codex-symbolic.svg     # Generic code symbol, white
+│   ├── codex-black.svg        # Generic code symbol, black
+│   ├── codex-color.svg        # Generic code symbol, colored
+│   ├── claude-symbolic.svg    # Generic conversation symbol, white
+│   ├── claude-black.svg       # Generic conversation symbol, black
+│   ├── claude-color.svg       # Generic conversation symbol, colored
+│   ├── antigravity-symbolic.svg # Generic usage chart, white
+│   ├── antigravity-black.svg  # Generic usage chart, black
+│   └── antigravity-color.svg  # Generic usage chart, colored
 ├── po/                        # GNU Gettext translation source files
 │   ├── simple-ai-usage-indicator.pot # Template catalog
 │   └── pt_BR.po               # Brazilian Portuguese translation
@@ -144,13 +144,13 @@ This script:
 - Automatically purges any precompiled `schemas/gschemas.compiled` (strictly complying with **EGO-P-006** rule: *Compiled GSettings schemas should not be shipped for 45+ packages*).
 - Validates the test suite.
 - Re-compiles translation message catalogs (`.mo`).
-- Bundles all assets and verifies the archive.
+- Bundles only runtime sources, nine used SVGs, compiled translations, LICENSE, NOTICE and ASSETS.md; verifies the archive.
 
 Or manually using `gnome-extensions pack`:
 
 ```bash
 rm -f schemas/gschemas.compiled
-gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --extra-source=quotaReset.js --extra-source=LICENSE --extra-source=NOTICE --force
+gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --extra-source=quotaReset.js --extra-source=LICENSE --extra-source=NOTICE --extra-source=ASSETS.md --force
 ```
 
 Then install the generated archive:
@@ -177,7 +177,7 @@ gnome-extensions prefs simple-ai-usage-indicator@ivo-lopes.github.com
 - **Icon style**:
   - `Monochrome white (Symbolic)`: Clean white icons.
   - `Monochrome black (Black)`: High-contrast black icons.
-  - `Vibrant brand colors (Color)`: Full-color brand logos for Codex (green), Claude Code (orange), and Antigravity (blue).
+  - `Colored icons (Color)`: Original generic code, conversation and usage-chart symbols.
 - **Top bar layout**:
   - `Show all enabled assistants`: Shows multiple icons side-by-side.
   - `Cycle one at a time`: Displays a single assistant, clicking toggles to the next.
@@ -208,7 +208,7 @@ gjs -m tests/antigravityProvider.test.js
 - **Read-only**: The extension never alters your CLI configuration files, session histories, or cloud parameters.
 - **Local Secret Storage**:
   - Antigravity tokens are accessed using the native Linux Secret Service API (`libsecret` / GNOME Keyring).
-  - No plain-text credentials are leaked or sent to third-party endpoints.
+  - Quota fixtures contain synthetic values and no credentials.
 - **Direct Telemetry**: All requests communicate exclusively with the official API endpoints of the respective AI providers (ChatGPT, Anthropic, Google).
 
 ---

@@ -70,10 +70,10 @@ async function runTests() {
     }
 
     // Specific conformity checks:
-    // Antigravity icons must all have 540x540 viewBox
+    // Original generic icons use a common 24x24 coordinate system.
     const agColorSvg = getFileContent(GLib.build_filenamev([iconsDir, 'antigravity-color.svg']));
-    assert(extractSvgViewBox(agColorSvg) === '0 0 540 540',
-        'antigravity-color.svg must have viewBox "0 0 540 540" to match antigravity-symbolic.svg');
+    assert(extractSvgViewBox(agColorSvg) === '0 0 24 24',
+        'antigravity-color.svg must have viewBox "0 0 24 24" to match antigravity-symbolic.svg');
 
     // Schemas verification (EGO-P-006): schemas/gschemas.compiled must NOT exist in the repository
     const compiledSchemaPath = GLib.build_filenamev([basePath, 'schemas', 'gschemas.compiled']);

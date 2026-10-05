@@ -52,15 +52,26 @@ gnome-extensions pack \
     --extra-source=quotaReset.js \
     --extra-source=LICENSE \
     --extra-source=NOTICE \
+    --extra-source=ASSETS.md \
     --force \
     .
 
 echo "=== [5/5] Verifying bundle contents & EGO-P-006 compliance ==="
-if unzip -l "$ZIP_NAME" | grep -q "gschemas.compiled"; then
-    echo "ERROR: EGO-P-006 violation! schemas/gschemas.compiled found in package archive!" >&2
-    exit 1
-fi
+unzip -tq "$ZIP_NAME"
+while IFS= read -r entry; do
+    case "$entry" in
+        extension.js|prefs.js|metadata.json|stylesheet.css|constants.js|codexAuth.js|usageApi.js|limitReset.js|resetCreditExpiry.js|quotaReset.js|LICENSE|NOTICE|ASSETS.md) ;;
+        providers/|providers/baseProvider.js|providers/index.js|providers/codexProvider.js|providers/claudeProvider.js|providers/antigravityProvider.js|providers/agyUsage.js) ;;
+        icons/|icons/codex-symbolic.svg|icons/codex-black.svg|icons/codex-color.svg|icons/claude-symbolic.svg|icons/claude-black.svg|icons/claude-color.svg|icons/antigravity-symbolic.svg|icons/antigravity-black.svg|icons/antigravity-color.svg) ;;
+        schemas/|schemas/org.gnome.shell.extensions.simple-ai-usage-indicator.gschema.xml) ;;
+        locale/|locale/pt/|locale/pt_BR/|locale/pt/LC_MESSAGES/|locale/pt_BR/LC_MESSAGES/|locale/pt/LC_MESSAGES/simple-ai-usage-indicator.mo|locale/pt_BR/LC_MESSAGES/simple-ai-usage-indicator.mo) ;;
+        *) echo "ERROR: unexpected archive entry: $entry" >&2; exit 1 ;;
+    esac
+done < <(unzip -Z1 "$ZIP_NAME")
+for required in LICENSE NOTICE ASSETS.md; do
+    unzip -p "$ZIP_NAME" "$required" | cmp - "$required"
+done
 
-echo "Verification SUCCESS: schemas/gschemas.compiled is NOT present in bundle."
+echo "Verification SUCCESS: runtime allowlist and legal notices verified."
 echo "Bundle generated: $ZIP_NAME ($(du -h "$ZIP_NAME" | cut -f1))"
 echo "Local bundle validated. No upload performed; review release readiness separately."
