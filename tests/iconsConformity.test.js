@@ -75,11 +75,11 @@ async function runTests() {
     assert(extractSvgViewBox(agColorSvg) === '0 0 24 24',
         'antigravity-color.svg must have viewBox "0 0 24 24" to match antigravity-symbolic.svg');
 
-    // Schemas verification (EGO-P-006): schemas/gschemas.compiled must NOT exist in the repository
+    // Source schema verification: schemas/gschemas.compiled must NOT exist in the repository
     const compiledSchemaPath = GLib.build_filenamev([basePath, 'schemas', 'gschemas.compiled']);
     const compiledSchemaFile = Gio.File.new_for_path(compiledSchemaPath);
     assert(!compiledSchemaFile.query_exists(null),
-        'EGO-P-006 violation: schemas/gschemas.compiled must not exist in the source repository');
+        'Source tree violation: schemas/gschemas.compiled must not exist in the source repository');
 
     log('iconsConformity tests passed successfully');
 }

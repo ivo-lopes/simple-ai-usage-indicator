@@ -1,0 +1,9 @@
+{
+  "45": {"fedora": 39, "archive": true, "digest": "d63d63fe593749a5e8dbc8152427d40bbe0ece53d884e00e5f3b44859efa5077", "observed": "45.10"},
+  "46": {"fedora": 40, "archive": true, "digest": "3c86d25fef9d2001712bc3d9b091fc40cf04be4767e48f1aa3b785bf58d300ed", "observed": "46.10"},
+  "47": {"fedora": 41, "archive": true, "digest": "f1a3fab47bcb3c3ddf3135d5ee7ba8b7b25f2e809a47440936212a3a50957f3d", "observed": "47.10"},
+  "48": {"fedora": 42, "archive": true, "digest": "99e203b80b1c3d8f7e161ec10a68fd02b081ef83a3963553e513c82846b97814", "observed": "48.8"},
+  "49": {"fedora": 43, "archive": false, "digest": "a651ddf48ea28a06ed4e1e6519f51c9f47e7a5a138722ade87369b8fbb7e5b42", "observed": "49.10"},
+  "50": {"fedora": 44, "archive": false, "digest": "43b29f65a41eb9c35e1cd5323e3bdf3b655c2357a9f4f1ff2f9c2798e5045d80", "observed": "50.5"},
+  "51": {"fedora": 45, "archive": false, "digest": "aacbc26b38361ba0cb3d10f268da40b61b36aed6ed6fe5831a35871636bedb06", "observed": "51.0"}
+}

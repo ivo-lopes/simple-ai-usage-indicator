@@ -1,0 +1,29 @@
+[
+  {
+    "test": "45/47 minimal session startup",
+    "initial": "FAIL native libgnome-desktop localed callback",
+    "correction": "Private locale1 defaults plus xkb us input source",
+    "final": "PASS real binaries, see matrix"
+  },
+  {
+    "test": "45 ScrollView disable",
+    "initial": "FAIL native St.Bin assertion",
+    "correction": "Use existing Clutter.Container.add_actor on 45, set_child on later Shells; regression test",
+    "final": "PASS 45.10 lifecycle"
+  },
+  {
+    "test": "51 headless compositor shutdown with Preferences still open",
+    "initial": "FAIL SIGSEGV after extension disabled, no JS errors",
+    "gdb": "gnome_shell_plugin_kill_window_effects \u2192 meta_window_unmanage \u2192 wl_display_destroy_clients \u2192 meta_context_dispose",
+    "correction": "Close disposable Wayland client windows before Meta.Context termination, check native exit status",
+    "final": "PASS real 51.0 compositor shutdown; see matrix and gnome51-ui"
+  },
+  {
+    "test": "48.7 pt_PT 800x600 native AT-SPI reader",
+    "initial": "FAIL reader SIGTRAP/NoReply connecting to private accessibility bus, no extension JS errors",
+    "final": "FAIL in this host lab; repeated explicit-address/clock-format diagnostics also failed",
+    "partialResults": "Native pt UI, light/dark/high contrast bounds and actual Preferences keyboard controls PASS before reader failure",
+    "independentCoverage": "48.7 pt_BR native AT-SPI + Orca enumeration PASS; 51.0 container 800x600 native AT-SPI and keyboard PASS",
+    "scope": "Do not infer pt_PT screen-reader validation or full desktop speech from these independent results"
+  }
+]

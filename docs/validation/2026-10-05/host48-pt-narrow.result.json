@@ -1,0 +1,6 @@
+{
+  "shell": "GNOME Shell 48.7",
+  "backend": "wayland",
+  "result": "FAIL",
+  "jsErrors": []
+}

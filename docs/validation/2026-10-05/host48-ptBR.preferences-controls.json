@@ -1,0 +1,79 @@
+{
+  "rows": [
+    "Intervalo de atualização",
+    "Modo de exibição",
+    "Layout da barra superior",
+    "Estilo dos ícones",
+    "Codex CLI",
+    "Codex CLI",
+    "Autenticação local",
+    "Claude Code",
+    "Claude Code",
+    "Autenticação local",
+    "Antigravity CLI",
+    "Antigravity CLI",
+    "Autenticação local"
+  ],
+  "focus": [
+    {
+      "type": "Adw_ActionRow",
+      "title": "Intervalo de atualização",
+      "role": 28
+    },
+    {
+      "type": "Gtk_Text",
+      "title": "",
+      "role": 40
+    },
+    {
+      "type": "Adw_ComboRow",
+      "title": "Modo de exibição",
+      "role": 8
+    },
+    {
+      "type": "Adw_ComboRow",
+      "title": "Layout da barra superior",
+      "role": 8
+    },
+    {
+      "type": "Adw_ComboRow",
+      "title": "Estilo dos ícones",
+      "role": 8
+    },
+    {
+      "type": "Adw_ActionRow",
+      "title": "Codex CLI",
+      "role": 28
+    },
+    {
+      "type": "Gtk_Switch",
+      "title": "",
+      "role": 63
+    },
+    {
+      "type": "Adw_ActionRow",
+      "title": "Autenticação local",
+      "role": 28
+    },
+    {
+      "type": "Gtk_Button",
+      "title": "Testar conexão",
+      "role": 3
+    },
+    {
+      "type": "Adw_ActionRow",
+      "title": "Claude Code",
+      "role": 28
+    },
+    {
+      "type": "Gtk_Switch",
+      "title": "",
+      "role": 63
+    },
+    {
+      "type": "Adw_ActionRow",
+      "title": "Autenticação local",
+      "role": 28
+    }
+  ]
+}

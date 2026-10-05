@@ -1,0 +1,25 @@
+libmutter-Message: 21:12:40.335: Running GNOME Shell (using mutter 51.0) as a Wayland display server
+libmutter-Message: 21:12:41.042: Created surfaceless renderer without GPU
+libmutter-Message: 21:12:41.080: Added virtual monitor Meta-0
+libmutter-Message: 21:12:41.131: Using Wayland display name 'wayland-0'
+
+(gnome-shell:46): libmutter-WARNING **: 21:12:41.344: There is no colord server available
+GNOME Shell-Message: 21:12:41.895: Registering session with GDM
+GNOME Shell-Message: 21:12:41.909: Error registering session with GDM: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.gnome.DisplayManager was not provided by any .service files
+GNOME Shell-Message: 21:12:41.920: Failed to launch ibus-daemon: Failed to execute child process “ibus-daemon” (No such file or directory)
+
+(gnome-shell:46): GNOME Shell-WARNING **: 21:12:41.928: Failed to inhibit suspend: GDBus.Error:org.freedesktop.DBus.Error.UnknownMethod: No such method “Inhibit”
+GNOME Shell-Message: 21:12:42.030: Error looking up permission: GDBus.Error:org.freedesktop.portal.Error.NotFound: No entry for geolocation
+WARNING: Glycin running without sandbox. Bubblewrap (bwrap) doesn't work in the environment.
+GNOME Shell-Message: 21:12:42.205: Failed to register AuthenticationAgent
+GNOME Shell-Message: 21:12:42.484: GNOME Shell started at Mon Oct 05 2026 21:12:41 GMT+0000 (Coordinated Universal Time)
+GNOME Shell-Message: 21:12:42.487: Registering display with GDM
+GNOME Shell-Message: 21:12:42.488: No permission to control network connections: Gio.DBusError: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.PolicyKit1 was not provided by any .service files
+GNOME Shell-Message: 21:12:42.504: Error registering display with GDM: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.gnome.DisplayManager was not provided by any .service files
+** Message: 21:12:42.526: Failed to start camera monitor
+GNOME Shell-Message: 21:12:42.611: Failed to get PolKit permission: Gio.DBusError: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.PolicyKit1 was not provided by any .service files
+GNOME Shell-Message: 21:12:42.613: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.GeoClue2 was not provided by any .service files
+
+(gnome-shell:46): libmutter-WARNING **: 21:12:50.124: Tried to ping window W0 (Simple AI Usage Indicator) with a bad serial! Not allowed.
+** Message: 21:12:51.239: Shutting down GNOME Shell
+libmutter-Message: 21:12:51.340: Removed virtual monitor Meta-0

@@ -1,0 +1,6 @@
+SpiRegistry daemon is running with well-known name - org.a11y.atspi.Registry
+PASS: disable during agy refresh; subprocess terminated
+PASS: real popup and keyboard focus: Atualizar agora
+PASS: all-provider popup light/dark/high contrast screenshots and bounds
+PASS: actual native preferences rows, no password field, keyboard focus and cleanup
+gnome-shell-calendar-server[302429]: Lost (or failed to acquire) the name org.gnome.Shell.CalendarServer - exiting

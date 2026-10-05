@@ -1,0 +1,11 @@
+SpiRegistry daemon is running with well-known name - org.a11y.atspi.Registry
+PASS: v21 ordinary settings preserved; no legacy secret read or migrated
+PASS: disable during agy refresh; subprocess terminated
+PASS: real popup and keyboard focus: Atualizar agora
+PASS: all-provider popup light/dark/high contrast screenshots and bounds
+PASS: actual native preferences rows, no password field, keyboard focus and cleanup
+PASS: native AT-SPI exposes Preferences and named controls
+PASS: Orca enumerates native Preferences on the private accessibility bus (speech not tested)
+PASS: real Preferences invocation/window; stderr checked for JS errors
+PASS: enable → disable → enable → disable with structured refresh
+gnome-shell-calendar-server[287550]: Lost (or failed to acquire) the name org.gnome.Shell.CalendarServer - exiting

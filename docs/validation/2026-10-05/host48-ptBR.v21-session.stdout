@@ -1,0 +1,3 @@
+SpiRegistry daemon is running with well-known name - org.a11y.atspi.Registry
+PASS: published v21 installed, enabled, Preferences invoked and disabled
+gnome-shell-calendar-server[286567]: Lost (or failed to acquire) the name org.gnome.Shell.CalendarServer - exiting

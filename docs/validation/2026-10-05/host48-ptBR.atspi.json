@@ -1,0 +1,638 @@
+{
+  "matches": [
+    {
+      "name": "Simple AI Usage Indicator",
+      "role": "frame"
+    },
+    {
+      "name": "Simple AI Usage Indicator",
+      "role": "grouping"
+    },
+    {
+      "name": "Intervalo de atualização",
+      "role": "list item"
+    },
+    {
+      "name": "Intervalo de atualização",
+      "role": "label"
+    },
+    {
+      "name": "Intervalo de atualização",
+      "role": "spin button"
+    },
+    {
+      "name": "Modo de exibição",
+      "role": "combo box"
+    },
+    {
+      "name": "Modo de exibição",
+      "role": "label"
+    },
+    {
+      "name": "Antigravity CLI",
+      "role": "list item"
+    },
+    {
+      "name": "Antigravity CLI",
+      "role": "label"
+    },
+    {
+      "name": "Antigravity CLI",
+      "role": "check box"
+    },
+    {
+      "name": "Simple AI Usage Indicator",
+      "role": "label"
+    }
+  ],
+  "nodes": [
+    {
+      "name": "main",
+      "role": "desktop frame"
+    },
+    {
+      "name": "org.gnome.Shell.Extensions",
+      "role": "application"
+    },
+    {
+      "name": "Simple AI Usage Indicator",
+      "role": "frame"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "Simple AI Usage Indicator",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "Geral",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "scroll pane"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Exibição e atualização",
+      "role": "label"
+    },
+    {
+      "name": "Configurar taxas de atualização e aparência no painel superior.",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Exibição e atualização",
+      "role": "list"
+    },
+    {
+      "name": "Intervalo de atualização",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Intervalo de atualização",
+      "role": "label"
+    },
+    {
+      "name": "Segundos entre atualizações automáticas de uso",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Intervalo de atualização",
+      "role": "spin button"
+    },
+    {
+      "name": "Modo de exibição",
+      "role": "combo box"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Modo de exibição",
+      "role": "label"
+    },
+    {
+      "name": "Escolha entre cota restante, cota consumida ou percentual.",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "list"
+    },
+    {
+      "name": "",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Cota restante (restante)",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Layout da barra superior",
+      "role": "combo box"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Layout da barra superior",
+      "role": "label"
+    },
+    {
+      "name": "Mostre todos os assistentes habilitados ou apenas o assistente selecionado.",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "list"
+    },
+    {
+      "name": "",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Exibir todos os assistentes habilitados",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Estilo dos ícones",
+      "role": "combo box"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Estilo dos ícones",
+      "role": "label"
+    },
+    {
+      "name": "Escolha ícones genéricos simbólicos do tema, pretos ou coloridos para o painel e menu.",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "list"
+    },
+    {
+      "name": "",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Simbólico (cor do tema)",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Assistentes de Código",
+      "role": "label"
+    },
+    {
+      "name": "Gerencie os assistentes monitorados e teste sua autenticação local.",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Assistentes de Código",
+      "role": "list"
+    },
+    {
+      "name": "",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Codex CLI",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Codex CLI",
+      "role": "label"
+    },
+    {
+      "name": "Não configurado",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Codex CLI",
+      "role": "check box"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Claude Code",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Claude Code",
+      "role": "label"
+    },
+    {
+      "name": "Não configurado",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Claude Code",
+      "role": "check box"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Antigravity CLI",
+      "role": "list item"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Antigravity CLI",
+      "role": "label"
+    },
+    {
+      "name": "Verificando autenticação...",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Antigravity CLI",
+      "role": "check box"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "scroll bar"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "Simple AI Usage Indicator",
+      "role": "label"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "Fechar",
+      "role": "button"
+    },
+    {
+      "name": "",
+      "role": "grouping"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    },
+    {
+      "name": "",
+      "role": "panel"
+    }
+  ]
+}

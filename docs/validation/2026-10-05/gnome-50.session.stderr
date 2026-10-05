@@ -1,0 +1,89 @@
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.0' (uid=1000 pid=28 comm="gsettings set org.gnome.desktop.input-sources sour")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.a11y.Bus' requested by ':1.4' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.a11y.Bus'
+dbus-daemon[93]: Activating service name='org.a11y.atspi.Registry' requested by ':1.0' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[93]: Successfully activated service 'org.a11y.atspi.Registry'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.Shell.Extensions' requested by ':1.9' (uid=1000 pid=96 comm="gnome-extensions list")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.10' (uid=1000 pid=105 comm="/usr/bin/gjs -m /usr/share/gnome-shell/org.gnome.S")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.11' (uid=1000 pid=121 comm="/usr/libexec/xdg-desktop-portal")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.11' (uid=1000 pid=121 comm="/usr/libexec/xdg-desktop-portal")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+fuse: device /dev/fuse not found. Kernel module not loaded?
+error: fuse init failed: Can't mount path /evidence/runtime/doc
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.104: Document portal fuse mount point unknown: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name :1.13 was not provided by any .service files
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.105: Choosing gtk.portal for org.freedesktop.impl.portal.Access as a last-resort fallback
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.11' (uid=1000 pid=121 comm="/usr/libexec/xdg-desktop-portal")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.Shell.Screencast' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.Shell.CalendarServer' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.evolution.dataserver.Sources5' requested by ':1.16' (uid=1000 pid=163 comm="/usr/libexec/gnome-shell-calendar-server")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.Shell.Notifications' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.Shell.Notifications'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gtk.vfs.UDisks2VolumeMonitor' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gtk.vfs.Metadata' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gtk.vfs.Metadata'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gtk.vfs.UDisks2VolumeMonitor'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gtk.vfs.GoaVolumeMonitor' requested by ':1.2' (uid=1000 pid=38 comm="gnome-shell --headless --wayland --no-x11 --virtua")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.OnlineAccounts' requested by ':1.22' (uid=1000 pid=303 comm="/usr/libexec/gvfs-goa-volume-monitor")
+goa-daemon-Message: 21:12:29.711: goa-daemon version 3.58.1 starting
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.Identity' requested by ':1.23' (uid=1000 pid=308 comm="/usr/libexec/goa-daemon")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.OnlineAccounts'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gtk.vfs.GoaVolumeMonitor'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.Identity'
+
+(process:315): libgoaidentity-WARNING **: 21:12:29.735: GoaKerberosIdentityManager: Could not monitor credentials: Invalid UID in persistent keyring name
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.evolution.dataserver.Sources5'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.evolution.dataserver.Calendar8' requested by ':1.16' (uid=1000 pid=163 comm="/usr/libexec/gnome-shell-calendar-server")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.Shell.CalendarServer'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.evolution.dataserver.Calendar8'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.gnome.evolution.dataserver.AddressBook10' requested by ':1.27' (uid=1000 pid=328 comm="/usr/libexec/evolution-calendar-factory")
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.981: Failed to load RealtimeKit property: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.RealtimeKit1 was not provided by any .service files
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.982: Failed to load RealtimeKit property: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.RealtimeKit1 was not provided by any .service files
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.982: Failed to load RealtimeKit property: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.RealtimeKit1 was not provided by any .service files
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.982: Choosing gtk.portal for org.freedesktop.impl.portal.Settings as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.983: Choosing gtk.portal for org.freedesktop.impl.portal.FileChooser as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.984: Choosing gtk.portal for org.freedesktop.impl.portal.AppChooser as a last-resort fallback
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.evolution.dataserver.AddressBook10'
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.986: Choosing gtk.portal for org.freedesktop.impl.portal.Print as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.986: Choosing gtk.portal for org.freedesktop.impl.portal.Notification as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.987: Choosing gtk.portal for org.freedesktop.impl.portal.Inhibit as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.990: Failed to connect to PipeWire: Couldn't connect to PipeWire
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.990: Choosing gtk.portal for org.freedesktop.impl.portal.Account as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.991: Choosing gtk.portal for org.freedesktop.impl.portal.Email as a last-resort fallback
+
+(/usr/libexec/xdg-desktop-portal:121): xdg-desktop-portal-WARNING **: 21:12:29.992: Choosing gtk.portal for org.freedesktop.impl.portal.DynamicLauncher as a last-resort fallback
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.Shell.Screencast'
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.gnome.Shell.Extensions'
+
+(org.gnome.Shell.Extensions:105): Gjs-WARNING **: 21:12:34.406: Type GITypeInfo of property Adw.PreferencesWindow::visible-page does not match return type GITypeInfo of getter get_visible_page. Falling back to slow path
+
+(org.gnome.Shell.Extensions:105): Gjs-WARNING **: 21:12:34.406: Type GITypeInfo of property Adw.PreferencesWindow::visible-page does not match type GITypeInfo of first argument of setter set_visible_page. Falling back to slow path
+dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Activating service name='org.freedesktop.secrets' requested by ':1.10' (uid=1000 pid=105 comm="/usr/bin/gjs -m /usr/share/gnome-shell/org.gnome.S")
+** Message: 21:12:34.491: couldn't access control socket: /evidence/runtime/keyring/control: No such file or directory
+discover_other_daemon: 0dbus-daemon[26]: [session uid=1000 pid=26 pidfd=5] Successfully activated service 'org.freedesktop.secrets'
+Gdk-Message: 21:12:38.767: Lost connection to Wayland compositor.
+Gdk-Message: 21:12:38.767: Error reading events from display: Broken pipe
+A connection to the bus can't be made
+
+(evolution-calendar-factory:328): libedbus-private-WARNING **: 21:12:38.843: Error setting property 'ConnectionStatus' on interface org.gnome.evolution.dataserver.Source: The connection is closed (g-io-error-quark, 18)
+
+(evolution-addressbook-factory:381): libedbus-private-WARNING **: 21:12:38.844: Error setting property 'ConnectionStatus' on interface org.gnome.evolution.dataserver.Source: The connection is closed (g-io-error-quark, 18)

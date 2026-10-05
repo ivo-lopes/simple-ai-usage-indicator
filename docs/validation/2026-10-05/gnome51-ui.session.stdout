@@ -1,0 +1,8 @@
+SpiRegistry daemon is running with well-known name - org.a11y.atspi.Registry
+PASS: disable during agy refresh; subprocess terminated
+PASS: real popup and keyboard focus: Refresh now
+PASS: all-provider popup light/dark/high contrast screenshots and bounds
+PASS: actual native preferences rows, no password field, keyboard focus and cleanup
+PASS: native AT-SPI exposes Preferences and named controls
+PASS: real Preferences invocation/window; stderr checked for JS errors
+PASS: enable → disable → enable → disable with structured refresh

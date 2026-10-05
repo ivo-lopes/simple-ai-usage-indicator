@@ -1,6 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-only
-# Fedora 45 base observed in the 2026-10-05 GNOME 51.0 lab.
-FROM fedora@sha256:aacbc26b38361ba0cb3d10f268da40b61b36aed6ed6fe5831a35871636bedb06
+# Base digests are recorded in versions.json; the runner verifies the real Shell major.
+ARG BASE_IMAGE=fedora@sha256:aacbc26b38361ba0cb3d10f268da40b61b36aed6ed6fe5831a35871636bedb06
+FROM ${BASE_IMAGE}
+ARG FEDORA_VERSION=45
+ARG ARCHIVE=false
+RUN if [ "$ARCHIVE" = true ]; then \
+    rm -f /etc/yum.repos.d/*.repo && \
+    printf '[fedora]\nname=Fedora archive\nbaseurl=https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/%s/Everything/$basearch/os/\nenabled=1\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-%s-$basearch\n[updates]\nname=Fedora updates archive\nbaseurl=https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/%s/Everything/$basearch/\nenabled=1\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-%s-$basearch\n' \
+    "$FEDORA_VERSION" "$FEDORA_VERSION" "$FEDORA_VERSION" "$FEDORA_VERSION" > /etc/yum.repos.d/archive.repo; fi
 RUN dnf -y --setopt=install_weak_deps=False install gnome-shell gjs libsecret python3 unzip dbus-daemon mesa-dri-drivers && dnf clean all
 RUN useradd --uid 1000 --create-home sauitest
 USER sauitest

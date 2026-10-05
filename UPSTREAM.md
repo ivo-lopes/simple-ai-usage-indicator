@@ -35,23 +35,19 @@ Shell process. Source tests cover menu constructors and delayed asynchronous
 teardown rather than claiming a complete desktop compatibility matrix.
 
 The [review guidelines](https://gjs.guide/extensions/review-guidelines/review-guidelines.html)
-describe metadata `version` as assigned internally by EGO. Fork metadata stays
-at its published GitHub baseline 21 in this wave; UUID, schema ID and name are
-unchanged. Source schema XML is distributed, while `gschemas.compiled` is
+describe metadata `version` as assigned internally by EGO. Current metadata omits that deprecated key; UUID, schema ID and name are
+unchanged. GitHub release tags have a separate version policy. Source schema XML is distributed, while `gschemas.compiled` is
 excluded. The old project's numbered “EGO-P-006” label is not an official current
 guideline identifier and has been removed from packaging documentation.
 
-## Compatibility evidence and limit
+## Compatibility evidence
 
-GNOME Shell 48.7 on the workstation and GNOME Shell/Mutter 51.0 in a Fedora 45
-container passed disable during synthetic agy execution and repeated enable,
-completed structured quota refresh and disable, without JavaScript errors.
-The container had network disabled, no host system bus or credentials, a private
-D-Bus bus and an explicitly synthetic login1 service. This proves the Shell API
-and extension lifecycle smoke in that lab, not a complete GNOME desktop session.
-The compatibility metadata now includes 51; version stays 21. Real lifecycle
-coverage on existing declared 45/46/47/49/50 and complete desktop/preferences/theme
-validation are still NOT TESTED. SAUI-12 retains that original matrix gap.
+The current real-Shell 45–51 matrix, native GTK Preferences, theme/accessibility
+checks and laboratory limits are recorded in PRE_SUBMISSION.md. The 45 ScrollView
+fix is specific to the fork's scrolling section: use Clutter.Container.add_actor on
+45 and ScrollView.set_child on later Shells. Native source inspection and the
+real 45.10 disable test exposed the inherited St.Bin.set_child lifecycle bug.
+The isolated services support the lab session; they do not emulate Shell versions.
 
 ## Before every release
 
@@ -72,8 +68,7 @@ fixes selectively, run regression and real-Shell tests, preserve NOTICE/authorsh
 and update this table and CHANGELOG.md before tagging. The 2026-10-05 re-fetch still
 found `7d8c20ef0f3d959d45f3c31ac2cc6fe9a5e49984`; no additional commits to reconcile.
 
-The second-wave compatibility limits above are historical. Current evidence is in
-PRE_SUBMISSION.md. Current metadata omits `version` because EGO assigns it internally;
+Current evidence is in PRE_SUBMISSION.md. Current metadata omits `version` because EGO assigns it internally;
 GitHub releases remain separately tagged. Credit-balance presentation and reset-credit
 expiry preference changes remain deferred; completing this review routine does not
 mean all optional upstream features were adopted.

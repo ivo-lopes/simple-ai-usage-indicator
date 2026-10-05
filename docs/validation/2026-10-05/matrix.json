@@ -1,0 +1,175 @@
+{
+  "date": "2026-10-05",
+  "command": "python3 tests/integration/matrix.py simple-ai-usage-indicator@ivo-lopes.github.com.shell-extension.zip --docker /home/ivo/bin/docker --output /tmp/saui-wave3-complete-matrix-2112",
+  "archiveSHA256": "d9bb410c06b13df0f20f89ece768db15cb7e7d8e793ee614f6859eee494a87c1",
+  "archiveBytes": 66198,
+  "archiveMembersSHA256": {
+    "providers/agyUsage.js": "5c599bfbe3b525f29330d53230559fc9135f389581529c31961dc4488f562713",
+    "providers/antigravityProvider.js": "23510df374c1ea3dbd30869e6274a77603958c4116989c804e951e0905829952",
+    "providers/baseProvider.js": "4d536d0502fbc831a53623ea3d4b953bbbfd6d9201a36c688153697c6872c71c",
+    "providers/claudeProvider.js": "c8ca093370925344c9864e55511e681f693e28fababffe4551fe2672b4e66667",
+    "providers/codexProvider.js": "fea844a992799fb85ecf760e5eceb7c5ee6fc836d385eb4a3f68bb96f015e04d",
+    "providers/index.js": "6878f96a0648a085eb56dd38d93790745410f51b3742a97361b863cb65f7a610",
+    "stylesheet.css": "dfa0ad8fbef0c55943a1739b962ef596cbe9a791dce435b54fc20897d52a5b25",
+    "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "prefs.js": "8bcf63740a934c944a32fadcdcc8401465c4ffe26797fcdde76355eac8a7f648",
+    "ASSETS.md": "26cbacd5ca4a83b37cfd84fdc2d5dacba67d2db12ca918fb923f389346c6e1bc",
+    "locale/pt/LC_MESSAGES/simple-ai-usage-indicator.mo": "ad712dfd79e7a75a4dba152e2ba7a3c7a36e2ea6f4dab0e3f51d16c643618b32",
+    "locale/pt_BR/LC_MESSAGES/simple-ai-usage-indicator.mo": "a8aaf2f425858ff70026bec866e9dc617ac01040cfb1ef3ee08e95f9f6942449",
+    "quotaReset.js": "dc89eaa2ae24c2a9f62d52d3dc2a8f5d3eadff6433a1ea0e4debf145f2c06868",
+    "codexAuth.js": "cf10f7a8419d307475a7e9b86ad1aab5bee9f953cbd1c80a738a8966b0a3b308",
+    "NOTICE": "54570de2f124833b7b27505ec92db781cc6f26c08ee5d183988bd69c843f0e84",
+    "extension.js": "99900cde41fd469078ac60e9e7052856328eb9f20cc22418b52a554cb76cfee0",
+    "metadata.json": "11e442c95b157b8f33d8e0c3d244976aa20e192b01abe8ad9850cd1a2cb4d95f",
+    "icons/antigravity-black.svg": "6f6cef62532ea5df380a8ad30302ed6c80373581ea84ea466bdbe12694281c31",
+    "icons/antigravity-color.svg": "794b7a0d4fc47f04de53993e82bca2dcec8fcfab0a2b58e08eefab951204f3d5",
+    "icons/antigravity-symbolic.svg": "f62aac811575508e8ca732a55f20b8571bb54ae9e32df8f41938ccd4eefa9b46",
+    "icons/claude-black.svg": "13a38c7727966b02db3db70da7084a45efee68bea2caac534fe797a2a794c743",
+    "icons/claude-color.svg": "8541e5b4403adc3104aae42f9e975179ee1ce9a68f12dfd20acb384c7a2edced",
+    "icons/claude-symbolic.svg": "b744584988b093d5f1c81f8ce6ded7c88a2b847fb0ac269782eb1b151180515d",
+    "icons/codex-black.svg": "d1df24614cf5bbd482fb3f239a8acae218a97d1bd3bde9fc046c8a63369904a3",
+    "icons/codex-color.svg": "fede855fb98e1b2e81ef042178c640dbe64f9333ddc87302a57e9296a4647441",
+    "icons/codex-symbolic.svg": "09de85f09abf0fbc572973ed70ba72cba1e8134fde6ebc73447c9922c7187c58",
+    "usageApi.js": "5c4247e37b4490e6a7387eb8d8bd8d9cbf607e898b39926d319e54a35f085490",
+    "limitReset.js": "ab82e005133f0eb9376b8466ce3f2bd3b0f1df329a0ba51186920dba8c7eb798",
+    "i18n.js": "9513e6fe84f57d9a1972dfa32b0e3c021179b870b78ab56272d416f5ac7a8240",
+    "constants.js": "ca281b87b9ebe684276fa6d0976b8088521a8ea5cf5cbae37552d9459add7389",
+    "schemas/org.gnome.shell.extensions.simple-ai-usage-indicator.gschema.xml": "1f774b3b9d6f3a43914c692a9ff73aa2fe95ecc7cdb4e549981e08a9d9028824"
+  },
+  "allInstalledMembersMatchCurrentArchive": true,
+  "results": [
+    {
+      "major": "45",
+      "fedora": 39,
+      "baseManifest": "d63d63fe593749a5e8dbc8152427d40bbe0ece53d884e00e5f3b44859efa5077",
+      "imageId": "sha256:834792061991d6d584e79693f6f62b4d3388c6140b17853c12592e16e87f3a10",
+      "shell": "GNOME Shell 45.10",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    },
+    {
+      "major": "46",
+      "fedora": 40,
+      "baseManifest": "3c86d25fef9d2001712bc3d9b091fc40cf04be4767e48f1aa3b785bf58d300ed",
+      "imageId": "sha256:dbfa3c901dda5570d41c5b6095c1e3b37d24185d32114299419614081b4f58a9",
+      "shell": "GNOME Shell 46.10",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    },
+    {
+      "major": "47",
+      "fedora": 41,
+      "baseManifest": "f1a3fab47bcb3c3ddf3135d5ee7ba8b7b25f2e809a47440936212a3a50957f3d",
+      "imageId": "sha256:82e92f15e4efa1588b655b05a3c0d129f6cdee271e3b3cbb7b5c425b2fdba99b",
+      "shell": "GNOME Shell 47.10",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    },
+    {
+      "major": "48",
+      "fedora": 42,
+      "baseManifest": "99e203b80b1c3d8f7e161ec10a68fd02b081ef83a3963553e513c82846b97814",
+      "imageId": "sha256:51b6488ec85e4999168f77a990de146e3d7d3007f3318d9153a7c1e1eb695ddd",
+      "shell": "GNOME Shell 48.8",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    },
+    {
+      "major": "49",
+      "fedora": 43,
+      "baseManifest": "a651ddf48ea28a06ed4e1e6519f51c9f47e7a5a138722ade87369b8fbb7e5b42",
+      "imageId": "sha256:381e091c1a7ce22a5b2f2ef17e9cb94564e50cfd8c4216c4fb57a38b98078e8d",
+      "shell": "GNOME Shell 49.10",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    },
+    {
+      "major": "50",
+      "fedora": 44,
+      "baseManifest": "43b29f65a41eb9c35e1cd5323e3bdf3b655c2357a9f4f1ff2f9c2798e5045d80",
+      "imageId": "sha256:d1b456254f5270fd4bfc3dbc8e8139b347c17d7b03651c10e77206cc50871e74",
+      "shell": "GNOME Shell 50.5",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    },
+    {
+      "major": "51",
+      "fedora": 45,
+      "baseManifest": "aacbc26b38361ba0cb3d10f268da40b61b36aed6ed6fe5831a35871636bedb06",
+      "imageId": "sha256:fa2451f82176e92a01c8a3f63895e056929595cc6894d2dec410d58bf27c3e85",
+      "shell": "GNOME Shell 51.0",
+      "backend": "wayland",
+      "result": "PASS",
+      "jsErrors": [],
+      "popup": {
+        "open": true,
+        "children": 6,
+        "focusName": "Refresh now",
+        "canFocus": true
+      },
+      "preferences": [
+        "Simple AI Usage Indicator"
+      ]
+    }
+  ]
+}

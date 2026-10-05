@@ -1,0 +1,27 @@
+{
+  "screenshotDirectory": "/tmp/saui-wave3-host48-portuguese/cache",
+  "sha256": {
+    "preferences-window.png": "ade75ff32f53c0339e1d26f2c6625389dc04f1185d45935199829c541105835d",
+    "high-contrast.png": "06f35b87553d769bdda89e08146fc2a5cb83eb8fe0479fb05a833f10f890ef3c",
+    "prefer-dark.png": "944a8a71e959fcbbac79ee50add36910ff97e54da87d60e1ce8820afd7465441",
+    "prefer-light.png": "cccc2555dab2f68a063cd11d02a5400236ddfa7b6f8203e6176c0db1bd986126"
+  },
+  "inspected": [
+    "prefer-light.png",
+    "prefer-dark.png",
+    "high-contrast.png",
+    "preferences-window.png"
+  ],
+  "observations": [
+    "Native light background/dark text, dark background/light text and high contrast remain readable.",
+    "Symbolic icons inherit foreground; native quota bar/reset labels remain readable.",
+    "All-provider scrollable popup fits 556x956 in 1600x1200 at St scale 2.",
+    "pt_BR, America/Recife: absolute weekly date/time plus compact relative duration.",
+    "Native GTK numeric interval and combo/provider controls have visible labels."
+  ],
+  "limitations": [
+    "No hardware DPI or full GDM desktop test.",
+    "Orca application enumeration and AT-SPI named controls; speech output not tested.",
+    "Screenshots retained locally; distro wallpaper is not redistributed in the repository or extension ZIP."
+  ]
+}

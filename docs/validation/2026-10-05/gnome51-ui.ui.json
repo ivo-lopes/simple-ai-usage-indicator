@@ -1,0 +1,26 @@
+[
+  {
+    "theme": "prefer-light",
+    "name": "Simple AI Usage Indicator. Codex CLI: Quota unavailable, Claude Code: 0, Antigravity CLI: 50% remaining",
+    "width": 478,
+    "height": 485,
+    "stageWidth": 800,
+    "stageHeight": 600
+  },
+  {
+    "theme": "prefer-dark",
+    "name": "Simple AI Usage Indicator. Codex CLI: Quota unavailable, Claude Code: 0, Antigravity CLI: 50% remaining",
+    "width": 478,
+    "height": 485,
+    "stageWidth": 800,
+    "stageHeight": 600
+  },
+  {
+    "theme": "high-contrast",
+    "name": "Simple AI Usage Indicator. Codex CLI: Quota unavailable, Claude Code: 0, Antigravity CLI: 50% remaining",
+    "width": 478,
+    "height": 485,
+    "stageWidth": 800,
+    "stageHeight": 600
+  }
+]

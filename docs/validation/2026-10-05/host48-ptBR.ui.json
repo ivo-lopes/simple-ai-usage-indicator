@@ -1,0 +1,26 @@
+[
+  {
+    "theme": "prefer-light",
+    "name": "Indicador de Uso de IA. Codex CLI: Cota indispon\u00edvel, Claude Code: 0, Antigravity CLI: 50% restante",
+    "width": 556,
+    "height": 956,
+    "stageWidth": 1600,
+    "stageHeight": 1200
+  },
+  {
+    "theme": "prefer-dark",
+    "name": "Indicador de Uso de IA. Codex CLI: Cota indispon\u00edvel, Claude Code: 0, Antigravity CLI: 50% restante",
+    "width": 556,
+    "height": 956,
+    "stageWidth": 1600,
+    "stageHeight": 1200
+  },
+  {
+    "theme": "high-contrast",
+    "name": "Indicador de Uso de IA. Codex CLI: Cota indispon\u00edvel, Claude Code: 0, Antigravity CLI: 50% restante",
+    "width": 556,
+    "height": 956,
+    "stageWidth": 1600,
+    "stageHeight": 1200
+  }
+]

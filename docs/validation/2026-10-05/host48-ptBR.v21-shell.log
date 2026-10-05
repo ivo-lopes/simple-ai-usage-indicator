@@ -1,0 +1,25 @@
+libmutter-Message: 17:55:29.111: Running GNOME Shell (using mutter 48.7) as a Wayland display server
+libmutter-Message: 17:55:29.112: Enabling experimental feature 'scale-monitor-framebuffer'
+libmutter-Message: 17:55:29.112: Enabling experimental feature 'xwayland-native-scaling'
+libmutter-Message: 17:55:29.267: Added device '/dev/dri/renderD128' (nvidia-drm) using no mode setting.
+libmutter-Message: 17:55:29.267: Failed to initialize accelerated iGPU/dGPU framebuffer sharing: Not hardware accelerated
+libmutter-Message: 17:55:29.267: Created gbm renderer for '/dev/dri/renderD128'
+libmutter-Message: 17:55:29.267: Boot VGA GPU /dev/dri/renderD128 selected as primary
+libmutter-Message: 17:55:29.294: Added virtual monitor Meta-0
+libmutter-Message: 17:55:29.317: Using Wayland display name 'wayland-0'
+
+(gnome-shell:286452): GNOME Shell-WARNING **: 17:55:29.869: Failed to inhibit suspend: GDBus.Error:org.freedesktop.DBus.Error.UnknownMethod: Método inexistente “Inhibit”
+
+(gnome-shell:286452): libmutter-WARNING **: 17:55:29.870: There is no colord server available
+GNOME Shell-Message: 17:55:29.986: Error looking up permission: GDBus.Error:org.freedesktop.portal.Error.NotFound: No entry for geolocation
+GNOME Shell-Message: 17:55:30.122: Failed to register AuthenticationAgent
+GNOME Shell-Message: 17:55:30.327: No permission to control network connections: Gio.DBusError: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.PolicyKit1 was not provided by any .service files
+** Message: 17:55:30.395: Failed to start camera monitor
+GNOME Shell-Message: 17:55:30.447: Failed to get PolKit permission: Gio.DBusError: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.PolicyKit1 was not provided by any .service files
+GNOME Shell-Message: 17:55:30.450: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.GeoClue2 was not provided by any .service files
+GNOME Shell-Message: 17:55:31.299: GNOME Shell started at Mon Oct 05 2026 17:55:29 GMT-0300 (Horário Padrão de Brasília)
+GNOME Shell-Message: 17:55:31.306: Registering session with GDM
+GNOME Shell-Message: 17:55:31.326: Error registering session with GDM: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.gnome.DisplayManager was not provided by any .service files
+GNOME Shell-Message: 17:55:31.673: No permission to trigger offline updates: Gio.DBusError: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.PolicyKit1 was not provided by any .service files
+** Message: 17:56:01.540: Shutting down GNOME Shell
+libmutter-Message: 17:56:01.686: Removed virtual monitor Meta-0

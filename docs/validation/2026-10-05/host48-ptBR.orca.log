@@ -1,0 +1,9 @@
+Desktop has 4 apps:
+17:56:55     pid: 287440     gnome-shell               gnome-shell --headless --wayland --no-x11 --virtual-monitor 1600x1200
+17:56:55     pid: 287816     xdg-desktop-portal-gtk    /usr/libexec/xdg-desktop-portal-gtk
+17:56:55     pid: 287606     ibus-extension-gtk3       /usr/libexec/ibus-extension-gtk3
+17:56:55     pid: 288525     org.gnome.Shell.Extensions /usr/bin/gjs -m /usr/share/gnome-shell/org.gnome.Shell.Extensions
+
+(orca:288685): Wnck-WARNING **: 17:56:55.470: libwnck is designed to work in X11 only, no valid display found
+
+(orca:288685): Wnck-WARNING **: 17:56:55.470: libwnck is designed to work in X11 only, no valid display found

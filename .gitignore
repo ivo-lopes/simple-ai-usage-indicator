@@ -5,3 +5,6 @@ schemas/gschemas.compiled
 dist/
 .codegraph/
 node_modules/
+
+__pycache__/
+*.pyc
