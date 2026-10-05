@@ -1,0 +1,53 @@
+{
+  "status": "SUCCESS",
+  "response": "Legacy display is deliberately irrelevant",
+  "duration_seconds": 0,
+  "num_turns": 0,
+  "usage": {},
+  "command": {
+    "name": "usage",
+    "data": {
+      "description": "Sanitized CLI 1.2.17 payload shape observed on 2026-10-05. Values replaced for deterministic tests.",
+      "groups": [
+        {
+          "name": "Gemini Models",
+          "buckets": [
+            {
+              "id": "gemini-weekly",
+              "name": "Weekly Limit Remaining",
+              "window": "weekly",
+              "remaining_fraction": 0.998567,
+              "reset_time": "2026-10-09T16:28:59Z"
+            },
+            {
+              "id": "gemini-5h",
+              "name": "Five Hour Limit Remaining",
+              "window": "5h",
+              "remaining_fraction": 1,
+              "reset_time": "2026-10-05T22:38:42Z"
+            }
+          ]
+        },
+        {
+          "name": "Claude and GPT models",
+          "buckets": [
+            {
+              "id": "3p-weekly",
+              "name": "Weekly Limit Remaining",
+              "window": "weekly",
+              "remaining_fraction": 0,
+              "reset_time": "2026-10-12T17:38:42Z"
+            },
+            {
+              "id": "3p-5h",
+              "name": "Five Hour Limit Remaining",
+              "window": "5h",
+              "remaining_fraction": 0.5,
+              "reset_time": "2026-10-05T22:38:42Z"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

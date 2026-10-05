@@ -1,3 +1,4 @@
+import GLib from 'gi://GLib';
 import {CodexProvider} from '../providers/codexProvider.js';
 import {PROVIDER_CODEX} from '../constants.js';
 
@@ -23,7 +24,9 @@ async function runTests() {
     print('codexProvider tests passed');
 }
 
-runTests().catch(err => {
-    printerr('codexProvider test failed: ' + (err.stack || err));
-    imports.system.exit(1);
-});
+const loop = new GLib.MainLoop(null, false);
+let testError = null;
+runTests().catch(error => { testError = error; }).finally(() => loop.quit());
+loop.run();
+if (testError)
+    throw testError;

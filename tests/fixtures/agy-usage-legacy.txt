@@ -1,0 +1,4 @@
+Gemini Models	Weekly Limit Remaining	75%	2026-10-09T16:28:59Z
+Gemini Models	Five Hour Limit Remaining	100%	2026-10-05T22:38:42Z
+Claude and GPT models  Weekly Limit Remaining  0%  2026-10-12T17:38:42Z
+Claude and GPT models  Five Hour Limit Remaining  50%  2026-10-05T22:38:42Z
