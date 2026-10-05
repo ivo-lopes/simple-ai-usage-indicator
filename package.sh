@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # ==============================================================================
 # Simple AI Usage Indicator - GNOME Shell Extension Packaging Script
-# Compliant with GNOME Extensions (EGO) guidelines and EGO-P-006 rule:
-# "Compiled GSettings schemas should not be shipped for 45+ packages"
+# Builds a minimal GNOME Extensions bundle with source schema XML only.
 # ==============================================================================
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "=== [1/5] Cleaning unnecessary build artifacts (EGO-P-006 compliance) ==="
-# Strictly remove any compiled gschemas binary to comply with EGO review rule EGO-P-006
+echo "=== [1/5] Cleaning unnecessary build artifacts (source schemas only) ==="
+# Keep compiled schema binaries out of the distributable ZIP.
 if [ -f "schemas/gschemas.compiled" ]; then
     echo "Removing schemas/gschemas.compiled..."
     rm -f "schemas/gschemas.compiled"
@@ -56,7 +55,7 @@ gnome-extensions pack \
     --force \
     .
 
-echo "=== [5/5] Verifying bundle contents & EGO-P-006 compliance ==="
+echo "=== [5/5] Verifying bundle contents ==="
 unzip -tq "$ZIP_NAME"
 while IFS= read -r entry; do
     case "$entry" in

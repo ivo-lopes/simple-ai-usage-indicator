@@ -70,7 +70,7 @@ license provenance.
 ├── extension.js               # Top bar indicators, layout controller, and popup menu
 ├── prefs.js                   # Libadwaita preferences page (GTK4 / Adw)
 ├── stylesheet.css             # Panel styling ensuring icon spacing conformity
-├── package.sh                 # EGO-compliant packaging script (enforcing EGO-P-006)
+├── package.sh                 # Runtime-only packaging script and ZIP allowlist
 ├── constants.js               # Endpoints, schema identifiers, and display modes
 ├── limitReset.js              # Early quota reset detection and desktop notifications
 ├── resetCreditExpiry.js       # Reset credit expiration calculator
@@ -132,16 +132,16 @@ license provenance.
 
 ---
 
-### Method 2: Pack as Extension Zip (EGO-P-006 Compliant)
+### Method 2: Pack as Extension Zip
 
-To generate a clean, official zip bundle for [GNOME Extensions (EGO)](https://extensions.gnome.org), run:
+To generate a clean zip bundle for [GNOME Extensions (EGO)](https://extensions.gnome.org), run:
 
 ```bash
 ./package.sh
 ```
 
 This script:
-- Automatically purges any precompiled `schemas/gschemas.compiled` (strictly complying with **EGO-P-006** rule: *Compiled GSettings schemas should not be shipped for 45+ packages*).
+- Excludes precompiled `schemas/gschemas.compiled` and distributes the source XML schema.
 - Validates the test suite.
 - Re-compiles translation message catalogs (`.mo`).
 - Bundles only runtime sources, nine used SVGs, compiled translations, LICENSE, NOTICE and ASSETS.md; verifies the archive.
@@ -188,18 +188,36 @@ gnome-extensions prefs simple-ai-usage-indicator@ivo-lopes.github.com
 
 ## Running the Test Suite
 
-All provider adapters, API clients, reset logic, and HTTP endpoints are covered by automated unit tests using `gjs`:
+The default suite uses injected credentials/clients, synthetic fixtures and
+loopback HTTP. It does not read personal credentials, contact Keyring, invoke
+installed AI CLIs or require internet. Packaging runs every `tests/*.test.js`.
 
 ```bash
-# Run all tests
-gjs -m tests/usageApi.test.js
-gjs -m tests/usageApiHttp.test.js
-gjs -m tests/limitReset.test.js
-gjs -m tests/resetCreditExpiry.test.js
-gjs -m tests/codexProvider.test.js
-gjs -m tests/claudeProvider.test.js
-gjs -m tests/antigravityProvider.test.js
+for test in tests/*.test.js; do gjs -m "$test"; done
 ```
+
+CI runs the same validation on every push and pull request and uploads the ZIP
+as an artifact, without publishing releases. Install development lint tools with
+`npm ci --ignore-scripts`, then run `npm run lint` and `./scripts/validate.sh`.
+System dependencies: GJS, GNOME Shell packaging tools, libsecret/Soup 3 GI
+bindings, GLib tools, gettext, unzip, Python 3 and Node.js 22 (CI).
+
+ESLint's flat config was evaluated, but its dependency tree is unnecessary here.
+Oxlint 1.87.0 has no JavaScript dependencies and one installed platform binding;
+it checks syntax/correctness and undeclared variables with explicit GJS globals,
+without formatter rules or runtime dependencies. `node --check` also validates
+all tracked ES modules without executing their GI/resource imports.
+
+Optional real GNOME integration is separate:
+
+```bash
+python3 tests/integration/gnome-shell-smoke.py simple-ai-usage-indicator@ivo-lopes.github.com.shell-extension.zip
+```
+
+It requires Linux, a usable headless GNOME Shell and D-Bus. It uses isolated XDG
+and D-Bus state plus a synthetic `agy` executable to test disable during refresh
+and repeated enable/disable; evidence is left in the reported temporary directory.
+It is not part of the normal CI suite and does not change the desktop extension.
 
 ---
 

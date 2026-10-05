@@ -1,0 +1,30 @@
+{
+  "plugins": [],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "builtin": true
+  },
+  "globals": {
+    "ARGV": "readonly",
+    "console": "readonly",
+    "global": "readonly",
+    "imports": "readonly",
+    "log": "readonly",
+    "logError": "readonly",
+    "print": "readonly",
+    "printerr": "readonly",
+    "TextDecoder": "readonly",
+    "TextEncoder": "readonly"
+  },
+  "rules": {
+    "no-undef": "error",
+    "no-unused-vars": "off"
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    ".serena/**",
+    ".git/**"
+  ]
+}

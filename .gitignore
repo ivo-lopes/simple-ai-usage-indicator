@@ -4,3 +4,4 @@ schemas/gschemas.compiled
 .codex
 dist/
 .codegraph/
+node_modules/

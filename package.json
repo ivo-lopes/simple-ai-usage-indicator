@@ -1,0 +1,11 @@
+{
+  "name": "simple-ai-usage-indicator",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "lint": "oxlint --deny-warnings ."
+  },
+  "devDependencies": {
+    "oxlint": "1.87.0"
+  }
+}
