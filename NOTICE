@@ -17,6 +17,12 @@ replace provider logos with original generic geometric icons (see ASSETS.md).
 The fork is not affiliated with or endorsed by the provider companies. Mindsite's
 Plane workspace is used only for backlog tracking; this is not a Mindsite product.
 
+Selective upstream compatibility fixes reviewed in the second wave:
+- Denny Huang's St.BoxLayout orientation approach (2fc4bcb, GNOME Shell 51).
+- Andreas Weiden's inherited title-color correction (601e5a4, Shell themes).
+The fork adapts these approaches to its multi-provider menu; no wholesale merge
+or upstream metadata/version overwrite was performed.
+
 License provenance:
 The upstream added the complete GNU GPL version 3 text in commit
  ebf560914de7e895ec973c602f0c4d2e247cd1f4 (2026-09-16).

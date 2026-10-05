@@ -13,6 +13,9 @@ import zipfile
 parser = argparse.ArgumentParser()
 parser.add_argument('archive', type=Path)
 parser.add_argument('--expected-major')
+parser.add_argument('--prefs', action='store_true', help='Optional container/VM check opening the real Preferences window')
+parser.add_argument('--login1-stub', type=Path, help='Explicit synthetic login1 service for an isolated container bus')
+parser.add_argument('--isolated-system-bus', action='store_true', help='Container lab: provide a private bus connection, without host services')
 parser.add_argument('--allow-unsupported', action='store_true', help='Lab-only version validation bypass, never changes the ZIP')
 args = parser.parse_args()
 for command in ('gnome-shell', 'gnome-extensions', 'gjs', 'dbus-run-session'):
@@ -63,7 +66,10 @@ def cli(*args):
 def wait(predicate, seconds=15):
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
-        if predicate(): return
+        try:
+            if predicate(): return
+        except subprocess.CalledProcessError:
+            pass  # The Shell D-Bus service may still be starting.
         time.sleep(.2)
     raise RuntimeError('Condition timed out')
 def inactive():
@@ -78,7 +84,7 @@ with (root / 'cache/shell.log').open('w') as log:
         cli('enable', uuid)
         wait(marker.exists)
         pid = int(marker.read_text())
-        assert 'ACTIVE' in cli('info', uuid)
+        assert 'State: ACTIVE' in cli('info', uuid)
         cli('disable', uuid)
         wait(inactive)
         def exited():
@@ -92,6 +98,11 @@ with (root / 'cache/shell.log').open('w') as log:
         wait(marker.exists)
         time.sleep(2)
         assert 'State: ACTIVE' in cli('info', uuid), cli('info', uuid)
+        if {args.prefs!r}:
+            os.environ['WAYLAND_DISPLAY'] = 'wayland-0'
+            cli('prefs', uuid)
+            time.sleep(3)
+            print('PASS: Preferences open request completed; captured stderr checked for JS errors')
         cli('disable', uuid)
         wait(inactive)
         print('PASS: enable → disable → enable → disable with completed structured quota refresh')
@@ -107,15 +118,35 @@ env.update({
     'GSETTINGS_SCHEMA_DIR': str(ext / 'schemas'), 'LIBGL_ALWAYS_SOFTWARE': '1',
     'PATH': str(root / 'bin') + os.pathsep + env['PATH'], 'LC_ALL': 'C.UTF-8',
 })
-result = subprocess.run(['dbus-run-session', '--', 'python3', str(script)], env=env,
-                        capture_output=True, text=True, timeout=65)
+system_bus = None
+login_stub = None
+if args.isolated_system_bus:
+    bus_env = dict(os.environ, XDG_RUNTIME_DIR=str(root / 'runtime'))
+    system_bus = subprocess.Popen(['dbus-daemon', '--session', '--nofork', '--print-address=1'], stdout=subprocess.PIPE, text=True, env=bus_env)
+    env['DBUS_SYSTEM_BUS_ADDRESS'] = system_bus.stdout.readline().strip()
+    if args.login1_stub:
+        login_stub = subprocess.Popen(['gjs', '-m', str(args.login1_stub)], env=env, stdout=subprocess.PIPE, text=True)
+        assert login_stub.stdout.readline().strip() == 'READY'
+try:
+    result = subprocess.run(['dbus-run-session', '--', 'python3', str(script)], env=env,
+                            capture_output=True, text=True, timeout=65)
+finally:
+    if login_stub:
+        login_stub.terminate()
+        login_stub.wait(timeout=5)
+    if system_bus:
+        system_bus.terminate()
+        system_bus.wait(timeout=5)
 print(version)
 print(result.stdout.strip())
 log = (root / 'cache/shell.log').read_text(errors='replace')
-js_errors = [line for line in log.splitlines() if 'JS ERROR' in line or 'JS CRITICAL' in line]
+js_errors = [line for line in (log + result.stderr).splitlines() if 'JS ERROR' in line or 'Gjs-CRITICAL' in line or 'has been already disposed' in line]
 print('Evidence directory:', root)
 if result.returncode or js_errors:
-    print(result.stderr[-3000:])
+    print('Session exit:', result.returncode)
+    print('\n'.join(line for line in result.stderr.splitlines() if any(s in line for s in ('Traceback', 'File ', 'Error', 'RuntimeError', 'CalledProcessError'))))
+    print('Shell startup log:', '\n'.join(log.splitlines()[:45]))
+    print('Shell log tail:', '\n'.join(log.splitlines()[-25:]))
     print('\n'.join(js_errors))
     raise SystemExit('FAIL: isolated GNOME lifecycle')
 print('PASS: no JavaScript errors in isolated Shell log')

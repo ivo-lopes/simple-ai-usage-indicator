@@ -12,8 +12,9 @@ function assert(value, message) {
 }
 function deferred() {
     let resolve;
-    const promise = new Promise(r => { resolve = r; });
-    return {promise, resolve};
+    let reject;
+    const promise = new Promise((r, j) => { resolve = r; reject = j; });
+    return {promise, resolve, reject};
 }
 let pending;
 let renders = 0;
@@ -82,6 +83,7 @@ async function run() {
     assert(timersRemoved === 2 && disconnected === 6 && destroyed === 2, 'Timers/signals/providers cleaned exactly once');
 
     for (const method of ['_checkProviderAuth', '_testProvider']) {
+      for (const outcome of ['resolve', 'reject']) {
         const page = Object.create(SimpleAiUsagePreferencesPage.prototype);
         page._disposed = false;
         page._signals = [];
@@ -93,11 +95,26 @@ async function run() {
         const task = page[method](provider, row, row);
         page.dispose();
         const previousWrites = writes;
-        work.resolve({available: true, percent: .5});
+        work[outcome](outcome === 'resolve' ? {available: true, percent: .5} : new Error('Synthetic request failure'));
         await task;
         assert(writes === previousWrites, 'No prefs row update after close');
         await page[method](provider, row, row);
+      }
     }
+    const signalPage = Object.create(SimpleAiUsagePreferencesPage.prototype);
+    signalPage._disposed = false;
+    signalPage._signals = [];
+    signalPage._providerManager = {destroy() {}};
+    let callback;
+    let signalCalls = 0;
+    let signalDisconnects = 0;
+    const signalObject = {connect: (_name, fn) => { callback = fn; return 1; }, disconnect: () => signalDisconnects++};
+    signalPage._connect(signalObject, 'changed', () => signalCalls++);
+    callback();
+    signalPage.dispose();
+    callback();
+    assert(signalCalls === 1 && signalDisconnects === 1, 'Prefs signal disconnected and queued callback suppressed');
+
     for (const Kind of [ClaudeProvider, CodexProvider]) {
         const work = deferred();
         let http = 0;

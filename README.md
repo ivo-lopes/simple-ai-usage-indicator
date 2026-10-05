@@ -1,10 +1,10 @@
 # Simple AI Usage Indicator
 
-[![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2050-blue.svg)](https://extensions.gnome.org)
+[![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2051-blue.svg)](https://extensions.gnome.org)
 [![Version](https://img.shields.io/badge/version-21-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
-A GNOME Shell extension for GNOME Shell **45–50** that displays usage and quotas
+A GNOME Shell extension for GNOME Shell **45–51** that displays usage and quotas
 for multiple AI coding assistants in the top bar and popup menu.
 
 This is **Ivo Lopes's personal project**, derived from
@@ -255,3 +255,10 @@ Use `claude login` for the local OAuth credential. If needed,
 environment, not just a terminal. `~/.claude.json` account metadata alone does
 not establish authentication. `ANTHROPIC_API_KEY` authenticates the Anthropic
 inference API, not this subscription OAuth quota endpoint, and is not used here.
+
+GNOME 51 menu orientation is adapted from upstream and tested against old,
+transitional and new St APIs. Isolated lifecycle smoke tests passed on GNOME
+48.7 and 51.0 with synthetic quotas. The 51.0 container used a private system
+bus with synthetic login1 responses; this does not validate a complete desktop
+session. Real lifecycle tests on 45/46/47/49/50 and the full theme/accessibility
+matrix remain NOT TESTED; see HARDENING.md.
