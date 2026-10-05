@@ -4,7 +4,16 @@
 [![Version](https://img.shields.io/badge/version-20-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
-A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 45, 46, 47, 48, 49, and 50**) that monitors real-time quotas, rolling rate limits, token usage, and countdown timers for your AI coding assistants directly in the GNOME top bar and popup menu.
+A GNOME Shell extension for GNOME Shell **45–50** that displays usage and quotas
+for multiple AI coding assistants in the top bar and popup menu.
+
+This is **Ivo Lopes's personal project**, derived from
+[Codex Usage Indicator by stone (stonega)](https://github.com/stonega/codex-usage-indicator).
+It extends the original Codex integration with Claude Code and Antigravity adapters,
+provider orchestration, a scrolling popup, Portuguese translations and icon styles.
+Mindsite's Plane workspace is used only for backlog tracking. This is not a
+Mindsite product, service or project. See [NOTICE](NOTICE) for authorship and
+license provenance.
 
 ### Supported Coding Assistants:
 - 🟢 **OpenAI Codex CLI**
@@ -40,8 +49,11 @@ A modern, high-performance GNOME Shell extension (compatible with **GNOME Shell 
   - **Claude Code**: Integrates seamlessly with OAuth credentials in `~/.claude/.credentials.json`, `~/.claude.json`, and local token caches in `~/.claude/stats-cache.json`. Supports optional custom token override in preferences.
   - **Antigravity CLI**: Directly interfaces with GNOME Keyring (`gi://Secret`, service: `gemini`, username: `antigravity`) via native GObject Introspection. No terminal wrappers or shell hacks required.
 - **Real-Time Antigravity Quota Parser**:
-  - Interrogates `agy --print /usage` asynchronously via non-blocking `Gio.Subprocess`.
-  - Features intelligent 45-second telemetry caching to maintain instantaneous UI responsiveness without spawning extraneous processes.
+  - Prioritizes `agy --print /usage --output-format json` via non-blocking `Gio.Subprocess` (verified with CLI 1.2.17).
+  - Preserves every model-group bucket and backend reset timestamp; the panel uses the most constrained observed 5-hour bucket, while the popup lists them all.
+  - Uses legacy text only for compatibility. Missing quota is shown as unavailable.
+  - Resets outside the current local day include date and time, without assuming a fixed timezone.
+  - Automatic reads can reuse a 45-second cache with the original observation time. Manual refresh bypasses it; cached/stale observations are labeled.
 - **Modern Preferences Dialog (Libadwaita / GTK4)**:
   - Configure background polling interval (60s to 3600s).
   - Select display metrics: Remaining quota (`left`), Consumed quota (`used`), or Numeric percentage (`percent`).
@@ -138,7 +150,7 @@ Or manually using `gnome-extensions pack`:
 
 ```bash
 rm -f schemas/gschemas.compiled
-gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --force
+gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --extra-source=quotaReset.js --extra-source=LICENSE --extra-source=NOTICE --force
 ```
 
 Then install the generated archive:
@@ -203,4 +215,8 @@ gjs -m tests/antigravityProvider.test.js
 
 ## License
 
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
+This fork is distributed under [GNU GPL version 3](LICENSE), SPDX `GPL-3.0-only`.
+The complete license was copied from upstream commit `ebf5609` (2026-09-16),
+after the shared ancestor `f2bd496`. [NOTICE](NOTICE) records that history and
+attributes the inherited code without inventing copyright notices. The source
+and translation catalogs are available in this repository.

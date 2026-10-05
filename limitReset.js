@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 export const LIMIT_RESET_NEAR_FULL_THRESHOLD = 0.95;
 export const LIMIT_RESET_MIN_RECOVERY = 0.10;
 export const LIMIT_RESET_EARLY_MARGIN_SECONDS = 10 * 60;

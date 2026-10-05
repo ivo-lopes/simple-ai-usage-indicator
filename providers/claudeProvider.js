@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 /**
  * @file claudeProvider.js
  * @description Provider adapter for Anthropic Claude Code CLI.

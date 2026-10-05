@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';

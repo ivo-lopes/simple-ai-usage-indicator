@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 // Pure formatting helper shared by runtime and offline regression tests.
 export function formatQuotaReset(window, {
     now = Date.now(), locale = undefined, timeZone = undefined, translate = text => text,

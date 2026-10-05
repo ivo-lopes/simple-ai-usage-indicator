@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 /**
  * @file constants.js
  * @description Centralized configuration constants, schema IDs, display modes, and API endpoints

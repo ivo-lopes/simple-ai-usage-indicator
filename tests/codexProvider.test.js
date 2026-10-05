@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 import GLib from 'gi://GLib';
 import {CodexProvider} from '../providers/codexProvider.js';
 import {PROVIDER_CODEX} from '../constants.js';

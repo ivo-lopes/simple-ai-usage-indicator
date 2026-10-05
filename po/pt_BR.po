@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 # Translation of Simple AI Usage Indicator into Brazilian Portuguese.
 # Copyright (C) 2026 Ivo Lopes
 # This file is distributed under the same license as the simple-ai-usage-indicator package.

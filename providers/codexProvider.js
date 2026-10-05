@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 /**
  * @file codexProvider.js
  * @description Provider adapter for OpenAI Codex CLI.

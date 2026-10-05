@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 /**
  * @file extension.js
  * @description Main entry point for Simple AI Usage Indicator GNOME Shell Extension.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {AntigravityProvider} from '../providers/antigravityProvider.js';

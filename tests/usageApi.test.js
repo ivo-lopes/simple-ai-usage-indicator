@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 import {normalizeSummary} from '../usageApi.js';
 
 function assertEqual(actual, expected, message) {

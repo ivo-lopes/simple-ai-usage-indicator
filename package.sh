@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only
 # ==============================================================================
 # Simple AI Usage Indicator - GNOME Shell Extension Packaging Script
 # Compliant with GNOME Extensions (EGO) guidelines and EGO-P-006 rule:
@@ -49,6 +50,8 @@ gnome-extensions pack \
     --extra-source=codexAuth.js \
     --extra-source=usageApi.js \
     --extra-source=quotaReset.js \
+    --extra-source=LICENSE \
+    --extra-source=NOTICE \
     --force \
     .
 
@@ -60,4 +63,4 @@ fi
 
 echo "Verification SUCCESS: schemas/gschemas.compiled is NOT present in bundle."
 echo "Bundle generated: $ZIP_NAME ($(du -h "$ZIP_NAME" | cut -f1))"
-echo "Ready for submission to https://extensions.gnome.org"
+echo "Local bundle validated. No upload performed; review release readiness separately."

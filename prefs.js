@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 /**
  * @file prefs.js
  * @description Modern Libadwaita / GTK4 preferences dialog for Simple AI Usage Indicator.

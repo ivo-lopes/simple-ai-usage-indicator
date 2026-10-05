@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 /**
  * @file index.js
  * @description Centralized ProviderManager registry and lifecycle manager.

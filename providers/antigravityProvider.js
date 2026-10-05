@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 /**
  * @file antigravityProvider.js
  * @description Provider adapter for Google Antigravity CLI (`agy`).

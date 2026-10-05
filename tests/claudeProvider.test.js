@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 import {ClaudeProvider, formatTokenCount} from '../providers/claudeProvider.js';
 import {PROVIDER_CLAUDE} from '../constants.js';
 

@@ -1,0 +1,39 @@
+Simple AI Usage Indicator
+
+This is Ivo Lopes's personal project, derived from Codex Usage Indicator
+by stone (GitHub: stonega):
+https://github.com/stonega/codex-usage-indicator
+
+The shared ancestor is f2bd496acb648bbf343e3ea7a4a1a54f6c0bbb55 (version 14,
+2026-09-04). Inherited work includes the original panel/preferences implementation,
+Codex authentication and usage adapter, limit-reset detection, reset-credit expiry,
+GSettings definitions and their tests. Git history retains the original authorship.
+
+Ivo Lopes's subsequent fork changes include the multi-provider adapters for Codex,
+Claude Code and Antigravity, provider orchestration, scrolling popup, Portuguese
+translations, icon-style options, fork metadata and packaging. The urgent fixes
+of 2026-10-05 add structured Antigravity quota handling, regression coverage and
+replace provider logos with original generic geometric icons (see ASSETS.md).
+The fork is not affiliated with or endorsed by the provider companies. Mindsite's
+Plane workspace is used only for backlog tracking; this is not a Mindsite product.
+
+License provenance:
+The upstream added the complete GNU GPL version 3 text in commit
+ ebf560914de7e895ec973c602f0c4d2e247cd1f4 (2026-09-16).
+LICENSE is copied verbatim from that revision. The shared ancestor predates
+that explicit license file; we do not claim it already contained LICENSE.
+The Codex auth/usage modules, reset utilities, inherited tests and schema are
+unchanged between that upstream license revision and the shared ancestor.
+The panel has a small title-color patch in the same interval. Current upstream
+GPL v3 sources cover the corresponding inherited implementation.
+
+This fork is distributed under GPL-3.0-only. The upstream's license file and
+commit explicitly identify version 3 without a separate project-level grant
+of an "or later" option; this fork does not infer that option from the example
+notice in the license appendix. SPDX identifiers describe this fork's chosen
+terms and do not replace the complete LICENSE. No new copyright holder is
+asserted for inherited files. Existing copyright notices are preserved.
+
+The program is distributed without warranty; see LICENSE for full terms.
+Corresponding development sources and translation sources are available at:
+https://github.com/ivo-lopes/simple-ai-usage-indicator

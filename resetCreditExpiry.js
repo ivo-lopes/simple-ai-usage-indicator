@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
+
 export function formatResetCreditExpiryList(rateLimitResetCredits, nowSeconds = Date.now() / 1000) {
     if (!Number.isFinite(nowSeconds))
         return '';

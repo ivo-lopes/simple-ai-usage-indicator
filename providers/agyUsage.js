@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 // Antigravity 1.2.17: command.data.groups[].buckets[]. See tests/fixtures/.
 // Only observed quota fields are normalized; window duration never predicts reset.
 export function parseAgyUsage(output) {

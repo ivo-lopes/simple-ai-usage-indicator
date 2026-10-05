@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<!-- Derived from Codex Usage Indicator by stone (stonega); see NOTICE. -->
 <schemalist>
   <schema id="org.gnome.shell.extensions.simple-ai-usage-indicator"
           path="/org/gnome/shell/extensions/simple-ai-usage-indicator/">
