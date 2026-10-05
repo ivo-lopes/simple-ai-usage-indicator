@@ -159,7 +159,7 @@ export class AntigravityProvider extends BaseProvider {
             ...createEmptySummary({
                 providerId: this.id, providerName: this.name, iconFileName: this.iconFileName,
                 account: userInfo?.email || userInfo?.name || 'Google Account',
-                planType: 'Google Antigravity',
+                planType: secretData?.auth_method === 'consumer' ? 'Google AI Pro / Ultra' : 'Google Antigravity',
             }),
             percent: primary.usedPercent,
             leftPercent: primary.leftPercent,
