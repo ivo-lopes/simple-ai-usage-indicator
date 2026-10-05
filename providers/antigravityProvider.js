@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+import {gettext as _, format} from '../i18n.js';
+
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Secret from 'gi://Secret';
@@ -60,7 +62,7 @@ export class AntigravityProvider extends BaseProvider {
             if (!secretData) {
                 return {
                     available: false,
-                    details: 'Credentials not found in GNOME Keyring. Run agy to log in.',
+                    details: _('Credentials not found in GNOME Keyring. Run agy to log in.'),
                     path: 'keyring://gemini/antigravity',
                 };
             }
@@ -68,7 +70,7 @@ export class AntigravityProvider extends BaseProvider {
             const token = secretData.token;
             const expiryStr = token?.expiry;
             let expired = false;
-            let expiryFormatted = 'unknown';
+            let expiryFormatted = _('Unknown');
 
             if (expiryStr) {
                 const expiryDate = new Date(expiryStr);
@@ -78,15 +80,15 @@ export class AntigravityProvider extends BaseProvider {
 
             return {
                 available: true,
-                details: `Keyring token found (Expires: ${expiryFormatted})`,
+                details: format(_('Keyring token found (expires: %s)'), expiryFormatted),
                 path: 'keyring://gemini/antigravity',
                 expired,
-                account: secretData.auth_method || 'Google Account',
+                account: secretData.auth_method || _('Google account'),
             };
         } catch (error) {
             return {
                 available: false,
-                details: 'Keyring lookup unavailable',
+                details: _('Keyring lookup unavailable'),
                 path: 'keyring://gemini/antigravity',
             };
         }
@@ -102,7 +104,7 @@ export class AntigravityProvider extends BaseProvider {
             const summary = createEmptySummary({
                 providerId: this.id, providerName: this.name,
                 iconFileName: this.iconFileName,
-                error: 'Antigravity quota unavailable. Check CLI authentication and connectivity.',
+                error: _('Antigravity quota unavailable. Check CLI authentication and connectivity.'),
             });
             const stats = await this._getBrainStats();
             if (this._destroyed)

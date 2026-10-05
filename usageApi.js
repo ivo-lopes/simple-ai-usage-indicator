@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
 
+import {gettext as _, format} from './i18n.js';
+
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
@@ -121,7 +123,7 @@ export class UsageApiClient {
             throw new UsageApiError('Usage client destroyed');
         const normalizedToken = normalizeBearerToken(token ?? '');
         if (!normalizedToken)
-            throw new UsageApiError('A bearer token is required.');
+            throw new UsageApiError(_('A bearer token is required.'));
 
         const message = Soup.Message.new('GET', `${this._apiBaseUrl}${path}`);
         const headers = message.get_request_headers();
@@ -152,14 +154,14 @@ export class UsageApiClient {
         try {
             payload = body ? JSON.parse(body) : null;
         } catch (error) {
-            throw new UsageApiError(`The server returned invalid JSON for ${path}.`, {
+            throw new UsageApiError(format(_('The server returned invalid JSON for %s.'), path), {
                 statusCode,
             });
         }
 
         if (statusCode < 200 || statusCode >= 300) {
             // A server error body can echo request credentials; never surface it.
-            throw new UsageApiError(`Request failed with HTTP ${statusCode}.`, {statusCode});
+            throw new UsageApiError(format(_('Request failed with HTTP %s.'), statusCode), {statusCode});
         }
 
         return payload;

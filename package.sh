@@ -22,6 +22,7 @@ if command -v msgfmt >/dev/null 2>&1; then
     mkdir -p locale/pt/LC_MESSAGES locale/pt_BR/LC_MESSAGES
     msgfmt -c -o locale/pt/LC_MESSAGES/simple-ai-usage-indicator.mo po/pt.po
     msgfmt -c -o locale/pt_BR/LC_MESSAGES/simple-ai-usage-indicator.mo po/pt_BR.po
+    python3 scripts/check-translations.py
     echo "Translations compiled successfully."
 else
     echo "Warning: msgfmt not found, using existing .mo files."
@@ -48,6 +49,7 @@ gnome-extensions pack \
     --extra-source=codexAuth.js \
     --extra-source=usageApi.js \
     --extra-source=quotaReset.js \
+    --extra-source=i18n.js \
     --extra-source=LICENSE \
     --extra-source=NOTICE \
     --extra-source=ASSETS.md \
@@ -58,7 +60,7 @@ echo "=== [5/5] Verifying bundle contents ==="
 unzip -tq "$ZIP_NAME"
 while IFS= read -r entry; do
     case "$entry" in
-        extension.js|prefs.js|metadata.json|stylesheet.css|constants.js|codexAuth.js|usageApi.js|limitReset.js|quotaReset.js|LICENSE|NOTICE|ASSETS.md) ;;
+        extension.js|prefs.js|metadata.json|stylesheet.css|constants.js|codexAuth.js|usageApi.js|limitReset.js|quotaReset.js|i18n.js|LICENSE|NOTICE|ASSETS.md) ;;
         providers/|providers/baseProvider.js|providers/index.js|providers/codexProvider.js|providers/claudeProvider.js|providers/antigravityProvider.js|providers/agyUsage.js) ;;
         icons/|icons/codex-symbolic.svg|icons/codex-black.svg|icons/codex-color.svg|icons/claude-symbolic.svg|icons/claude-black.svg|icons/claude-color.svg|icons/antigravity-symbolic.svg|icons/antigravity-black.svg|icons/antigravity-color.svg) ;;
         schemas/|schemas/org.gnome.shell.extensions.simple-ai-usage-indicator.gschema.xml) ;;

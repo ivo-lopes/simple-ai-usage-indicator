@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+import {gettext as _} from '../i18n.js';
+
 import {PROVIDER_ANTIGRAVITY, PROVIDER_CLAUDE, PROVIDER_CODEX} from '../constants.js';
 import {AntigravityProvider} from './antigravityProvider.js';
 import {ClaudeProvider} from './claudeProvider.js';
@@ -71,7 +73,7 @@ export class ProviderManager {
                     providerId: provider.id,
                     providerName: provider.name,
                     iconFileName: provider.iconFileName,
-                    error: res.reason,
+                    error: _('Usage unavailable. Check authentication and connectivity.'),
                 });
             }
         });

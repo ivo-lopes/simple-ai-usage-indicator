@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
 
+import {gettext as _, format} from './i18n.js';
+
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
@@ -38,7 +40,7 @@ export async function loadCodexCliAuth({allowExpired = false, cancellable = null
 
     if (!accessToken) {
         throw new CodexCliAuthError(
-            `Codex CLI auth at ${path} does not contain an access token. Run codex login.`,
+            format(_('Codex CLI auth at %s does not contain an access token. Run codex login.'), path),
             {path},
         );
     }
@@ -47,7 +49,7 @@ export async function loadCodexCliAuth({allowExpired = false, cancellable = null
     const now = Math.floor(Date.now() / 1000);
     if (!allowExpired && expiresAt !== null && expiresAt <= now + EXPIRY_SKEW_SECONDS) {
         throw new CodexCliAuthError(
-            'Codex CLI token is expired. Run codex login or start Codex CLI to refresh it.',
+            _('Codex CLI token is expired. Run codex login or start Codex CLI to refresh it.'),
             {path, expired: true},
         );
     }
@@ -68,7 +70,7 @@ async function readAuthPayload(path, cancellable) {
         [contents] = await Gio.File.new_for_path(path).load_contents_async(cancellable);
     } catch (error) {
         throw new CodexCliAuthError(
-            `Codex CLI auth not found at ${path}. Run codex login.`,
+            format(_('Codex CLI auth not found at %s. Run codex login.'), path),
             {path},
         );
     }
@@ -77,7 +79,7 @@ async function readAuthPayload(path, cancellable) {
         return JSON.parse(new TextDecoder().decode(contents));
     } catch (error) {
         throw new CodexCliAuthError(
-            `Codex CLI auth at ${path} is not valid JSON.`,
+            format(_('Codex CLI auth at %s is not valid JSON.'), path),
             {path},
         );
     }

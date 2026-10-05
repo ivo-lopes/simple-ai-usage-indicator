@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Compatibility approach derived from upstream 2fc4bcb by Denny Huang; see NOTICE.
+import {format, ngettext} from '../i18n.js';
 import {formatQuotaReset} from '../quotaReset.js';
 import {Actor, loadSource} from './helpers/shellSource.js';
 
@@ -27,7 +28,7 @@ for (const properties of [['vertical'], ['vertical', 'orientation'], ['orientati
         PopupMenu: {PopupMenuSection: Actor, PopupBaseMenuItem: Actor},
         Gio: {icon_new_for_string: path => path},
         GLib: {build_filenamev: parts => parts.join('/')},
-        formatQuotaReset, Extension: class {}, _: text => text,
+        formatQuotaReset, Extension: class {}, _: text => text, format, ngettext,
         ICON_STYLE_SYMBOLIC: 'symbolic', ICON_STYLE_BLACK: 'black', ICON_STYLE_COLOR: 'color',
         DISPLAY_MODE_USED: 'used', DISPLAY_MODE_PERCENT: 'percent', DISPLAY_MODE_LEFT: 'left',
     };

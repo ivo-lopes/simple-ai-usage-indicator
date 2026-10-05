@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import GLib from 'gi://GLib';
+import {format, ngettext} from '../i18n.js';
 import {ProviderManager} from '../providers/index.js';
 import {ClaudeProvider} from '../providers/claudeProvider.js';
 import {CodexProvider} from '../providers/codexProvider.js';
@@ -53,10 +54,10 @@ const {SimpleAiUsageIndicator, SimpleAiUsageExtension} = loadSource('extension.j
     PanelMenu: {Button}, PopupMenu: {PopupMenuSection: Actor}, Extension: class {},
     GLib: {Source: {remove: () => timersRemoved++}, DateTime: {new_now_local: () => ({to_unix: () => 0})}},
     Main: {notify: () => notifications++, panel: {addToStatusArea() {}}},
-    PROVIDER_CODEX: 'codex', _: text => text,
+    PROVIDER_CODEX: 'codex', _: text => text, format, ngettext,
 }, ['SimpleAiUsageIndicator', 'SimpleAiUsageExtension']);
 const {SimpleAiUsagePreferencesPage} = loadSource('prefs.js', {
-    Adw: {PreferencesPage: Actor}, GObject: {registerClass: klass => klass}, ExtensionPreferences: class {}, _: text => text,
+    Adw: {PreferencesPage: Actor}, GObject: {registerClass: klass => klass}, ExtensionPreferences: class {}, _: text => text, format, ngettext,
 }, ['SimpleAiUsagePreferencesPage']);
 
 async function run() {

@@ -1,265 +1,475 @@
-# SPDX-License-Identifier: GPL-3.0-only
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the simple-ai-usage-indicator package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 19:53-0300\n"
+"Project-Id-Version: simple-ai-usage-indicator\n"
+"Report-Msgid-Bugs-To: https://github.com/ivo-lopes/simple-ai-usage-indicator/"
+"issues\n"
+"POT-Creation-Date: 2026-10-05 16:50-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: extension.js:88
+#: extension.js:75
 msgid "Simple AI Usage Indicator"
 msgstr ""
 
-#: extension.js:161
+#: extension.js:149
 msgid "Refresh now"
 msgstr ""
 
-#: extension.js:176
+#: extension.js:164
 msgid "Settings"
 msgstr ""
 
-#: extension.js:218
+#: extension.js:208
 msgid "Refreshing..."
 msgstr ""
 
-#: extension.js:254
-msgid "Codex limit reset 🎉"
+#: extension.js:247
+msgid "Codex limit reset"
 msgstr ""
 
-#: extension.js:283
+#: extension.js:277
 msgid "AI: off"
 msgstr ""
 
-#: extension.js:336
+#: extension.js:331
 msgid "No AI assistants enabled. Go to Settings to enable them."
 msgstr ""
 
-#: extension.js:360
+#: extension.js:354
 msgid "Fetching usage data..."
 msgstr ""
 
-#: extension.js:377 extension.js:590
+#: extension.js:362
+msgid "Quota unavailable"
+msgstr ""
+
+#: extension.js:377
+msgid "Stale quota"
+msgstr ""
+
+#: extension.js:377
+msgid "Cached quota"
+msgstr ""
+
+#: extension.js:550
+msgid "Unknown group"
+msgstr ""
+
+#: extension.js:553
+msgid "Quota"
+msgstr ""
+
+#: extension.js:560 extension.js:564 extension.js:572
 msgid "5-hour window"
 msgstr ""
 
-#: extension.js:386 extension.js:592
+#: extension.js:562 extension.js:566 extension.js:574
 msgid "Weekly limit"
 msgstr ""
 
-#: extension.js:594
+#: extension.js:568
+msgid "Window"
+msgstr ""
+
+#: extension.js:570
+msgid "Weekly tokens"
+msgstr ""
+
+#: extension.js:576
 msgid "Tokens today"
 msgstr ""
 
-#: extension.js:667
+#: extension.js:635
 msgid "Active Models & Quota"
 msgstr ""
 
-#: extension.js:679
+#: extension.js:646
 msgid "Model"
 msgstr ""
 
-#: extension.js:720
-msgid "rate limit resets available"
-msgstr ""
+#: extension.js:680
+#, javascript-format
+msgid "%s rate limit reset available"
+msgid_plural "%s rate limit resets available"
+msgstr[0] ""
+msgstr[1] ""
 
-#: extension.js:722
-msgid "CLI sessions stored locally"
-msgstr ""
+#: extension.js:682
+#, javascript-format
+msgid "%s CLI session stored locally"
+msgid_plural "%s CLI sessions stored locally"
+msgstr[0] ""
+msgstr[1] ""
 
-#: extension.js:724
-msgid "total Claude Code sessions"
-msgstr ""
+#: extension.js:684
+#, javascript-format
+msgid "%s Claude Code session"
+msgid_plural "%s Claude Code sessions"
+msgstr[0] ""
+msgstr[1] ""
 
-#: extension.js:806 extension.js:813
+#: extension.js:752 extension.js:758
 msgid "left"
 msgstr ""
 
-#: extension.js:813 extension.js:855 extension.js:858 extension.js:890
+#: extension.js:758 extension.js:787 extension.js:790 extension.js:816
 msgid "used"
 msgstr ""
 
-#: extension.js:823
+#: extension.js:768
 msgid "OK"
 msgstr ""
 
-#: extension.js:834
+#: extension.js:773
 msgid "never"
 msgstr ""
 
-#: extension.js:861 extension.js:864 extension.js:867
+#: extension.js:793 extension.js:796 extension.js:799
 msgid "remaining"
 msgstr ""
 
-#: extension.js:870 prefs.js:241
-msgid "Available"
+#: extension.js:802 providers/antigravityProvider.js:73
+#: providers/claudeProvider.js:72 providers/claudeProvider.js:75
+msgid "Unknown"
 msgstr ""
 
-#: extension.js:887
+#: extension.js:813
 msgid "total"
 msgstr ""
 
-#: extension.js:905 extension.js:912
-msgid "Resets"
-msgstr ""
-
-#: extension.js:916
-msgid "Resets in"
-msgstr ""
-
-#: prefs.js:42
+#: prefs.js:33
 msgid "General"
 msgstr ""
 
-#: prefs.js:60
+#: prefs.js:67
 msgid "Display & Refresh"
 msgstr ""
 
-#: prefs.js:61
+#: prefs.js:68
 msgid "Configure refresh rates and appearance in the top panel."
 msgstr ""
 
-#: prefs.js:73
+#: prefs.js:80
 msgid "Update interval"
 msgstr ""
 
-#: prefs.js:74
+#: prefs.js:81
 msgid "Seconds between automatic usage refreshes"
 msgstr ""
 
-#: prefs.js:90
+#: prefs.js:97
 msgid "Display mode"
 msgstr ""
 
-#: prefs.js:91
+#: prefs.js:98
 msgid "Choose whether to show remaining quota, consumed quota, or percentage."
 msgstr ""
 
-#: prefs.js:93
+#: prefs.js:100
 msgid "Remaining quota (left)"
 msgstr ""
 
-#: prefs.js:94
+#: prefs.js:101
 msgid "Consumed quota (used)"
 msgstr ""
 
-#: prefs.js:95
+#: prefs.js:102
 msgid "Percentage (%)"
 msgstr ""
 
-#: prefs.js:111
+#: prefs.js:118
 msgid "Top bar layout"
 msgstr ""
 
-#: prefs.js:112
+#: prefs.js:119
 msgid "Show all enabled assistants side-by-side or cycle with a click."
 msgstr ""
 
-#: prefs.js:114
+#: prefs.js:121
 msgid "Show all enabled assistants"
 msgstr ""
 
-#: prefs.js:115
+#: prefs.js:122
 msgid "Cycle one at a time"
 msgstr ""
 
-#: prefs.js:140
+#: prefs.js:147
 msgid "Icon style"
 msgstr ""
 
-#: prefs.js:141
+#: prefs.js:148
 msgid ""
 "Choose monochrome white, monochrome black, or colored generic icons in the "
 "panel and menu."
 msgstr ""
 
-#: prefs.js:143
+#: prefs.js:150
 msgid "Monochrome white (Symbolic)"
 msgstr ""
 
-#: prefs.js:144
+#: prefs.js:151
 msgid "Monochrome black (Black)"
 msgstr ""
 
-#: prefs.js:145
+#: prefs.js:152
 msgid "Colored icons (Color)"
 msgstr ""
 
-#: prefs.js:165
+#: prefs.js:167
 msgid "Coding Assistants"
 msgstr ""
 
-#: prefs.js:166
+#: prefs.js:168
 msgid "Manage monitored assistants and test their local authentication."
 msgstr ""
 
-#: prefs.js:188
+#: prefs.js:183
 msgid "Checking auth..."
 msgstr ""
 
-#: prefs.js:201
+#: prefs.js:196
 msgid "Local authentication"
 msgstr ""
 
-#: prefs.js:202
+#: prefs.js:197
 msgid "Checking status..."
 msgstr ""
 
-#: prefs.js:205
+#: prefs.js:200
 msgid "Test connection"
 msgstr ""
 
-#: prefs.js:216
-msgid "Custom Claude Token (optional)"
+#: prefs.js:221
+msgid "Available"
 msgstr ""
 
-#: prefs.js:241
+#: prefs.js:221
 msgid "Not found"
 msgstr ""
 
-#: prefs.js:244
+#: prefs.js:224
 msgid "Token expired"
 msgstr ""
 
-#: prefs.js:244 prefs.js:279
+#: prefs.js:224 prefs.js:257
 msgid "Connected"
 msgstr ""
 
-#: prefs.js:245
+#: prefs.js:225
 msgid "Not configured"
 msgstr ""
 
-#: prefs.js:248 prefs.js:282
+#: prefs.js:229
+msgid "Authentication check unavailable."
+msgstr ""
+
+#: prefs.js:230 prefs.js:262
 msgid "Error"
 msgstr ""
 
-#: prefs.js:261
+#: prefs.js:237
 msgid "Testing connection..."
 msgstr ""
 
-#: prefs.js:266
+#: prefs.js:243
+#, javascript-format
+msgid "Error: %s"
+msgstr ""
+
+#: prefs.js:244
 msgid "Failed"
 msgstr ""
 
-msgid "Quota unavailable"
+#: prefs.js:254
+#, javascript-format
+msgid "%s%% used"
 msgstr ""
 
-msgid "Unknown"
+#: prefs.js:256
+#, javascript-format
+msgid "Success! %s"
 msgstr ""
 
-msgid "Cached quota"
+#: prefs.js:261
+msgid "Test failed. Check authentication and connectivity."
 msgstr ""
 
-msgid "Stale quota"
+#: providers/antigravityProvider.js:65
+msgid "Credentials not found in GNOME Keyring. Run agy to log in."
+msgstr ""
+
+#: providers/antigravityProvider.js:83
+#, javascript-format
+msgid "Keyring token found (expires: %s)"
+msgstr ""
+
+#: providers/antigravityProvider.js:86
+msgid "Google account"
+msgstr ""
+
+#: providers/antigravityProvider.js:91
+msgid "Keyring lookup unavailable"
+msgstr ""
+
+#: providers/antigravityProvider.js:107
+msgid ""
+"Antigravity quota unavailable. Check CLI authentication and connectivity."
+msgstr ""
+
+#: providers/claudeProvider.js:68
+msgid "Using OAuth token from environment"
+msgstr ""
+
+#: providers/claudeProvider.js:75
+#, javascript-format
+msgid "OAuth token found (expires: %s, tier: %s)"
+msgstr ""
+
+#: providers/claudeProvider.js:85
+msgid "Claude user"
+msgstr ""
+
+#: providers/claudeProvider.js:88
+#, javascript-format
+msgid "Account profile found (%s), but no OAuth credential. Run claude login."
+msgstr ""
+
+#: providers/claudeProvider.js:96
+#, javascript-format
+msgid "Claude credentials not found at %s. Run claude login."
+msgstr ""
+
+#: providers/claudeProvider.js:163
+#, javascript-format
+msgid "Claude API returned HTTP %s"
+msgstr ""
+
+#: providers/claudeProvider.js:169
+msgid "Claude API returned invalid JSON"
+msgstr ""
+
+#: providers/claudeProvider.js:269
+msgid "Claude quota API unavailable; showing local statistics."
+msgstr ""
+
+#: providers/codexProvider.js:43
+#, javascript-format
+msgid "Expires %s"
+msgstr ""
+
+#: providers/codexProvider.js:44
+msgid "Expiry unknown"
+msgstr ""
+
+#: providers/codexProvider.js:49
+#, javascript-format
+msgid "Token found (%s)"
+msgstr ""
+
+#: providers/codexProvider.js:58
+msgid "Codex credential check failed"
+msgstr ""
+
+#: providers/codexProvider.js:129
+msgid "Codex request unavailable. Check authentication and connectivity."
+msgstr ""
+
+#: providers/index.js:76
+msgid "Usage unavailable. Check authentication and connectivity."
+msgstr ""
+
+#: codexAuth.js:43
+#, javascript-format
+msgid "Codex CLI auth at %s does not contain an access token. Run codex login."
+msgstr ""
+
+#: codexAuth.js:52
+msgid ""
+"Codex CLI token is expired. Run codex login or start Codex CLI to refresh it."
+msgstr ""
+
+#: codexAuth.js:73
+#, javascript-format
+msgid "Codex CLI auth not found at %s. Run codex login."
+msgstr ""
+
+#: codexAuth.js:82
+#, javascript-format
+msgid "Codex CLI auth at %s is not valid JSON."
+msgstr ""
+
+#: usageApi.js:126
+msgid "A bearer token is required."
+msgstr ""
+
+#: usageApi.js:157
+#, javascript-format
+msgid "The server returned invalid JSON for %s."
+msgstr ""
+
+#: usageApi.js:164
+#, javascript-format
+msgid "Request failed with HTTP %s."
+msgstr ""
+
+#: quotaReset.js:20
+msgid "Resets"
+msgstr ""
+
+#: quotaReset.js:23
+msgid "in"
+msgstr ""
+
+#: quotaReset.js:27
+msgid "Resets in"
+msgstr ""
+
+#: limitReset.js:78
+msgid "Weekly"
+msgstr ""
+
+#: limitReset.js:78
+msgid "5-hour"
+msgstr ""
+
+#: limitReset.js:79
+#, javascript-format
+msgid "%s usage returned to %s%% remaining, %s before its scheduled reset."
+msgstr ""
+
+#: limitReset.js:143
+#, javascript-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: limitReset.js:145
+#, javascript-format
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: limitReset.js:147
+#, javascript-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: limitReset.js:149
+msgid "less than a minute"
 msgstr ""

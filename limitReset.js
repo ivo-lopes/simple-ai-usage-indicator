@@ -70,11 +70,14 @@ export function detectEarlyLimitResets(previous, current) {
     return resets;
 }
 
-export function formatLimitResetMessage(reset) {
+import {format} from './i18n.js';
+
+export function formatLimitResetMessage(reset, {translate = text => text, plural = (s, p, n) => n === 1 ? s : p} = {}) {
     const percentage = Math.round(reset.remainingPercent * 100);
-    const leadTime = formatLeadTime(reset.secondsEarly);
-    return `${reset.label} usage returned to ${percentage}% remaining, ` +
-        `${leadTime} before its scheduled reset.`;
+    const leadTime = formatLeadTime(reset.secondsEarly, translate, plural);
+    const label = reset.type === 'weekly' ? translate('Weekly') : translate('5-hour');
+    return format(translate('%s usage returned to %s%% remaining, %s before its scheduled reset.'),
+        label, percentage, leadTime);
 }
 
 function hasSameAccount(previous, current) {
@@ -129,7 +132,7 @@ function getScheduledResetAt(window, observedAt) {
     return previousObservedAt + resetAfterSeconds;
 }
 
-function formatLeadTime(totalSeconds) {
+function formatLeadTime(totalSeconds, translate, plural) {
     const seconds = Math.max(0, Math.round(totalSeconds));
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
@@ -137,17 +140,13 @@ function formatLeadTime(totalSeconds) {
     const parts = [];
 
     if (days > 0)
-        parts.push(formatUnit(days, 'day'));
+        parts.push(plural('%s day', '%s days', days).replace('%s', String(days)));
     if (hours > 0)
-        parts.push(formatUnit(hours, 'hour'));
+        parts.push(plural('%s hour', '%s hours', hours).replace('%s', String(hours)));
     if (days === 0 && minutes > 0)
-        parts.push(formatUnit(minutes, 'minute'));
+        parts.push(plural('%s minute', '%s minutes', minutes).replace('%s', String(minutes)));
 
-    return parts.length > 0 ? parts.join(' ') : 'less than a minute';
-}
-
-function formatUnit(value, unit) {
-    return `${value} ${unit}${value === 1 ? '' : 's'}`;
+    return parts.length > 0 ? parts.join(' ') : translate('less than a minute');
 }
 
 function normalizedIdentity(value) {

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+import {gettext as _, format} from '../i18n.js';
+
 import Gio from 'gi://Gio';
 
 import {BaseProvider, createEmptySummary} from './baseProvider.js';
 import {CodexCliAuthError, getCodexCliAuthPath, loadCodexCliAuth} from '../codexAuth.js';
 import {PROVIDER_CODEX} from '../constants.js';
-import {UsageApiClient} from '../usageApi.js';
+import {UsageApiClient, UsageApiError} from '../usageApi.js';
 
 export class CodexProvider extends BaseProvider {
     constructor({loadAuth = loadCodexCliAuth, authPath = getCodexCliAuthPath, client = null} = {}) {
@@ -38,13 +40,13 @@ export class CodexProvider extends BaseProvider {
             if (this._destroyed)
                 throw new Error('Provider destroyed');
             const expiryDetails = auth.expiresAt !== null
-                ? `Expires ${formatTimestamp(auth.expiresAt)}`
-                : 'Expiry unknown';
+                ? format(_('Expires %s'), formatTimestamp(auth.expiresAt))
+                : _('Expiry unknown');
             return {
                 available: true,
                 path,
                 account: auth.accountId,
-                details: `Token found (${auth.accountId ? `Account: ${auth.accountId}, ` : ''}${expiryDetails})`,
+                details: format(_('Token found (%s)'), expiryDetails),
                 expired: auth.expiresInSeconds !== null && auth.expiresInSeconds <= 0,
             };
         } catch (error) {
@@ -53,7 +55,7 @@ export class CodexProvider extends BaseProvider {
             return {
                 available: false,
                 path,
-                details: error instanceof CodexCliAuthError ? error.message : 'Codex credential check failed',
+                details: error instanceof CodexCliAuthError ? error.message : _('Codex credential check failed'),
                 expired: error?.expired ?? false,
             };
         }
@@ -123,13 +125,14 @@ export class CodexProvider extends BaseProvider {
         } catch (error) {
             if (this._destroyed)
                 throw new Error('Provider destroyed');
+            const publicError = error instanceof CodexCliAuthError || error instanceof UsageApiError
+                ? error : new Error(_('Codex request unavailable. Check authentication and connectivity.'));
             const summary = createEmptySummary({
                 providerId: this.id,
                 providerName: this.name,
                 iconFileName: this.iconFileName,
-                error,
+                error: publicError,
             });
-            summary.error = error;
             return summary;
         }
     }

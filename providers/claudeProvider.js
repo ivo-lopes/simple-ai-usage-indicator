@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+import {gettext as _, format} from '../i18n.js';
+
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
@@ -63,14 +65,14 @@ export class ClaudeProvider extends BaseProvider {
         const oauth = credPayload?.claudeAiOauth;
         const accessToken = this._getOAuthToken(credPayload);
         if (accessToken && !(typeof oauth?.accessToken === 'string' && oauth.accessToken.trim())) {
-            return {available: true, details: 'Using OAuth token from environment', path: 'env:CLAUDE_CODE_OAUTH_TOKEN'};
+            return {available: true, details: _('Using OAuth token from environment'), path: 'env:CLAUDE_CODE_OAUTH_TOKEN'};
         }
 
         if (accessToken) {
-            const exp = oauth?.expiresAt ? new Date(oauth.expiresAt).toLocaleTimeString() : 'Unknown';
+            const exp = oauth?.expiresAt ? new Date(oauth.expiresAt).toLocaleTimeString() : _('Unknown');
             return {
                 available: true,
-                details: `OAuth token found (Expires: ${exp}, Tier: ${oauth.subscriptionType || 'Pro'})`,
+                details: format(_('OAuth token found (expires: %s, tier: %s)'), exp, oauth.subscriptionType || _('Unknown')),
                 path: credPath,
                 account: oauth.subscriptionType || null,
             };
@@ -80,10 +82,10 @@ export class ClaudeProvider extends BaseProvider {
         const configPayload = await this._readJsonFile(configPath);
         const oauthAccount = configPayload?.oauthAccount;
         if (oauthAccount?.emailAddress) {
-            const plan = oauthAccount.seatTier || oauthAccount.organizationType || 'Claude User';
+            const plan = oauthAccount.seatTier || oauthAccount.organizationType || _('Claude user');
             return {
                 available: false,
-                details: `Account profile found (${plan}), but no OAuth credential. Run claude login.`,
+                details: format(_('Account profile found (%s), but no OAuth credential. Run claude login.'), plan),
                 path: configPath,
                 account: oauthAccount.emailAddress,
             };
@@ -91,7 +93,7 @@ export class ClaudeProvider extends BaseProvider {
 
         return {
             available: false,
-            details: `Claude credentials not found at ${credPath}. Run claude login.`,
+            details: format(_('Claude credentials not found at %s. Run claude login.'), credPath),
             path: credPath,
         };
     }
@@ -158,13 +160,13 @@ export class ClaudeProvider extends BaseProvider {
         const text = new TextDecoder().decode(bytes.get_data());
 
         if (status < 200 || status >= 300) {
-            throw new Error(`Claude API returned HTTP ${status}`);
+            throw new Error(format(_('Claude API returned HTTP %s'), status));
         }
 
         try {
             return JSON.parse(text);
         } catch {
-            throw new Error('Claude API returned invalid JSON');
+            throw new Error(_('Claude API returned invalid JSON'));
         }
     }
 
@@ -264,7 +266,7 @@ export class ClaudeProvider extends BaseProvider {
             } : null,
             raw: statsPayload,
             lastUpdated: new Date(),
-            error: apiError ? 'Claude quota API unavailable; showing local statistics.' : null,
+            error: apiError ? _('Claude quota API unavailable; showing local statistics.') : null,
         };
     }
 

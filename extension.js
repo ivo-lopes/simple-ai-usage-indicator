@@ -31,6 +31,7 @@ import {
 } from './limitReset.js';
 import {formatQuotaReset} from './quotaReset.js';
 import {ProviderManager} from './providers/index.js';
+import {format, ngettext} from './i18n.js';
 
 const PROGRESS_BAR_WIDTH = 360;
 const PROGRESS_BAR_HEIGHT = 7;
@@ -244,7 +245,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                 if (limitResets.length > 0) {
                     Main.notify(
                         _('Codex limit reset'),
-                        limitResets.map(formatLimitResetMessage).join('\n'),
+                        limitResets.map(reset => formatLimitResetMessage(reset, {translate: _, plural: ngettext})).join('\n'),
                     );
                 }
             }
@@ -382,7 +383,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             ? summary.windows : [summary.primaryWindow, summary.weekWindow].filter(Boolean);
         for (const window of windows) {
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
-                formatWindowLabel(window.label), window, displayMode,
+                formatBucketLabel(window), window, displayMode,
             ));
         }
 
@@ -543,9 +544,30 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     return menuItem;
 }
 
+function formatBucketLabel(window) {
+    if (!window.source?.startsWith('agy-'))
+        return formatWindowLabel(window.label);
+    const group = window.groupName === 'Unknown group' ? _('Unknown group') : window.groupName;
+    const bucket = window.raw?.name || (window.period === '5h' ? '5-hour window'
+        : window.period === 'weekly' ? 'Weekly limit' : window.period);
+    return `${group} · ${formatWindowLabel(bucket) || _('Quota')}`;
+}
+
 function formatWindowLabel(label) {
     if (!label)
         return '';
+    if (label === 'Five Hour Limit Remaining')
+        return _('5-hour window');
+    if (label === 'Weekly Limit Remaining')
+        return _('Weekly limit');
+    if (label === '5h')
+        return _('5-hour window');
+    if (label === 'Week')
+        return _('Weekly limit');
+    if (label === 'Window')
+        return _('Window');
+    if (label === 'Weekly tokens')
+        return _('Weekly tokens');
     if (label === '5-hour window')
         return _('5-hour window');
     if (label === 'Weekly limit')
@@ -655,11 +677,11 @@ function createExtraCreditsMenuItem(credits) {
 
     let text = '';
     if (typeof credits.availableCount === 'number') {
-        text = `${credits.availableCount} ${_('rate limit resets available')}`;
+        text = format(ngettext('%s rate limit reset available', '%s rate limit resets available', credits.availableCount), formatNumber(credits.availableCount));
     } else if (credits.conversations) {
-        text = `${credits.conversations} ${_('CLI sessions stored locally')}`;
+        text = format(ngettext('%s CLI session stored locally', '%s CLI sessions stored locally', credits.conversations), formatNumber(credits.conversations));
     } else if (credits.totalSessions) {
-        text = `${credits.totalSessions} ${_('total Claude Code sessions')}`;
+        text = format(ngettext('%s Claude Code session', '%s Claude Code sessions', credits.totalSessions), formatNumber(credits.totalSessions));
     }
 
     if (!text)
@@ -750,7 +772,7 @@ function formatLastUpdatedValue(lastUpdated) {
     if (!lastUpdated)
         return _('never');
 
-    return lastUpdated.format('%F %R');
+    return new Date(lastUpdated.to_unix() * 1000).toLocaleString(undefined, {dateStyle: 'short', timeStyle: 'short'});
 }
 
 function formatWindowValue(window, displayMode) {

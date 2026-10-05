@@ -24,6 +24,7 @@ import {
     PROVIDER_CODEX,
 } from './constants.js';
 import {ProviderManager} from './providers/index.js';
+import {format} from './i18n.js';
 
 const SimpleAiUsagePreferencesPage = GObject.registerClass(
 class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
@@ -225,7 +226,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         } catch (error) {
             if (this._disposed)
                 return;
-            authRow.subtitle = error.message;
+            authRow.subtitle = _('Authentication check unavailable.');
             expander.subtitle = _('Error');
         }
     }
@@ -239,7 +240,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             if (this._disposed)
                 return;
             if (usage.error) {
-                authRow.subtitle = `Error: ${usage.error.message || usage.error}`;
+                authRow.subtitle = format(_('Error: %s'), usage.error.message || usage.error);
                 expander.subtitle = _('Failed');
                 return;
             }
@@ -250,14 +251,14 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             if (usage.account)
                 parts.push(usage.account);
             if (usage.percent !== null)
-                parts.push(`${Math.round(usage.percent * 100)}% used`);
+                parts.push(format(_('%s%% used'), Math.round(usage.percent * 100)));
 
-            authRow.subtitle = `Success! ${parts.join(' · ')}`;
+            authRow.subtitle = format(_('Success! %s'), parts.join(' · '));
             expander.subtitle = _('Connected');
         } catch (error) {
             if (this._disposed)
                 return;
-            authRow.subtitle = `Test failed: ${error.message}`;
+            authRow.subtitle = _('Test failed. Check authentication and connectivity.');
             expander.subtitle = _('Error');
         }
     }
