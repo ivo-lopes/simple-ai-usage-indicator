@@ -3,7 +3,9 @@
 GitHub tags identify source/releases; EGO's internal version is assigned by EGO.
 This file summarizes relevant snapshots rather than reconstructing every old commit.
 
-## Unreleased — proposed v22
+## Unreleased
+
+## v22 — 2026-10-05
 
 ### Added
 
@@ -30,8 +32,8 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 - Remove the Antigravity Google UserInfo request and credential reads during quota refresh.
 - Keep credentials and response bodies out of user-visible errors/artifacts.
 
-Compatibility/UI results and remaining limits are recorded in PRE_SUBMISSION.md;
-this entry does not imply publication or EGO approval.
+Compatibility/UI results and remaining limits are recorded in PRE_SUBMISSION.md.
+GitHub publication is independent of GNOME Extensions review and approval.
 
 ## v21 — 2026-10-05
 

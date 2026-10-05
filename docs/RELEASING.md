@@ -1,6 +1,6 @@
 # Manual release policy
 
-GitHub versions (`v21`, proposed `v22`, etc.) are independent of EGO's internal
+GitHub versions (`v21`, `v22`, etc.) are independent of EGO's internal
 metadata version. Do not reintroduce a manual `version` key or change the UUID/schema
 ID to match a GitHub tag. EGO manages its version on upload.
 
