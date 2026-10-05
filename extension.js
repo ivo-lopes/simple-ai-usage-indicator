@@ -45,7 +45,11 @@ import {formatResetCreditExpiryList} from './resetCreditExpiry.js';
 const PROGRESS_BAR_WIDTH = 360;
 const PROGRESS_BAR_HEIGHT = 7;
 const PANEL_ICON_SIZE = 16;
-const MENU_TITLE_STYLE = 'color: #fff; font-weight: 700;';
+const MENU_TITLE_STYLE = 'font-weight: 700;';
+// Select the St API property without constructing an actor at import time.
+const VERTICAL_BOX_LAYOUT_PROPS = 'orientation' in St.BoxLayout.prototype
+    ? {orientation: Clutter.Orientation.VERTICAL}
+    : {vertical: true};
 
 /**
  * A scrollable popup menu section that houses multiple provider usage summaries
@@ -548,7 +552,6 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     });
 
     const row = new St.BoxLayout({
-        vertical: false,
         x_expand: true,
         y_align: Clutter.ActorAlign.CENTER,
     });
@@ -565,7 +568,7 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     row.add_child(icon);
 
     const titleBox = new St.BoxLayout({
-        vertical: true,
+        ...VERTICAL_BOX_LAYOUT_PROPS,
         x_expand: true,
         style: 'margin-left: 10px;',
     });
@@ -629,13 +632,13 @@ function createUsageProgressMenuItem(title, window, displayMode) {
     });
 
     const content = new St.BoxLayout({
-        vertical: true,
+        ...VERTICAL_BOX_LAYOUT_PROPS,
         x_expand: true,
     });
 
     content.add_child(new St.Label({
         text: title,
-        style: 'color: #ddd; font-weight: 600; font-size: 0.95em;',
+        style: 'font-weight: 600; font-size: 0.95em;',
         x_align: Clutter.ActorAlign.START,
     }));
 
@@ -677,21 +680,20 @@ function createModelsSummaryMenuItem(models) {
     });
 
     const content = new St.BoxLayout({
-        vertical: true,
+        ...VERTICAL_BOX_LAYOUT_PROPS,
         x_expand: true,
         style: 'margin-top: 4px;',
     });
 
     content.add_child(new St.Label({
         text: _('Active Models & Quota'),
-        style: 'color: #bbb; font-weight: 600; font-size: 0.9em;',
+        style: 'font-weight: 600; font-size: 0.9em;',
         x_align: Clutter.ActorAlign.START,
     }));
 
     for (const model of models.slice(0, 3)) {
         const lineBox = new St.BoxLayout({
-            vertical: false,
-            x_expand: true,
+                x_expand: true,
             style: 'margin-top: 2px;',
         });
         lineBox.add_child(new St.Label({
@@ -704,7 +706,7 @@ function createModelsSummaryMenuItem(models) {
         const val = model.formattedTokens || model.tier || (model.usedPercent !== undefined ? `${Math.round(model.usedPercent * 100)}%` : '');
         lineBox.add_child(new St.Label({
             text: val,
-            style: 'color: #ccc; font-size: 0.9em;',
+            style: 'font-size: 0.9em;',
             x_align: Clutter.ActorAlign.END,
         }));
         content.add_child(lineBox);
@@ -730,7 +732,6 @@ function createExtraCreditsMenuItem(credits) {
     });
 
     const content = new St.BoxLayout({
-        vertical: false,
         x_expand: true,
     });
 
