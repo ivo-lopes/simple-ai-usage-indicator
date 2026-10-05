@@ -1,13 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
 
-/**
- * @file extension.js
- * @description Main entry point for Simple AI Usage Indicator GNOME Shell Extension.
- * Displays AI coding assistant status indicators in the GNOME panel status area
- * with support for multi-indicator layouts and detailed breakdown popup menus.
- */
-
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -22,7 +15,6 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {
     BAR_DISPLAY_ALL,
     BAR_DISPLAY_CYCLE,
-    DEFAULT_ENABLED_PROVIDERS,
     DEFAULT_UPDATE_INTERVAL_SECONDS,
     DISPLAY_MODE_LEFT,
     DISPLAY_MODE_PERCENT,
@@ -31,7 +23,6 @@ import {
     ICON_STYLE_COLOR,
     ICON_STYLE_SYMBOLIC,
     PROVIDER_ANTIGRAVITY,
-    PROVIDER_CLAUDE,
     PROVIDER_CODEX,
 } from './constants.js';
 import {
@@ -40,7 +31,6 @@ import {
 } from './limitReset.js';
 import {formatQuotaReset} from './quotaReset.js';
 import {ProviderManager} from './providers/index.js';
-import {formatResetCreditExpiryList} from './resetCreditExpiry.js';
 
 const PROGRESS_BAR_WIDTH = 360;
 const PROGRESS_BAR_HEIGHT = 7;
@@ -51,10 +41,6 @@ const VERTICAL_BOX_LAYOUT_PROPS = 'orientation' in St.BoxLayout.prototype
     ? {orientation: Clutter.Orientation.VERTICAL}
     : {vertical: true};
 
-/**
- * A scrollable popup menu section that houses multiple provider usage summaries
- * without exceeding screen height or pushing bottom controls off the display.
- */
 class PopupScrollMenuSection extends PopupMenu.PopupMenuSection {
     constructor() {
         super();
@@ -82,19 +68,12 @@ class PopupScrollMenuSection extends PopupMenu.PopupMenuSection {
     }
 }
 
-/**
- * Panel menu button displaying AI assistant metrics in the top bar.
- */
 const SimpleAiUsageIndicator = GObject.registerClass(
 class SimpleAiUsageIndicator extends PanelMenu.Button {
-    /**
-     * Initializes the indicator button, registers settings listeners, and starts refresh loop.
-     *
-     * @param {SimpleAiUsageExtension} extension - Owning extension instance
-     */
     _init(extension) {
         super._init(0.5, _('Simple AI Usage Indicator'));
 
+        // Async refresh promises may settle after actors are destroyed.
         this._destroyed = false;
         this._extension = extension;
         this._settings = extension.getSettings();
@@ -153,7 +132,6 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             this,
         );
 
-
         this._restartRefreshTimer();
         this._renderCurrentState();
         void this.refresh();
@@ -183,15 +161,10 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         this.menu.addMenuItem(this._refreshItem);
 
         this.menu.addAction(_('Settings'), () => {
-            try {
-                this._extension.openPreferences().catch(err => {
-                    if (this._destroyed)
-                        return;
+            this._extension.openPreferences().catch(err => {
+                if (!this._destroyed)
                     reportError(err, '[simple-ai-usage-indicator] openPreferences failed');
-                });
-            } catch (err) {
-                reportError(err, '[simple-ai-usage-indicator] openPreferences failed');
-            }
+            });
         });
 
         this.menu.connectObject(
@@ -204,10 +177,6 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         );
     }
 
-    /**
-     * Dynamically adjusts the max-height of the scrollable section to fit within the work area.
-     * @private
-     */
     _updateScrollMaxHeight() {
         if (this._destroyed)
             return;
@@ -261,7 +230,6 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             return;
         const lastUpdated = GLib.DateTime.new_now_local();
 
-        // Detect early limit resets for Codex
         const codexSummary = summaries.get(PROVIDER_CODEX);
         if (codexSummary && !codexSummary.error) {
             const prevSnapshot = this._state.previousSnapshots.get(PROVIDER_CODEX);
@@ -274,12 +242,10 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             if (prevSnapshot) {
                 const limitResets = detectEarlyLimitResets(prevSnapshot, currentSnapshot);
                 if (limitResets.length > 0) {
-                    try {
-                        Main.notify(
-                            _('Codex limit reset 🎉'),
-                            limitResets.map(formatLimitResetMessage).join('\n'),
-                        );
-                    } catch {}
+                    Main.notify(
+                        _('Codex limit reset'),
+                        limitResets.map(formatLimitResetMessage).join('\n'),
+                    );
                 }
             }
             this._state.previousSnapshots.set(PROVIDER_CODEX, currentSnapshot);
@@ -328,7 +294,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                 style: i > 0 ? 'margin-left: 8px;' : '',
             });
 
-            const iconFileName = provider.getIconFileName ? provider.getIconFileName(iconStyle) : provider.iconFileName;
+            const iconFileName = provider.getIconFileName(iconStyle);
             const iconPath = GLib.build_filenamev([
                 this._extension.path,
                 'icons',
@@ -379,7 +345,6 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     _renderProviderSection(provider, summary, displayMode, iconStyle = ICON_STYLE_SYMBOLIC) {
-        // Section Header: Icon + Name + Plan + Account
         const headerItem = createProviderHeaderMenuItem(this._extension.path, provider, summary, iconStyle);
         this._usageSection.addMenuItem(headerItem);
 
@@ -421,14 +386,12 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             ));
         }
 
-        // Additional models or quota details
         if (summary.models && summary.models.length > 0) {
             const modelsItem = createModelsSummaryMenuItem(summary.models);
             if (modelsItem)
                 this._usageSection.addMenuItem(modelsItem);
         }
 
-        // Extra credits / resets
         if (summary.extraCredits) {
             const creditsItem = createExtraCreditsMenuItem(summary.extraCredits);
             if (creditsItem)
@@ -469,27 +432,15 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     _getBarDisplayMode() {
-        try {
-            return this._settings.get_string('bar-display-mode') || BAR_DISPLAY_ALL;
-        } catch {
-            return BAR_DISPLAY_ALL;
-        }
+        return this._settings.get_string('bar-display-mode') || BAR_DISPLAY_ALL;
     }
 
     _getActiveProviderId() {
-        try {
-            return this._settings.get_string('active-provider') || PROVIDER_CODEX;
-        } catch {
-            return PROVIDER_CODEX;
-        }
+        return this._settings.get_string('active-provider') || PROVIDER_CODEX;
     }
 
     _getIconStyle() {
-        try {
-            return this._settings.get_string('icon-style') || ICON_STYLE_SYMBOLIC;
-        } catch {
-            return ICON_STYLE_SYMBOLIC;
-        }
+        return this._settings.get_string('icon-style') || ICON_STYLE_SYMBOLIC;
     }
 
     destroy() {
@@ -514,33 +465,18 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 });
 
-/**
- * GNOME Shell Extension class lifecycle controller.
- */
 export default class SimpleAiUsageExtension extends Extension {
-    /**
-     * Instantiates the indicator button and attaches it to the GNOME Shell status area.
-     */
     enable() {
         this._indicator = new SimpleAiUsageIndicator(this);
         Main.panel.addToStatusArea(this.uuid, this._indicator, 0, 'right');
     }
 
-    /**
-     * Destroys the indicator and unregisters all hooks.
-     */
     disable() {
         this._indicator?.destroy();
         this._indicator = null;
     }
 }
 
-/**
- * Standardized error reporter logging either to globalThis.logError or console.error.
- *
- * @param {Error|any} error - Exception to report
- * @param {string} context - Log prefix context
- */
 function reportError(error, context) {
     if (typeof globalThis.logError === 'function') {
         globalThis.logError(error, context);
@@ -553,15 +489,6 @@ function reportError(error, context) {
     console.error(`${context}: ${detail}`);
 }
 
-/**
- * Builds the visual header for a provider section inside the popup menu.
- *
- * @param {string} extensionPath - Filesystem path to extension root
- * @param {import('./providers/baseProvider.js').BaseProvider} provider - Provider adapter
- * @param {import('./providers/baseProvider.js').UsageSummary} [summary] - Telemetry summary
- * @param {string} [iconStyle='symbolic'] - 'symbolic' or 'color'
- * @returns {PopupMenu.PopupBaseMenuItem} Constructed header menu item
- */
 function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyle = ICON_STYLE_SYMBOLIC) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
         reactive: false,
@@ -573,7 +500,7 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
         y_align: Clutter.ActorAlign.CENTER,
     });
 
-    const iconFileName = provider.getIconFileName ? provider.getIconFileName(iconStyle) : provider.iconFileName;
+    const iconFileName = provider.getIconFileName(iconStyle);
     const iconPath = GLib.build_filenamev([extensionPath, 'icons', iconFileName]);
     const isCustomStyle = iconStyle === ICON_STYLE_COLOR || iconStyle === ICON_STYLE_BLACK;
     const icon = new St.Icon({
@@ -616,12 +543,6 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     return menuItem;
 }
 
-/**
- * Translates standard window labels to the active system locale.
- *
- * @param {string|null} [label] - Window label identifier
- * @returns {string} Translated window label
- */
 function formatWindowLabel(label) {
     if (!label)
         return '';
@@ -634,14 +555,6 @@ function formatWindowLabel(label) {
     return label;
 }
 
-/**
- * Builds a progress bar row representing an active usage window (e.g. 5 hours or weekly).
- *
- * @param {string} title - Section title (e.g. '5-hour window')
- * @param {import('./providers/baseProvider.js').UsageWindow} window - Quota window details
- * @param {string} displayMode - 'left' | 'used' | 'percent'
- * @returns {PopupMenu.PopupBaseMenuItem}
- */
 function createUsageProgressMenuItem(title, window, displayMode) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
         reactive: false,
@@ -681,12 +594,6 @@ function createUsageProgressMenuItem(title, window, displayMode) {
     return menuItem;
 }
 
-/**
- * Builds the popup menu section displaying individual model tokens or active quotas.
- *
- * @param {Array<Object>} models - Model usage list
- * @returns {PopupMenu.PopupBaseMenuItem|null}
- */
 function createModelsSummaryMenuItem(models) {
     if (!models || models.length === 0)
         return null;
@@ -710,7 +617,7 @@ function createModelsSummaryMenuItem(models) {
 
     for (const model of models.slice(0, 3)) {
         const lineBox = new St.BoxLayout({
-                x_expand: true,
+            x_expand: true,
             style: 'margin-top: 2px;',
         });
         lineBox.add_child(new St.Label({
@@ -733,12 +640,6 @@ function createModelsSummaryMenuItem(models) {
     return menuItem;
 }
 
-/**
- * Builds a footer label for bonus reset credits or stored conversation sessions.
- *
- * @param {Object} credits - Credits or session stats object
- * @returns {PopupMenu.PopupBaseMenuItem|null}
- */
 function createExtraCreditsMenuItem(credits) {
     if (!credits)
         return null;
@@ -774,13 +675,6 @@ function createExtraCreditsMenuItem(credits) {
     return menuItem;
 }
 
-/**
- * Creates a rounded Clutter progress bar actor with dynamic status color.
- *
- * @param {number|null} percent - Normalized fraction (0.0 to 1.0)
- * @param {string} displayMode - 'left' | 'used' | 'percent'
- * @returns {St.Widget} Clutter actor containing track and fill bar
- */
 function createProgressBar(percent, displayMode) {
     const normalized = normalizeProgressPercent(percent);
     const fillWidth = normalized === null
@@ -818,14 +712,6 @@ function createProgressBar(percent, displayMode) {
     return track;
 }
 
-/**
- * Formats the compact status label for an assistant in the GNOME panel top bar.
- *
- * @param {import('./providers/baseProvider.js').BaseProvider} provider - Provider instance
- * @param {import('./providers/baseProvider.js').UsageSummary} [summary] - Telemetry data
- * @param {string} displayMode - User's chosen display mode
- * @returns {string} Text to render in top panel
- */
 function formatProviderPanelLabel(provider, summary, displayMode) {
     if (!summary)
         return '--';
@@ -835,7 +721,6 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
     if (summary.error)
         return '!';
 
-    // If percent is available
     if (summary.percent !== null) {
         if (displayMode === DISPLAY_MODE_USED) {
             return `${Math.round(summary.percent * 100)}%`;
@@ -846,7 +731,6 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
         }
     }
 
-    // If numeric values are available
     const val = displayMode === DISPLAY_MODE_USED ? summary.used : summary.left;
     if (val !== null && val !== undefined) {
         const suffix = displayMode === DISPLAY_MODE_USED ? _('used') : _('left');
@@ -862,12 +746,6 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
     return provider.id === PROVIDER_ANTIGRAVITY ? '?' : _('OK');
 }
 
-/**
- * Formats the last refreshed timestamp into a human-readable date/time string.
- *
- * @param {GLib.DateTime|null} lastUpdated - GLib DateTime instance
- * @returns {string} Formatted timestamp string (YYYY-MM-DD HH:MM)
- */
 function formatLastUpdatedValue(lastUpdated) {
     if (!lastUpdated)
         return _('never');
@@ -875,13 +753,6 @@ function formatLastUpdatedValue(lastUpdated) {
     return lastUpdated.format('%F %R');
 }
 
-/**
- * Formats the primary numeric metric string for a usage window in the popup menu.
- *
- * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
- * @param {string} displayMode - 'left' | 'used' | 'percent'
- * @returns {string}
- */
 function formatWindowValue(window, displayMode) {
     if (window.status)
         return window.status;
@@ -909,12 +780,6 @@ function formatWindowValue(window, displayMode) {
     return _('Unknown');
 }
 
-/**
- * Builds the secondary descriptive line underneath a window progress bar.
- *
- * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
- * @returns {string} Subtitle text separated by bullet dots
- */
 function formatWindowSubtitle(window) {
     const parts = [];
 
@@ -931,23 +796,10 @@ function formatWindowSubtitle(window) {
     return parts.join('  •  ');
 }
 
-/**
- * Resolves and formats window reset countdown or clock time string.
- *
- * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
- * @returns {string}
- */
 function formatWindowReset(window) {
     return formatQuotaReset(window, {translate: _});
 }
 
-/**
- * Derives normalized 0.0..1.0 value for the progress bar fill based on displayMode.
- *
- * @param {import('./providers/baseProvider.js').UsageWindow} window - Window metrics
- * @param {string} displayMode - 'left' | 'used' | 'percent'
- * @returns {number|null}
- */
 function getWindowProgressPercent(window, displayMode) {
     if (window.usedPercent !== null && window.usedPercent !== undefined) {
         return displayMode === DISPLAY_MODE_USED
@@ -964,12 +816,6 @@ function getWindowProgressPercent(window, displayMode) {
     return null;
 }
 
-/**
- * Clamps numeric values strictly between 0.0 and 1.0.
- *
- * @param {number|null} percent
- * @returns {number|null}
- */
 function normalizeProgressPercent(percent) {
     if (typeof percent !== 'number' || !Number.isFinite(percent))
         return null;
@@ -977,13 +823,6 @@ function normalizeProgressPercent(percent) {
     return Math.max(0, Math.min(percent, 1));
 }
 
-/**
- * Computes Adwaita color hex based on fill fraction and whether it represents remaining or used quota.
- *
- * @param {number} percent - Normalized fraction (0.0 to 1.0)
- * @param {string} displayMode - 'left' | 'used' | 'percent'
- * @returns {string} Hex color code
- */
 function getProgressColor(percent, displayMode) {
     if (displayMode !== DISPLAY_MODE_USED) {
         if (percent <= 0.15)
@@ -1000,46 +839,14 @@ function getProgressColor(percent, displayMode) {
     return '#62a0ea';
 }
 
-/**
- * Formats a number with locale-specific thousands separators.
- *
- * @param {number} value
- * @returns {string}
- */
 function formatNumber(value) {
     return new Intl.NumberFormat().format(Math.round(value));
 }
 
-/**
- * Formats numeric values into compact notation (e.g. 1.2k, 4.5M).
- *
- * @param {number} value
- * @returns {string}
- */
 function formatCompact(value) {
     return new Intl.NumberFormat(undefined, {
         notation: 'compact',
         maximumFractionDigits: 1,
     }).format(value);
-}
-
-/**
- * Formats seconds into human-readable duration strings (e.g. "4h 12m", "35m", "15s").
- *
- * @param {number} totalSeconds
- * @returns {string}
- */
-function formatDuration(totalSeconds) {
-    const seconds = Math.max(0, Math.round(totalSeconds));
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-
-    if (hours > 0 && minutes > 0)
-        return `${hours}h ${minutes}m`;
-    if (hours > 0)
-        return `${hours}h`;
-    if (minutes > 0)
-        return `${minutes}m`;
-    return `${seconds}s`;
 }
 

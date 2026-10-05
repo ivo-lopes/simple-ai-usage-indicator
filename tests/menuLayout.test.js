@@ -35,7 +35,7 @@ for (const properties of [['vertical'], ['vertical', 'orientation'], ['orientati
         'createProviderHeaderMenuItem', 'createUsageProgressMenuItem',
         'createModelsSummaryMenuItem', 'createExtraCreditsMenuItem',
     ]);
-    const header = m.createProviderHeaderMenuItem('/tmp', {name: 'Test', iconFileName: 'test.svg'}, {planType: 'Fixture'});
+    const header = m.createProviderHeaderMenuItem('/tmp', {name: 'Test', getIconFileName: () => 'test.svg'}, {planType: 'Fixture'});
     const usage = m.createUsageProgressMenuItem('Weekly', {leftPercent: .75, usedPercent: .25}, 'left');
     const models = m.createModelsSummaryMenuItem([{name: 'Model', formattedTokens: '100'}]);
     const credits = m.createExtraCreditsMenuItem({availableCount: 2});

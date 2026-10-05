@@ -1,14 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-/**
- * @file antigravityProvider.js
- * @description Provider adapter for Google Antigravity CLI (`agy`).
- * Connects directly to FreeDesktop Secret Service / GNOME Keyring (`gi://Secret`)
- * to discover Google credentials, executes `agy --print /usage` asynchronously
- * with Gio.Subprocess, parses real-time remaining quota percentages, and normalizes
- * metrics into a unified UsageSummary. Structured buckets are preferred.
- */
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Secret from 'gi://Secret';
@@ -23,15 +14,7 @@ import {
 
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async', 'communicate_utf8_finish');
 
-/**
- * Adapter for monitoring Google Antigravity CLI quota, limits, and active models.
- *
- * @augments BaseProvider
- */
 export class AntigravityProvider extends BaseProvider {
-    /**
-     * Initializes CLI quota tracking and the optional Preferences auth check.
-     */
     constructor({agyPath = null} = {}) {
         super({
             id: PROVIDER_ANTIGRAVITY,
@@ -58,9 +41,6 @@ export class AntigravityProvider extends BaseProvider {
         this._destroyed = false;
     }
 
-    /**
-     * Cancels local I/O and terminates the active CLI query.
-     */
     destroy() {
         this._destroyed = true;
         this._cancellable.cancel();
@@ -72,13 +52,6 @@ export class AntigravityProvider extends BaseProvider {
         this._cachedQuota = null;
     }
 
-
-    /**
-     * Checks if Antigravity credentials exist in GNOME Keyring.
-     * Looks up Secret schema for service "gemini" and username "antigravity".
-     *
-     * @returns {Promise<{available: boolean, details: string, path: string, expired?: boolean, account?: string}>}
-     */
     async checkAuth() {
         try {
             const secretData = await this._lookupKeyringSecret();
@@ -119,13 +92,6 @@ export class AntigravityProvider extends BaseProvider {
         }
     }
 
-    /**
-     * Fetches current usage and real-time remaining quota for Antigravity CLI.
-     * Queries `agy --print /usage` without reading or transmitting a bearer token
-     * for exact model quotas and reset dates, and falls back to local session counts if offline.
-     *
-     * @returns {Promise<import('./baseProvider.js').UsageSummary>}
-     */
     async fetchUsage({force = false} = {}) {
         let quotaData;
         try {
@@ -168,7 +134,6 @@ export class AntigravityProvider extends BaseProvider {
         };
     }
 
-    /** Automatic reads reuse quota for 45s; explicit refresh bypasses the cache. */
     async _fetchAgyQuota({force = false} = {}) {
         if (this._destroyed)
             throw new Error('Provider destroyed');
@@ -242,12 +207,6 @@ export class AntigravityProvider extends BaseProvider {
         return parseAgyUsage(output);
     }
 
-    /**
-     * Looks up stored credentials in GNOME Keyring using libsecret.
-     *
-     * @private
-     * @returns {Promise<Object|null>} Parsed JSON credential object or null
-     */
     _lookupKeyringSecret() {
         if (this._destroyed)
             return Promise.reject(new Error('Provider destroyed'));
@@ -275,12 +234,6 @@ export class AntigravityProvider extends BaseProvider {
         });
     }
 
-    /**
-     * Counts conversations and sessions in the local Antigravity brain directory.
-     *
-     * @private
-     * @returns {Promise<{conversationCount: number, sessionCount: number}>}
-     */
     async _getBrainStats() {
         const brainDir = GLib.build_filenamev([GLib.get_home_dir(), '.gemini', 'antigravity-cli', 'brain']);
         let enumerator = null;

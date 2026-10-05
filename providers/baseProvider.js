@@ -49,20 +49,7 @@ import GLib from 'gi://GLib';
  * @property {Error|string|null} error - Error instance or message if retrieval encountered issues
  */
 
-/**
- * Base class for all AI coding assistant telemetry providers.
- * Each subclass encapsulates provider-specific authentication detection,
- * HTTP API requests, local cache parsing, and response normalization.
- */
 export class BaseProvider {
-    /**
-     * @param {Object} options
-     * @param {string} options.id - Provider unique identifier (e.g. 'codex')
-     * @param {string} options.name - Human-readable display name (e.g. 'Codex CLI')
-     * @param {string} options.iconFileName - Symbolic/white icon filename in icons/ (e.g. 'codex-symbolic.svg')
-     * @param {string} [options.colorIconFileName] - Brand colored icon filename in icons/ (e.g. 'codex-color.svg')
-     * @param {string} [options.blackIconFileName] - Monochrome black icon filename in icons/ (e.g. 'codex-black.svg')
-     */
     constructor({id, name, iconFileName, colorIconFileName = null, blackIconFileName = null}) {
         this.id = id;
         this.name = name;
@@ -71,12 +58,6 @@ export class BaseProvider {
         this.blackIconFileName = blackIconFileName || iconFileName;
     }
 
-    /**
-     * Resolves the icon filename based on preferred visual style ('symbolic', 'black', or 'color').
-     *
-     * @param {string} [style='symbolic'] - 'symbolic' (white), 'black', or 'color' (vibrant brand)
-     * @returns {string} Icon filename
-     */
     getIconFileName(style = 'symbolic') {
         if (style === 'color')
             return this.colorIconFileName;
@@ -86,46 +67,17 @@ export class BaseProvider {
     }
 
 
-    /**
-     * Check if local authentication is available and return its status.
-     * Subclasses must override this to check files, environment, or keyrings.
-     *
-     * @param {Object} [options]
-     * @param {boolean} [options.allowExpired=false] - Whether to accept expired tokens as available
-     * @returns {Promise<{available: boolean, details: string, path?: string, expired?: boolean, account?: string}>}
-     */
     async checkAuth(options = {}) {
         throw new Error('checkAuth() must be implemented by subclass');
     }
 
-    /**
-     * Fetch current usage metrics from local caches or remote APIs.
-     * Subclasses must override this to return a normalized UsageSummary.
-     *
-     * @returns {Promise<UsageSummary>} Normalized UsageSummary
-     */
     async fetchUsage() {
         throw new Error('fetchUsage() must be implemented by subclass');
     }
 
-    /**
-     * Clean up any active sessions, timers, or child processes.
-     */
     destroy() {}
 }
 
-/**
- * Creates an empty UsageSummary boilerplate object.
- *
- * @param {Object} options
- * @param {string} options.providerId
- * @param {string} options.providerName
- * @param {string} options.iconFileName
- * @param {string|null} [options.planType=null]
- * @param {string|null} [options.account=null]
- * @param {Error|string|null} [options.error=null]
- * @returns {UsageSummary}
- */
 export function createEmptySummary({
     providerId,
     providerName,

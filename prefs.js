@@ -1,13 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Derived from Codex Usage Indicator by stone (stonega); see NOTICE.
 
-/**
- * @file prefs.js
- * @description Modern Libadwaita / GTK4 preferences dialog for Simple AI Usage Indicator.
- * Provides controls for update intervals, display formats, top bar layouts,
- * assistant enablement toggles, and real-time authentication test buttons.
- */
-
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -32,14 +25,8 @@ import {
 } from './constants.js';
 import {ProviderManager} from './providers/index.js';
 
-/**
- * Preferences page rendered inside Adw.PreferencesWindow.
- */
 const SimpleAiUsagePreferencesPage = GObject.registerClass(
 class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
-    /**
-     * @param {Gio.Settings} settings - Extension GSettings instance
-     */
     _init(settings) {
         super._init({
             title: _('General'),
@@ -74,11 +61,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         this._providerManager.destroy();
     }
 
-    /**
-     * Builds the "Display & Refresh" preferences group.
-     * @private
-     * @returns {Adw.PreferencesGroup}
-     */
     _buildGeneralGroup() {
         const group = new Adw.PreferencesGroup({
             title: _('Display & Refresh'),
@@ -179,11 +161,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         return group;
     }
 
-    /**
-     * Builds the "Coding Assistants" preferences group containing per-assistant expanders.
-     * @private
-     * @returns {Adw.PreferencesGroup}
-     */
     _buildAssistantsGroup() {
         const group = new Adw.PreferencesGroup({
             title: _('Coding Assistants'),
@@ -199,13 +176,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         return group;
     }
 
-    /**
-     * Creates an expander row for a single assistant with toggle switches and auth testing.
-     *
-     * @private
-     * @param {import('./providers/baseProvider.js').BaseProvider} provider
-     * @returns {Adw.ExpanderRow}
-     */
     _createProviderExpander(provider) {
         const expander = new Adw.ExpanderRow({
             title: provider.name,
@@ -240,14 +210,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         return expander;
     }
 
-    /**
-     * Inspects local credentials for an assistant and updates row subtitles.
-     *
-     * @private
-     * @param {import('./providers/baseProvider.js').BaseProvider} provider
-     * @param {Adw.ActionRow} authRow
-     * @param {Adw.ExpanderRow} expander
-     */
     async _checkProviderAuth(provider, authRow, expander) {
         if (this._disposed)
             return;
@@ -268,14 +230,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         }
     }
 
-    /**
-     * Executes an active telemetry request to verify live connectivity.
-     *
-     * @private
-     * @param {import('./providers/baseProvider.js').BaseProvider} provider
-     * @param {Adw.ActionRow} authRow
-     * @param {Adw.ExpanderRow} expander
-     */
     async _testProvider(provider, authRow, expander) {
         if (this._disposed)
             return;
@@ -308,13 +262,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         }
     }
 
-    /**
-     * Checks whether a provider is enabled in GSettings.
-     *
-     * @private
-     * @param {string} providerId
-     * @returns {boolean}
-     */
     _isProviderEnabled(providerId) {
         const enabled = this._settings.get_strv('enabled-providers');
         if (!enabled || enabled.length === 0)
@@ -322,13 +269,6 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         return enabled.includes(providerId);
     }
 
-    /**
-     * Toggles provider enablement in GSettings.
-     *
-     * @private
-     * @param {string} providerId
-     * @param {boolean} enable
-     */
     _setProviderEnabled(providerId, enable) {
         let enabled = this._settings.get_strv('enabled-providers');
         if (!enabled || enabled.length === 0)
@@ -344,44 +284,16 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         this._settings.set_strv('enabled-providers', Array.from(set));
     }
 
-    /**
-     * Reads top bar layout mode ('all' or 'cycle').
-     *
-     * @private
-     * @returns {string}
-     */
     _getBarDisplayMode() {
-        try {
-            return this._settings.get_string('bar-display-mode') || BAR_DISPLAY_ALL;
-        } catch {
-            return BAR_DISPLAY_ALL;
-        }
+        return this._settings.get_string('bar-display-mode') || BAR_DISPLAY_ALL;
     }
 
-    /**
-     * Reads icon style mode ('symbolic' or 'color').
-     *
-     * @private
-     * @returns {string}
-     */
     _getIconStyle() {
-        try {
-            return this._settings.get_string('icon-style') || ICON_STYLE_SYMBOLIC;
-        } catch {
-            return ICON_STYLE_SYMBOLIC;
-        }
+        return this._settings.get_string('icon-style') || ICON_STYLE_SYMBOLIC;
     }
 });
 
-/**
- * Extension preferences entry point for GNOME Extensions app / gnome-extensions prefs.
- */
 export default class SimpleAiUsagePreferences extends ExtensionPreferences {
-    /**
-     * Populates preferences window with the modern Libadwaita preferences page.
-     *
-     * @param {Adw.PreferencesWindow} window
-     */
     fillPreferencesWindow(window) {
         const page = new SimpleAiUsagePreferencesPage(this.getSettings());
         window.connect('close-request', () => {

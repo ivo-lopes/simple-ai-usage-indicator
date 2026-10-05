@@ -1,12 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-/**
- * @file codexProvider.js
- * @description Provider adapter for OpenAI Codex CLI.
- * Inspects ~/.codex/auth.json, retrieves rate limit metrics and reset windows
- * from ChatGPT WHAM API, and normalizes them into UsageSummary.
- */
-
 import Gio from 'gi://Gio';
 
 import {BaseProvider, createEmptySummary} from './baseProvider.js';
@@ -14,15 +7,7 @@ import {CodexCliAuthError, getCodexCliAuthPath, loadCodexCliAuth} from '../codex
 import {PROVIDER_CODEX} from '../constants.js';
 import {UsageApiClient} from '../usageApi.js';
 
-/**
- * Adapter for monitoring OpenAI Codex CLI usage and quota windows.
- *
- * @augments BaseProvider
- */
 export class CodexProvider extends BaseProvider {
-    /**
-     * Initializes the CodexProvider with default identifiers and a dedicated HTTP client.
-     */
     constructor({loadAuth = loadCodexCliAuth, authPath = getCodexCliAuthPath, client = null} = {}) {
         super({
             id: PROVIDER_CODEX,
@@ -38,22 +23,12 @@ export class CodexProvider extends BaseProvider {
         this._client = client || new UsageApiClient();
     }
 
-    /**
-     * Frees resources and aborts active Soup HTTP sessions.
-     */
     destroy() {
         this._destroyed = true;
         this._cancellable.cancel();
         this._client.destroy();
     }
 
-    /**
-     * Verifies if valid local credentials exist in ~/.codex/auth.json.
-     *
-     * @param {Object} [options]
-     * @param {boolean} [options.allowExpired=false] - If true, returns token info even if expired
-     * @returns {Promise<{available: boolean, path: string, account?: string, details: string, expired?: boolean}>}
-     */
     async checkAuth({allowExpired = false} = {}) {
         if (this._destroyed)
             throw new Error('Provider destroyed');
@@ -84,11 +59,6 @@ export class CodexProvider extends BaseProvider {
         }
     }
 
-    /**
-     * Retrieves current usage metrics from ChatGPT WHAM endpoint.
-     *
-     * @returns {Promise<import('./baseProvider.js').UsageSummary>} Normalized usage summary
-     */
     async fetchUsage() {
         if (this._destroyed)
             throw new Error('Provider destroyed');
@@ -165,12 +135,6 @@ export class CodexProvider extends BaseProvider {
     }
 }
 
-/**
- * Formats epoch unix timestamp into a local 2-digit time string (HH:MM).
- *
- * @param {number|null} unixSeconds - Unix epoch in seconds
- * @returns {string} Formatted time string, or empty if null
- */
 function formatTimestamp(unixSeconds) {
     if (!unixSeconds)
         return '';

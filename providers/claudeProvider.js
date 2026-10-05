@@ -1,13 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-/**
- * @file claudeProvider.js
- * @description Provider adapter for Anthropic Claude Code CLI.
- * Integrates with local OAuth credentials (~/.claude/.credentials.json, ~/.claude.json),
- * queries Anthropic OAuth usage telemetry endpoints (/api/oauth/usage),
- * and provides seamless fallback to local token cache files (~/.claude/stats-cache.json).
- */
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
@@ -24,16 +16,7 @@ import {
 Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish');
 Gio._promisify(Soup.Session.prototype, 'send_and_read_async', 'send_and_read_finish');
 
-/**
- * Adapter for monitoring Anthropic Claude Code usage, token metrics, and rate limit windows.
- *
- * @augments BaseProvider
- */
 export class ClaudeProvider extends BaseProvider {
-    /**
-     * @param {Object} [options]
-     * @param {Function|null} [options.readJsonFile=null] - Optional filesystem dependency for tests
-     */
     constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir(), apiBaseUrl = CLAUDE_API_BASE_URL, proxyResolver = null} = {}) {
         super({
             id: PROVIDER_CLAUDE,
@@ -54,47 +37,24 @@ export class ClaudeProvider extends BaseProvider {
         this._session = new Soup.Session(sessionProperties);
     }
 
-    /**
-     * Aborts any in-flight HTTP requests and cleans up the Soup session.
-     */
     destroy() {
         this._destroyed = true;
         this._cancellable.cancel();
         this._session.abort();
     }
 
-    /**
-     * Returns the absolute file path to ~/.claude/.credentials.json.
-     * @returns {string}
-     */
     getCredentialsPath() {
         return GLib.build_filenamev([this._homeDir, '.claude', '.credentials.json']);
     }
 
-    /**
-     * Returns the absolute file path to ~/.claude.json.
-     * @returns {string}
-     */
     getConfigPath() {
         return GLib.build_filenamev([this._homeDir, '.claude.json']);
     }
 
-    /**
-     * Returns the absolute file path to ~/.claude/stats-cache.json.
-     * @returns {string}
-     */
     getStatsCachePath() {
         return GLib.build_filenamev([this._homeDir, '.claude', 'stats-cache.json']);
     }
 
-
-    /**
-     * Checks local Claude credentials availability.
-     * Evaluates OAuth credentials and environment variables, ~/.claude/.credentials.json,
-     * and ~/.claude.json.
-     *
-     * @returns {Promise<{available: boolean, details: string, path: string, account?: string}>}
-     */
     async checkAuth() {
         const credPath = this.getCredentialsPath();
         const configPath = this.getConfigPath();
@@ -136,13 +96,6 @@ export class ClaudeProvider extends BaseProvider {
         };
     }
 
-    /**
-     * Fetches current Claude Code usage metrics.
-     * First attempts to query the Anthropic OAuth usage API if a token is present;
-     * if absent or upon error, falls back to local token cache in ~/.claude/stats-cache.json.
-     *
-     * @returns {Promise<import('./baseProvider.js').UsageSummary>}
-     */
     async fetchUsage() {
         const credPayload = await this._readJsonFile(this.getCredentialsPath());
         const configPayload = await this._readJsonFile(this.getConfigPath());
@@ -174,7 +127,6 @@ export class ClaudeProvider extends BaseProvider {
         return this._normalizeLocalSummary(statsPayload, account, planType, null);
     }
 
-    /** Only subscription OAuth credentials can query this quota endpoint. */
     _getOAuthToken(payload) {
         const stored = payload?.claudeAiOauth?.accessToken;
         if (typeof stored === 'string' && stored.trim())
@@ -183,13 +135,6 @@ export class ClaudeProvider extends BaseProvider {
         return typeof env === 'string' && env.trim() ? env.trim() : null;
     }
 
-    /**
-     * Queries Anthropic OAuth usage API endpoint asynchronously using Soup.Session.
-     *
-     * @private
-     * @param {string} token - Bearer access token
-     * @returns {Promise<Object>} Raw API JSON payload
-     */
     async _fetchUsageApi(token) {
         if (this._destroyed)
             throw new Error('Provider destroyed');
@@ -223,16 +168,6 @@ export class ClaudeProvider extends BaseProvider {
         }
     }
 
-    /**
-     * Normalizes remote Anthropic OAuth usage API response and merges with model stats.
-     *
-     * @private
-     * @param {Object} apiData - Payload from /api/oauth/usage
-     * @param {Object|null} statsPayload - Local stats from stats-cache.json
-     * @param {string|null} account - Account or tier name
-     * @param {string} planType - Human-readable plan label
-     * @returns {import('./baseProvider.js').UsageSummary}
-     */
     _normalizeApiSummary(apiData, statsPayload, account, planType) {
         const fiveHour = apiData?.five_hour || apiData?.fiveHour || null;
         const sevenDay = apiData?.seven_day || apiData?.sevenDay || null;
@@ -290,16 +225,6 @@ export class ClaudeProvider extends BaseProvider {
         };
     }
 
-    /**
-     * Constructs a normalized usage summary from local stats-cache.json when OAuth API is unavailable.
-     *
-     * @private
-     * @param {Object|null} statsPayload - Local stats from ~/.claude/stats-cache.json
-     * @param {string|null} account - Account identifier or tier
-     * @param {string} planType - Human-readable plan type
-     * @param {Error|null} [apiError=null] - Optional API error if remote query failed
-     * @returns {import('./baseProvider.js').UsageSummary}
-     */
     _normalizeLocalSummary(statsPayload, account, planType, apiError = null) {
         const models = extractModelUsage(statsPayload);
         const todayTokens = getTodayTokens(statsPayload);
@@ -343,13 +268,6 @@ export class ClaudeProvider extends BaseProvider {
         };
     }
 
-    /**
-     * Reads and parses a JSON file asynchronously from disk.
-     *
-     * @private
-     * @param {string} path - Absolute file path
-     * @returns {Promise<Object|null>} Parsed JSON or null if missing/invalid
-     */
     async _readJsonFile(path) {
         if (this._destroyed)
             throw new Error('Provider destroyed');
@@ -372,24 +290,12 @@ export class ClaudeProvider extends BaseProvider {
     }
 }
 
-/**
- * Normalizes percentage values that may be passed either as 0..100 or 0..1 into a 0.0..1.0 fraction.
- *
- * @param {number} val - Percentage value
- * @returns {number} Normalized fraction between 0.0 and 1.0
- */
 function normalizePercentValue(val) {
     if (val > 1)
         return Math.min(Math.max(val / 100, 0), 1);
     return Math.min(Math.max(val, 0), 1);
 }
 
-/**
- * Calculates remaining seconds until a Unix timestamp in the future.
- *
- * @param {number|null} unixTimestamp - Unix epoch in seconds
- * @returns {number|null} Remaining seconds, or null if timestamp missing
- */
 function calculateSecondsUntil(unixTimestamp) {
     if (!unixTimestamp)
         return null;
@@ -397,12 +303,6 @@ function calculateSecondsUntil(unixTimestamp) {
     return Math.max(unixTimestamp - now, 0);
 }
 
-/**
- * Converts a Unix epoch timestamp in seconds to an ISO 8601 string.
- *
- * @param {number|null} unixTimestamp - Unix epoch in seconds
- * @returns {string|null} ISO 8601 date string or null
- */
 function formatUnixTime(unixTimestamp) {
     if (!unixTimestamp)
         return null;
@@ -410,12 +310,6 @@ function formatUnixTime(unixTimestamp) {
     return date.toISOString();
 }
 
-/**
- * Normalizes Claude Code subscription tier identifiers into human-friendly strings.
- *
- * @param {string|null} tier - Subscription tier identifier (e.g. 'claude_pro', 'team')
- * @returns {string} Human-friendly tier name
- */
 function formatClaudePlan(tier) {
     if (!tier)
         return 'Claude Pro';
@@ -428,12 +322,6 @@ function formatClaudePlan(tier) {
     return tier.replace(/_/g, ' ');
 }
 
-/**
- * Extracts per-model token breakdown from Claude Code stats-cache.json.
- *
- * @param {Object|null} stats - Raw stats payload
- * @returns {Array<Object>} List of model token summaries
- */
 function extractModelUsage(stats) {
     if (!stats?.modelUsage || typeof stats.modelUsage !== 'object')
         return [];
@@ -451,12 +339,6 @@ function extractModelUsage(stats) {
     });
 }
 
-/**
- * Calculates total tokens consumed today from dailyModelTokens list.
- *
- * @param {Object|null} stats - Raw stats payload
- * @returns {number} Total tokens consumed today
- */
 function getTodayTokens(stats) {
     if (!stats?.dailyModelTokens || !Array.isArray(stats.dailyModelTokens))
         return 0;
@@ -469,12 +351,6 @@ function getTodayTokens(stats) {
     return Object.values(todayEntry.tokensByModel).reduce((sum, val) => sum + (val || 0), 0);
 }
 
-/**
- * Calculates rolling 7-day total token count from dailyModelTokens list.
- *
- * @param {Object|null} stats - Raw stats payload
- * @returns {number} Total tokens consumed over the past 7 days
- */
 function getWeeklyTokens(stats) {
     if (!stats?.dailyModelTokens || !Array.isArray(stats.dailyModelTokens))
         return 0;
@@ -488,12 +364,6 @@ function getWeeklyTokens(stats) {
         }, 0);
 }
 
-/**
- * Formats token quantities into compact SI units (e.g. 1.2M, 45.3k, 120).
- *
- * @param {number} num - Numeric token count
- * @returns {string} Formatted compact string
- */
 export function formatTokenCount(num) {
     if (!num || num === 0)
         return '0';
