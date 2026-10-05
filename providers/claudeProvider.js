@@ -314,7 +314,7 @@ function formatUnixTime(unixTimestamp) {
 
 function formatClaudePlan(tier) {
     if (!tier)
-        return 'Claude Pro';
+        return 'Claude Code';
     if (tier.includes('team'))
         return 'Claude Team';
     if (tier.includes('max'))

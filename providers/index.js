@@ -45,9 +45,6 @@ export class ProviderManager {
             return this.getAllProviders();
 
         const enabledIds = this._settings.get_strv('enabled-providers');
-        if (!enabledIds || enabledIds.length === 0)
-            return this.getAllProviders();
-
         return enabledIds
             .map(id => this.getProvider(id))
             .filter(p => p !== null);

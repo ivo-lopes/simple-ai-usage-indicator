@@ -138,6 +138,10 @@ async function run() {
     assert(await result, 'Pending quota cannot update the summary after destroy');
     assert(agy._quotaProcess === null && agy._cancellable.is_cancelled(), 'Antigravity resources cancelled');
 
+    const empty = new ProviderManager({settings: {get_strv: () => []}, providers: [{id: 'stub', destroy() {}}]});
+    assert(empty.getEnabledProviders().length === 0 && (await empty.fetchAllUsage()).size === 0, 'Disabling every provider stays disabled');
+    empty.destroy();
+
     const managerWork = deferred();
     let managerCalls = 0;
     let managerDestroy = 0;
