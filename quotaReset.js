@@ -17,7 +17,11 @@ export function formatQuotaReset(window, {
                 new Intl.DateTimeFormat(locale, {year: 'numeric', timeZone}).format(new Date(now)))
                 options.year = 'numeric';
         }
-        return `${translate('Resets')} ${new Intl.DateTimeFormat(locale, options).format(date)}`;
+        const absolute = `${translate('Resets')} ${new Intl.DateTimeFormat(locale, options).format(date)}`;
+        const secondsLeft = (date.getTime() - now) / 1000;
+        return secondsLeft > 86400
+            ? `${absolute} · ${translate('in')} ${formatQuotaDuration(secondsLeft)}`
+            : absolute;
     }
     if (typeof window.resetAfterSeconds === 'number' && Number.isFinite(window.resetAfterSeconds))
         return `${translate('Resets in')} ${formatQuotaDuration(window.resetAfterSeconds)}`;
