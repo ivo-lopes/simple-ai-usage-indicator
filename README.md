@@ -26,13 +26,13 @@ license provenance.
 
 - **Multi-Assistant Top Panel Bar**:
   - **All Mode**: Display compact status badges for all active assistants side-by-side in the top bar with original generic icons.
-  - **Cycle Mode**: Show one assistant at a time with click-to-cycle functionality.
+  - **Selected Mode**: Show only the assistant selected in Preferences.
 - **Scrollable Popup Menu with Pinned Footer Controls**:
   - Integrated `St.ScrollView` with dynamic monitor workarea calculations (`max-height`).
   - When all assistants are expanded, the menu scrolls smoothly with mouse wheel or touchpad.
   - **Always Visible**: The manual refresh button ("Refresh now" with last-updated timestamp) and "Settings" button remain permanently pinned at the bottom and never disappear off-screen.
 - **Customizable Icon Styles (White, Black, or Color)**:
-  - **Monochrome White (Symbolic)**: Classic GNOME Shell aesthetic that blends seamlessly with dark shell themes.
+  - **Symbolic (theme color)**: Inherits the foreground color for light, dark and high-contrast Shell themes.
   - **Monochrome Black (Black)**: Sleek high-contrast dark style, ideal for light panel themes or customized setups.
   - **Color**: Distinct neutral colors for the original generic icons. These are not provider logos. See [ASSETS.md](ASSETS.md).
   - **Consistent icon dimensions**: All color variations adhere to exact dimensions, bounding boxes, and panel spacing taking the symbolic white icons as reference.
@@ -40,24 +40,24 @@ license provenance.
   - Native Brazilian Portuguese (`pt_BR` / `pt`) translation support via GNU Gettext.
   - Automatically adheres to your desktop language.
 - **Detailed Popup Menu**:
-  - **5-Hour Rolling Limit Window**: Smooth Cairo-based progress bar with real-time percentage and countdown to quota reset.
+  - **5-Hour Rolling Limit Window**: Native, theme-aware GNOME progress bars with observed percentages and quota reset times.
   - **Weekly Quota Window**: Long-term quota capacity tracking with reset timestamps.
-  - **Active Model Breakdown**: Detailed list of active models (e.g. Gemini 2.5 Pro, Claude 3.7 Sonnet, GPT-4o) with remaining capacity and token counts.
+  - **Active Model Breakdown**: A compact summary of up to three models when the provider supplies model statistics.
   - **Rate Limit Reset Credits & Notifications**: Tracks bonus rate-limit resets and desktop notifications whenever a quota window resets early.
 - **Zero-Config Local Authentication**:
   - **Codex CLI**: Automatically discovers bearer credentials in `~/.codex/auth.json`.
-  - **Claude Code**: Integrates seamlessly with OAuth credentials in `~/.claude/.credentials.json`, `~/.claude.json`, and local token caches in `~/.claude/stats-cache.json`. Uses local OAuth credentials or the session environment variable `CLAUDE_CODE_OAUTH_TOKEN`; the extension does not persist manual tokens.
-  - **Antigravity CLI**: Directly interfaces with GNOME Keyring (`gi://Secret`, service: `gemini`, username: `antigravity`) via native GObject Introspection. No terminal wrappers or shell hacks required.
+  - **Claude Code**: Integrates seamlessly with OAuth credentials in `~/.claude/.credentials.json`, `~/.claude.json`, and local usage statistics in `~/.claude/stats-cache.json`. Uses local OAuth credentials or the session environment variable `CLAUDE_CODE_OAUTH_TOKEN`; the extension does not persist manual tokens.
+  - **Antigravity CLI**: Invokes the installed `agy` CLI for quota data. Preferences can check its existing Secret Service credential; quota refresh does not read the token or send it to Google UserInfo.
 - **Real-Time Antigravity Quota Parser**:
   - Prioritizes `agy --print /usage --output-format json` via non-blocking `Gio.Subprocess` (verified with CLI 1.2.17).
   - Preserves every model-group bucket and backend reset timestamp; the panel uses the most constrained observed 5-hour bucket, while the popup lists them all.
   - Uses legacy text only for compatibility. Missing quota is shown as unavailable.
-  - Resets outside the current local day include date and time, without assuming a fixed timezone.
+  - Resets outside the current local day include date and time; resets over 24 hours also include a compact relative duration, using the local timezone.
   - Automatic reads can reuse a 45-second cache with the original observation time. Manual refresh bypasses it; cached/stale observations are labeled.
 - **Modern Preferences Dialog (Libadwaita / GTK4)**:
   - Configure background polling interval (60s to 3600s).
   - Select display metrics: Remaining quota (`left`), Consumed quota (`used`), or Numeric percentage (`percent`).
-  - Toggle between **Monochrome White**, **Monochrome Black**, and **Color** icon styles.
+  - Choose **Symbolic (theme color)**, **Monochrome Black**, or **Color** icons.
   - Toggle individual assistants on or off.
   - Interactive **Test connection** buttons for instant diagnostics.
 
@@ -73,7 +73,8 @@ license provenance.
 ├── package.sh                 # Runtime-only packaging script and ZIP allowlist
 ├── constants.js               # Endpoints, schema identifiers, and display modes
 ├── limitReset.js              # Early quota reset detection and desktop notifications
-├── resetCreditExpiry.js       # Reset credit expiration calculator
+├── quotaReset.js              # Locale-aware absolute and relative reset display
+├── i18n.js                    # Shared gettext/plural formatting (Shell and prefs)
 ├── icons/                     # Complete white, black & colored icon sets
 │   ├── codex-symbolic.svg     # Generic code symbol, white
 │   ├── codex-black.svg        # Generic code symbol, black
@@ -101,7 +102,7 @@ license provenance.
 
 ### Telemetry Pipeline
 1. **`ProviderManager`**: Coordinates enabled providers and polls their telemetry asynchronously via `Promise.allSettled`.
-2. **`BaseProvider`**: Enforces a normalized schema (`UsageSummary`), standardizing 5-hour windows, weekly limits, model statistics, and reset times across all providers.
+2. **`BaseProvider`**: Documents the internal `UsageSummary` contract. Antigravity preserves all observed windows; legacy primary/weekly aliases remain for stable Codex/Claude consumers.
 3. **Resilience & Fallback**:
    - If Claude Code API is offline, the provider automatically falls back to reading `~/.claude/stats-cache.json` for token totals and daily model breakdowns.
    - If Antigravity CLI is offline, local session totals from `~/.gemini/antigravity-cli/brain` are displayed gracefully.
@@ -150,7 +151,7 @@ Or manually using `gnome-extensions pack`:
 
 ```bash
 rm -f schemas/gschemas.compiled
-gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=resetCreditExpiry.js --extra-source=codexAuth.js --extra-source=usageApi.js --extra-source=quotaReset.js --extra-source=LICENSE --extra-source=NOTICE --extra-source=ASSETS.md --force
+gnome-extensions pack --extra-source=providers/ --extra-source=icons/ --extra-source=locale/ --extra-source=stylesheet.css --extra-source=constants.js --extra-source=limitReset.js --extra-source=i18n.js --extra-source=codexAuth.js --extra-source=usageApi.js --extra-source=quotaReset.js --extra-source=LICENSE --extra-source=NOTICE --extra-source=ASSETS.md --force
 ```
 
 Then install the generated archive:
@@ -175,12 +176,12 @@ gnome-extensions prefs simple-ai-usage-indicator@ivo-lopes.github.com
   - `Consumed quota (used)`: e.g. `26% used`
   - `Percentage (%)`: e.g. `74%`
 - **Icon style**:
-  - `Monochrome white (Symbolic)`: Clean white icons.
+  - `Symbolic (theme color)`: Uses the current Shell foreground color.
   - `Monochrome black (Black)`: High-contrast black icons.
   - `Colored icons (Color)`: Original generic code, conversation and usage-chart symbols.
 - **Top bar layout**:
   - `Show all enabled assistants`: Shows multiple icons side-by-side.
-  - `Cycle one at a time`: Displays a single assistant, clicking toggles to the next.
+  - `Show selected assistant`: Displays the assistant selected in Preferences.
 - **Assistants**: Enable or disable Codex, Claude Code, or Antigravity individually.
 - **Test Connection**: Run instant diagnostics on your local token files or GNOME Keyring entries.
 
@@ -223,13 +224,15 @@ It is not part of the normal CI suite and does not change the desktop extension.
 
 ## Privacy & Security
 
-- **Read-only**: The extension never alters your CLI configuration files, session histories, or cloud parameters.
-- **Local Secret Storage**:
-  - Antigravity tokens are accessed using the native Linux Secret Service API (`libsecret` / GNOME Keyring).
-  - Quota fixtures contain synthetic values and no credentials.
-- **Direct Telemetry**: All requests communicate exclusively with the official API endpoints of the respective AI providers (ChatGPT, Anthropic, Google).
+The extension displays data locally and has no analytics, telemetry service or
+central collection of its own. Codex and Claude quota requests go directly to their
+providers; Antigravity quota access is delegated to the installed CLI. The extension
+does not persist manual credentials or call Google UserInfo.
 
----
+[PRIVACY.md](PRIVACY.md) inventories the exact local files, credential sources and
+endpoints. [SECURITY.md](SECURITY.md) explains private vulnerability reporting;
+never post tokens, cookies or credential files in Issues. For bug reports and setup,
+see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
@@ -256,20 +259,15 @@ environment, not just a terminal. `~/.claude.json` account metadata alone does
 not establish authentication. `ANTHROPIC_API_KEY` authenticates the Anthropic
 inference API, not this subscription OAuth quota endpoint, and is not used here.
 
-GNOME 51 menu orientation is adapted from upstream and tested against old,
-transitional and new St APIs. Isolated lifecycle smoke tests passed on GNOME
-48.7 and 51.0 with synthetic quotas. The 51.0 container used a private system
-bus with synthetic login1 responses; this does not validate a complete desktop
-session. Real lifecycle tests on 45/46/47/49/50 and the full theme/accessibility
-matrix remain NOT TESTED; see HARDENING.md.
+## Compatibility and releases
 
-To reproduce the optional Fedora 45/GNOME 51 container lab:
+Declared Shell versions are 45–51. [PRE_SUBMISSION.md](PRE_SUBMISSION.md) records
+real Shell versions, lifecycle/Preferences results and the limits of headless tests.
+Reproduce the disposable matrix with [tests/integration/README.md](tests/integration/README.md).
+A lifecycle smoke is distinct from a complete interactive desktop test.
 
-```bash
-docker build --network host -f tests/integration/Containerfile -t saui-gnome51-lab tests/integration
-docker run --rm --network none --mount type=bind,src="$PWD",dst=/saui,readonly saui-gnome51-lab python3 /saui/tests/integration/gnome-shell-smoke.py /saui/simple-ai-usage-indicator@ivo-lopes.github.com.shell-extension.zip --expected-major 51 --isolated-system-bus --login1-stub /saui/tests/integration/login1-stub.js --prefs
-```
-
-Only the lab build needs network. Runtime is isolated and does not mount the host
-system bus or credential directories. The base image is pinned; installed distro
-package updates may change the resulting Shell version, which the smoke verifies.
+The latest published GitHub release is v21. Current changes are documented in
+[CHANGELOG.md](CHANGELOG.md); GitHub tag versions are independent of EGO's internally
+managed version. Follow [docs/RELEASING.md](docs/RELEASING.md) and the
+[EGO checklist](docs/EGO-CHECKLIST.md) before publishing or submitting manually.
+[UPSTREAM.md](UPSTREAM.md) documents selective upstream review before releases.

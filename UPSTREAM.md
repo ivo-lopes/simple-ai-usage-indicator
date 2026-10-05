@@ -14,9 +14,9 @@ Reviewed after fetching the upstream origin, from shared ancestor
 | `ebf5609` | Already incorporated | Complete GPL v3 LICENSE restored in `46f4959`, with documented chronology. |
 | `601e5a4` | Applicable | Titles/text inherit the Shell theme; retain existing font weights/layout. |
 | `bc5a383` | Already incorporated through selected change | Merge of theme patch; no additional delta. |
-| `c22087d` | Mixed: not relevant / superseded | Includes release metadata and a new reset-credit expiry preference/formatting feature (defer SAUI-13/18). Its standalone usageError helper/tests are not imported by upstream runtime; the fork already displays native GLib.Error.message and now sanitizes HTTP errors. The bundled upstream dist ZIP is not copied; the fork builds its own allowlisted artifact. |
-| `60e1513` | Not relevant to hardening scope | New credit-balance popup feature; parsed credits already reach the fork provider, but this new presentation is deferred to existing upstream/API backlog SAUI-13/20. |
-| `c0008d1` | Not relevant to hardening scope | New panel credit-balance behavior near quota exhaustion; defer with SAUI-13/20, preserving existing panel semantics. |
+| `c22087d` | Mixed: not relevant / superseded | Includes release metadata and a new reset-credit expiry preference/formatting feature (defer feature work after submission). Its standalone usageError helper/tests are not imported by upstream runtime; the fork already displays native GLib.Error.message and now sanitizes HTTP errors. The bundled upstream dist ZIP is not copied; the fork builds its own allowlisted artifact. |
+| `60e1513` | Not relevant to hardening scope | New credit-balance popup feature; parsed credits already reach the fork provider, but this new presentation is deferred to existing upstream/API backlog SAUI-20. |
+| `c0008d1` | Not relevant to hardening scope | New panel credit-balance behavior near quota exhaustion; defer with SAUI-20, preserving existing panel semantics. |
 | `d5ea173` | Not relevant to hardening scope | Merge of popup credit feature, same decision as `60e1513`. |
 | `7d8c20e` | Not relevant to hardening scope | Merge of panel credit feature, same decision as `c0008d1`. |
 
@@ -52,3 +52,28 @@ and extension lifecycle smoke in that lab, not a complete GNOME desktop session.
 The compatibility metadata now includes 51; version stays 21. Real lifecycle
 coverage on existing declared 45/46/47/49/50 and complete desktop/preferences/theme
 validation are still NOT TESTED. SAUI-12 retains that original matrix gap.
+
+## Before every release
+
+The local upstream remote is `https://github.com/stonega/codex-usage-indicator.git`.
+If absent, add it with `git remote add upstream URL`. Never merge blindly.
+
+```sh
+git fetch --all --tags
+git merge-base main upstream/main
+git log --oneline f2bd496..upstream/main
+git diff f2bd496 upstream/main -- extension.js prefs.js metadata.json package.sh LICENSE
+```
+
+Compare upstream HEAD against the last reviewed HEAD above; if it advanced, review
+only the new range as well as relevant dependent changes. Classify every change as
+applicable/already incorporated/superseded/incompatible/not relevant. Port compatible
+fixes selectively, run regression and real-Shell tests, preserve NOTICE/authorship,
+and update this table and CHANGELOG.md before tagging. The 2026-10-05 re-fetch still
+found `7d8c20ef0f3d959d45f3c31ac2cc6fe9a5e49984`; no additional commits to reconcile.
+
+The second-wave compatibility limits above are historical. Current evidence is in
+PRE_SUBMISSION.md. Current metadata omits `version` because EGO assigns it internally;
+GitHub releases remain separately tagged. Credit-balance presentation and reset-credit
+expiry preference changes remain deferred; completing this review routine does not
+mean all optional upstream features were adopted.
