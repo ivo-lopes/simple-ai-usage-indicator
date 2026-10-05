@@ -103,6 +103,8 @@ async function runTests() {
     };
     await provider.fetchUsage();
     assert(apiCalls === 1, 'Official credential queries quota');
+    credentials = {claudeAiOauth: {accessToken: '   '}};
+    assert((await provider.checkAuth()).path === 'env:CLAUDE_CODE_OAUTH_TOKEN', 'Blank local credential falls back to environment');
     credentials = null;
     assert((await provider.checkAuth()).path === 'env:CLAUDE_CODE_OAUTH_TOKEN', 'Environment OAuth fallback');
     env = null;

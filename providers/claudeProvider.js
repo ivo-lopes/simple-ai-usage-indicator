@@ -102,7 +102,7 @@ export class ClaudeProvider extends BaseProvider {
         const credPayload = await this._readJsonFile(credPath);
         const oauth = credPayload?.claudeAiOauth;
         const accessToken = this._getOAuthToken(credPayload);
-        if (accessToken && !oauth?.accessToken) {
+        if (accessToken && !(typeof oauth?.accessToken === 'string' && oauth.accessToken.trim())) {
             return {available: true, details: 'Using OAuth token from environment', path: 'env:CLAUDE_CODE_OAUTH_TOKEN'};
         }
 
