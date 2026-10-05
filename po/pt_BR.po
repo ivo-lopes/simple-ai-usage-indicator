@@ -111,7 +111,7 @@ msgstr "total"
 
 #: extension.js:905 extension.js:912
 msgid "Resets"
-msgstr "Redefine às"
+msgstr "Redefine em"
 
 #: extension.js:916
 msgid "Resets in"
@@ -252,3 +252,15 @@ msgstr "Testando conexão..."
 #: prefs.js:266
 msgid "Failed"
 msgstr "Falha"
+
+msgid "Quota unavailable"
+msgstr "Cota indisponível"
+
+msgid "Unknown"
+msgstr "Desconhecido"
+
+msgid "Cached quota"
+msgstr "Cota em cache"
+
+msgid "Stale quota"
+msgstr "Cota desatualizada"

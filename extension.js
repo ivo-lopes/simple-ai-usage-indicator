@@ -35,6 +35,7 @@ import {
     detectEarlyLimitResets,
     formatLimitResetMessage,
 } from './limitReset.js';
+import {formatQuotaReset} from './quotaReset.js';
 import {ProviderManager} from './providers/index.js';
 import {formatResetCreditExpiryList} from './resetCreditExpiry.js';
 
@@ -169,7 +170,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         });
         this._refreshItem.add_child(this._refreshTimestampLabel);
         this._refreshItem.connect('activate', () => {
-            void this.refresh();
+            void this.refresh({force: true});
         });
         this.menu.addMenuItem(this._refreshItem);
 
@@ -211,17 +212,24 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         }
     }
 
-    async refresh() {
-        if (this._refreshInFlight)
-            return this._refreshInFlight;
+    async refresh({force = false} = {}) {
+        if (this._refreshInFlight) {
+            if (!force)
+                return this._refreshInFlight;
+            await this._refreshInFlight;
+            if (this._destroyed)
+                return;
+        }
 
         this._refreshTimestampLabel.text = _('Refreshing...');
-        this._refreshInFlight = this._refreshAllUsage()
+        this._refreshInFlight = this._refreshAllUsage({force})
             .catch(error => {
                 reportError(error, '[simple-ai-usage-indicator] refresh failed');
             })
             .finally(() => {
                 this._refreshInFlight = null;
+                if (this._destroyed)
+                    return;
                 try {
                     this._renderCurrentState();
                 } catch (error) {
@@ -232,8 +240,10 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         return this._refreshInFlight;
     }
 
-    async _refreshAllUsage() {
-        const summaries = await this._providerManager.fetchAllUsage();
+    async _refreshAllUsage(options = {}) {
+        const summaries = await this._providerManager.fetchAllUsage(options);
+        if (this._destroyed)
+            return;
         const lastUpdated = GLib.DateTime.new_now_local();
 
         // Detect early limit resets for Codex
@@ -366,27 +376,31 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
 
         if (summary.error) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
-                String(summary.error?.message || summary.error),
+                summary.quotaUnavailable ? _('Quota unavailable') : String(summary.error?.message || summary.error),
                 {reactive: false, can_focus: false},
             ));
+            if (summary.extraCredits) {
+                const creditsItem = createExtraCreditsMenuItem(summary.extraCredits);
+                if (creditsItem)
+                    this._usageSection.addMenuItem(creditsItem);
+            }
             return;
         }
 
-        // Primary window (e.g. 5-hour window)
-        if (summary.primaryWindow) {
-            this._usageSection.addMenuItem(createUsageProgressMenuItem(
-                formatWindowLabel(summary.primaryWindow.label) || _('5-hour window'),
-                summary.primaryWindow,
-                displayMode,
+        const stale = summary.stale || (provider.id === PROVIDER_ANTIGRAVITY &&
+            Date.now() - summary.lastUpdated?.getTime() >= 45000);
+        if (summary.cached || stale) {
+            this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
+                `${stale ? _('Stale quota') : _('Cached quota')} · ${summary.lastUpdated.toLocaleString()}`,
+                {reactive: false, can_focus: false},
             ));
         }
-
-        // Secondary window (e.g. Weekly window)
-        if (summary.weekWindow) {
+        // Antigravity buckets are independent quotas, all labeled by their group.
+        const windows = provider.id === PROVIDER_ANTIGRAVITY && summary.windows
+            ? summary.windows : [summary.primaryWindow, summary.weekWindow].filter(Boolean);
+        for (const window of windows) {
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
-                formatWindowLabel(summary.weekWindow.label) || _('Weekly limit'),
-                summary.weekWindow,
-                displayMode,
+                formatWindowLabel(window.label), window, displayMode,
             ));
         }
 
@@ -460,6 +474,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     destroy() {
+        this._destroyed = true;
         if (this._refreshSourceId) {
             GLib.Source.remove(this._refreshSourceId);
             this._refreshSourceId = null;
@@ -794,6 +809,8 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
     if (!summary)
         return '--';
 
+    if (summary.quotaUnavailable)
+        return '?';
     if (summary.error)
         return '!';
 
@@ -821,7 +838,7 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
     if (summary.primaryWindow?.usedFormatted)
         return summary.primaryWindow.usedFormatted;
 
-    return _('OK');
+    return provider.id === PROVIDER_ANTIGRAVITY ? '?' : _('OK');
 }
 
 /**
@@ -868,7 +885,7 @@ function formatWindowValue(window, displayMode) {
             return `${Math.round((1 - window.usedPercent) * 100)}% ${_('remaining')}`;
     }
 
-    return _('Available');
+    return _('Unknown');
 }
 
 /**
@@ -900,23 +917,7 @@ function formatWindowSubtitle(window) {
  * @returns {string}
  */
 function formatWindowReset(window) {
-    if (typeof window.resetsAt === 'string') {
-        try {
-            const date = new Date(window.resetsAt);
-            return `${_('Resets')} ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
-        } catch {}
-    }
-
-    if (typeof window.resetAt === 'number' && Number.isFinite(window.resetAt)) {
-        const resetDateTime = GLib.DateTime.new_from_unix_local(Math.round(window.resetAt));
-        if (resetDateTime)
-            return `${_('Resets')} ${resetDateTime.format('%H:%M')}`;
-    }
-
-    if (typeof window.resetAfterSeconds === 'number' && Number.isFinite(window.resetAfterSeconds))
-        return `${_('Resets in')} ${formatDuration(window.resetAfterSeconds)}`;
-
-    return '';
+    return formatQuotaReset(window, {translate: _});
 }
 
 /**

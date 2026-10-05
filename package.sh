@@ -48,6 +48,7 @@ gnome-extensions pack \
     --extra-source=resetCreditExpiry.js \
     --extra-source=codexAuth.js \
     --extra-source=usageApi.js \
+    --extra-source=quotaReset.js \
     --force \
     .
 

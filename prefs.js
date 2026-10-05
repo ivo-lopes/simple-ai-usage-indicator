@@ -260,7 +260,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
     async _testProvider(provider, authRow, expander) {
         authRow.subtitle = _('Testing connection...');
         try {
-            const usage = await provider.fetchUsage();
+            const usage = await provider.fetchUsage({force: true});
             if (usage.error) {
                 authRow.subtitle = `Error: ${usage.error.message || usage.error}`;
                 expander.subtitle = _('Failed');

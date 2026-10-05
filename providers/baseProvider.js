@@ -2,6 +2,11 @@ import GLib from 'gi://GLib';
 
 /**
  * @typedef {Object} UsageWindow
+ * @property {string|null} [id] - Backend bucket identifier
+ * @property {string|null} [groupName] - Backend model group
+ * @property {string|null} [period] - Backend window kind
+ * @property {number|null} [windowSeconds] - Duration, never a predicted reset
+ * @property {string|null} [source] - Quota observation source
  * @property {string} label - Human-readable window description (e.g. '5-hour window', 'Weekly limit')
  * @property {number|null} [used] - Numeric count of units consumed in the window
  * @property {number|null} [limit] - Maximum numeric capacity of the window
@@ -31,6 +36,10 @@ import GLib from 'gi://GLib';
  * @property {number|null} resetAfterSeconds - Seconds until reset for the active window
  * @property {UsageWindow|null} primaryWindow - Rolling short-term window (e.g. 5 hours)
  * @property {UsageWindow|null} weekWindow - Rolling long-term window (e.g. 7 days / weekly)
+ * @property {UsageWindow[]} [windows] - All independent observed buckets
+ * @property {boolean} [cached] - Reused observation, with original lastUpdated
+ * @property {boolean} [stale] - Observation older than provider cache lifetime
+ * @property {boolean} [quotaUnavailable] - Quota could not be observed
  * @property {Array<Object>} models - Array of model-specific quota or token metrics
  * @property {Object|null} extraCredits - Additional credits, resets, or billing info
  * @property {any} raw - Raw API response payload for inspection or debugging

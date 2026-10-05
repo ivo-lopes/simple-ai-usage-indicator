@@ -250,3 +250,15 @@ msgstr ""
 #: prefs.js:266
 msgid "Failed"
 msgstr ""
+
+msgid "Quota unavailable"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Cached quota"
+msgstr ""
+
+msgid "Stale quota"
+msgstr ""

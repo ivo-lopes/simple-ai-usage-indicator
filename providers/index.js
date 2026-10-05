@@ -86,10 +86,10 @@ export class ProviderManager {
      *
      * @returns {Promise<Map<string, import('./baseProvider.js').UsageSummary>>} Map of providerId -> UsageSummary
      */
-    async fetchAllUsage() {
+    async fetchAllUsage(options = {}) {
         const enabled = this.getEnabledProviders();
         const results = await Promise.allSettled(
-            enabled.map(provider => provider.fetchUsage()),
+            enabled.map(provider => provider.fetchUsage(options)),
         );
 
         const summaries = new Map();
