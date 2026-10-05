@@ -1,0 +1,32 @@
+name: Bug report
+description: Report extension behavior with sanitized diagnostic information.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is Ivo Lopes's personal project. Never include tokens, cookies, credential files, Keyring content, or account identifiers. Redact logs before posting.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: GNOME Shell version, distribution, extension GitHub tag or EGO version, provider, and CLI version.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs
+      description: Include relevant Shell or Preferences errors only; remove personal paths and account information.
+      render: text

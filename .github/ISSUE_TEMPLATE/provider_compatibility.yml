@@ -1,0 +1,30 @@
+name: Provider compatibility
+description: Report a Codex CLI, Claude Code, or Antigravity CLI compatibility change.
+body:
+  - type: markdown
+    attributes:
+      value: Never post tokens, cookies, credentials.json/auth.json files, Keyring contents, or private conversation data. Share the payload structure with synthetic values only.
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options:
+        - Codex CLI
+        - Claude Code
+        - Antigravity CLI
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: GNOME Shell, distribution, extension tag/EGO version and CLI version; include the last working version if known.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and observed behavior
+      description: Steps to reproduce and sanitized errors or a synthetic payload shape.
+    validations:
+      required: true

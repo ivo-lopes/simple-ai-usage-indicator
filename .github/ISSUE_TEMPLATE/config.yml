@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a vulnerability privately
+    url: https://github.com/ivo-lopes/simple-ai-usage-indicator/security/advisories/new
+    about: Keep security reports and credentials out of public Issues.
