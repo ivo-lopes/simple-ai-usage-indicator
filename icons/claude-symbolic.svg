@@ -2,7 +2,7 @@
 <!-- Original generic artwork for Simple AI Usage Indicator; see ASSETS.md. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <title>Conversation</title>
-  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h6"/>
+  <g fill="#2e3436">
+    <path fill-rule="evenodd" d="M3 3h18v14H9.4L3 22V3Z M5 5v13l3.7-3H19V5H5Z"/><path d="M8 7h8v2H8Z M8 11h6v2H8Z"/>
   </g>
 </svg>

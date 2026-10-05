@@ -2,7 +2,7 @@
 <!-- Original generic artwork for Simple AI Usage Indicator; see ASSETS.md. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <title>Usage chart</title>
-  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 20V4m0 16h16M8 16v-4m5 4V8m5 8V5"/>
+  <g fill="#2e3436">
+    <path d="M3 3h2v16h16v2H3Z M7 11h2v6H7Z M12 7h2v10h-2Z M17 4h2v13h-2Z"/>
   </g>
 </svg>

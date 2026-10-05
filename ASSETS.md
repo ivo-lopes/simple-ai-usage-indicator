@@ -74,3 +74,8 @@ credit Ivo Lopes (2026) and use the project GPL license; their notices are prese
 PO/POT sources remain in the repository, excluded from the extension ZIP. There
 are no other distributed images, fonts or media. README badge images are external
 links, not bundled artwork. LICENSE is the verbatim upstream GPL text, not an icon.
+
+The symbolic variants use filled geometric paths so GNOME's symbolic SVG loader
+can apply the theme foreground color. Stroke-only SVGs retained their source color
+in light/dark themes; the generic shapes and GPL provenance remain unchanged.
+Black and color variants are explicitly selected custom colors.

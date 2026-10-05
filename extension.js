@@ -8,6 +8,7 @@ import GObject from 'gi://GObject';
 import St from 'gi://St';
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as BarLevel from 'resource:///org/gnome/shell/ui/barLevel.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -33,8 +34,6 @@ import {formatQuotaReset} from './quotaReset.js';
 import {ProviderManager} from './providers/index.js';
 import {format, ngettext} from './i18n.js';
 
-const PROGRESS_BAR_WIDTH = 360;
-const PROGRESS_BAR_HEIGHT = 7;
 const PANEL_ICON_SIZE = 16;
 const MENU_TITLE_STYLE = 'font-weight: 700;';
 // Select the St API property without constructing an actor at import time.
@@ -47,7 +46,7 @@ class PopupScrollMenuSection extends PopupMenu.PopupMenuSection {
         super();
 
         this._scrollView = new St.ScrollView({
-            style_class: 'vfade',
+            accessible_name: _('Usage details'),
             overlay_scrollbars: true,
             hscrollbar_policy: St.PolicyType.NEVER,
             vscrollbar_policy: St.PolicyType.AUTOMATIC,
@@ -55,7 +54,11 @@ class PopupScrollMenuSection extends PopupMenu.PopupMenuSection {
         });
 
         this._scrollView.clip_to_allocation = true;
-        this._scrollView.set_child(this.box);
+        // GNOME 45's inherited St.Bin.set_child bypasses ScrollView's scroll adjustments.
+        if (this._scrollView.add_actor)
+            this._scrollView.add_actor(this.box);
+        else
+            this._scrollView.set_child(this.box);
         this.actor = this._scrollView;
         this.actor._delegate = this;
         this.setMaxHeight(500);
@@ -145,11 +148,14 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         this._refreshItem = new PopupMenu.PopupBaseMenuItem();
-        this._refreshItem.add_child(new St.Label({
+        this._refreshItem.accessible_name = _('Refresh now');
+        const refreshLabel = new St.Label({
             text: _('Refresh now'),
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
-        }));
+        });
+        this._refreshItem.add_child(refreshLabel);
+        this._refreshItem.label_actor = refreshLabel;
         this._refreshTimestampLabel = new St.Label({
             text: formatLastUpdatedValue(this._state.lastUpdated),
             style_class: 'dim-label',
@@ -187,7 +193,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             const scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
             // Reserve space for top panel (~40px), margins (~20px), and bottom fixed items (~140px)
             const availableHeight = Math.round(workArea.height / scaleFactor) - 200;
-            const maxHeight = Math.max(260, availableHeight);
+            const maxHeight = Math.max(120, availableHeight);
             this._usageSection.setMaxHeight(maxHeight);
         } catch {
             this._usageSection.setMaxHeight(500);
@@ -273,6 +279,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         this._panelBox.destroy_all_children();
 
         if (enabledProviders.length === 0) {
+            this.accessible_name = _('AI: off');
             const label = new St.Label({
                 text: _('AI: off'),
                 y_align: Clutter.ActorAlign.CENTER,
@@ -285,6 +292,13 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         const providersToShow = barDisplayMode === BAR_DISPLAY_CYCLE
             ? [enabledProviders.find(p => p.id === activeId) || enabledProviders[0]]
             : enabledProviders;
+
+        this.accessible_name = _('Simple AI Usage Indicator') + '. ' + providersToShow.map(provider => {
+            const summary = this._state.summaries.get(provider.id);
+            const value = !summary ? _('Fetching usage data...') : summary.error
+                ? _('Quota unavailable') : formatWindowValue(summary.primaryWindow ?? summary.weekWindow ?? {}, displayMode);
+            return `${provider.name}: ${value}`;
+        }).join(', ');
 
         for (let i = 0; i < providersToShow.length; i++) {
             const provider = providersToShow[i];
@@ -307,7 +321,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                 gicon: Gio.icon_new_for_string(iconPath),
                 icon_size: PANEL_ICON_SIZE,
                 style_class: isCustomStyle ? 'panel-icon' : 'system-status-icon',
-                style: isCustomStyle ? 'margin: 0 4px; padding: 0 6px;' : '',
+                style: isCustomStyle ? 'margin: 0 4px; padding: 0 6px;' : '-st-icon-style: symbolic;',
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
@@ -329,7 +343,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         if (enabledProviders.length === 0) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
                 _('No AI assistants enabled. Go to Settings to enable them.'),
-                {reactive: false, can_focus: false},
+                {reactive: true, activate: false, hover: false, can_focus: false},
             ));
             return;
         }
@@ -352,16 +366,19 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         if (!summary) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
                 _('Fetching usage data...'),
-                {reactive: false, can_focus: false},
+                {reactive: true, activate: false, hover: false, can_focus: false},
             ));
             return;
         }
 
         if (summary.error) {
-            this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
+            const errorItem = new PopupMenu.PopupMenuItem(
                 summary.quotaUnavailable ? _('Quota unavailable') : String(summary.error?.message || summary.error),
-                {reactive: false, can_focus: false},
-            ));
+                {reactive: true, activate: false, hover: false, can_focus: false},
+            );
+            errorItem.label.clutter_text.line_wrap = true;
+            errorItem.label.style = 'max-width: 30em;';
+            this._usageSection.addMenuItem(errorItem);
             if (summary.extraCredits) {
                 const creditsItem = createExtraCreditsMenuItem(summary.extraCredits);
                 if (creditsItem)
@@ -375,7 +392,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         if (summary.cached || stale) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
                 `${stale ? _('Stale quota') : _('Cached quota')} · ${summary.lastUpdated.toLocaleString()}`,
-                {reactive: false, can_focus: false},
+                {reactive: true, activate: false, hover: false, can_focus: false},
             ));
         }
         // Antigravity buckets are independent quotas, all labeled by their group.
@@ -492,7 +509,9 @@ function reportError(error, context) {
 
 function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyle = ICON_STYLE_SYMBOLIC) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
-        reactive: false,
+        reactive: true,
+        activate: false,
+        hover: false,
         can_focus: false,
     });
 
@@ -508,6 +527,7 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
         gicon: Gio.icon_new_for_string(iconPath),
         icon_size: 18,
         style_class: isCustomStyle ? 'panel-icon' : 'system-status-icon',
+        style: isCustomStyle ? null : '-st-icon-style: symbolic;',
         y_align: Clutter.ActorAlign.CENTER,
     });
     row.add_child(icon);
@@ -579,7 +599,9 @@ function formatWindowLabel(label) {
 
 function createUsageProgressMenuItem(title, window, displayMode) {
     const menuItem = new PopupMenu.PopupBaseMenuItem({
-        reactive: false,
+        reactive: true,
+        activate: false,
+        hover: false,
         can_focus: false,
     });
 
@@ -601,13 +623,12 @@ function createUsageProgressMenuItem(title, window, displayMode) {
     }));
 
     const progressPercent = getWindowProgressPercent(window, displayMode);
-    content.add_child(createProgressBar(progressPercent, displayMode));
+    content.add_child(createProgressBar(progressPercent, `${title}: ${formatWindowValue(window, displayMode)}`));
 
     const subtitle = formatWindowSubtitle(window);
     if (subtitle) {
         content.add_child(new St.Label({
             text: subtitle,
-            style_class: 'dim-label',
             x_align: Clutter.ActorAlign.START,
         }));
     }
@@ -621,7 +642,9 @@ function createModelsSummaryMenuItem(models) {
         return null;
 
     const menuItem = new PopupMenu.PopupBaseMenuItem({
-        reactive: false,
+        reactive: true,
+        activate: false,
+        hover: false,
         can_focus: false,
     });
 
@@ -667,7 +690,9 @@ function createExtraCreditsMenuItem(credits) {
         return null;
 
     const menuItem = new PopupMenu.PopupBaseMenuItem({
-        reactive: false,
+        reactive: true,
+        activate: false,
+        hover: false,
         can_focus: false,
     });
 
@@ -697,41 +722,15 @@ function createExtraCreditsMenuItem(credits) {
     return menuItem;
 }
 
-function createProgressBar(percent, displayMode) {
-    const normalized = normalizeProgressPercent(percent);
-    const fillWidth = normalized === null
-        ? 0
-        : Math.round(PROGRESS_BAR_WIDTH * normalized);
-    const fill = fillWidth > 0
-        ? new St.Widget({
-            width: fillWidth,
-            height: PROGRESS_BAR_HEIGHT,
-            style: [
-                `background-color: ${getProgressColor(normalized, displayMode)};`,
-                `border-radius: ${Math.floor(PROGRESS_BAR_HEIGHT / 2)}px;`,
-            ].join(' '),
-        })
-        : null;
-
-    const track = new St.Widget({
-        width: PROGRESS_BAR_WIDTH,
-        height: PROGRESS_BAR_HEIGHT,
-        x_align: Clutter.ActorAlign.START,
-        layout_manager: new Clutter.FixedLayout(),
-        style: [
-            'background-color: rgba(255, 255, 255, 0.16);',
-            `border-radius: ${Math.floor(PROGRESS_BAR_HEIGHT / 2)}px;`,
-            'margin-top: 5px;',
-            'margin-bottom: 4px;',
-        ].join(' '),
+function createProgressBar(percent, accessibleName) {
+    const bar = new BarLevel.BarLevel({
+        x_expand: true,
+        style_class: 'slider',
+        accessible_name: accessibleName,
+        style: 'min-width: 240px; margin-top: 5px; margin-bottom: 4px;',
     });
-
-    if (fill) {
-        fill.set_position(0, 0);
-        track.add_child(fill);
-    }
-
-    return track;
+    bar.value = normalizeProgressPercent(percent) ?? 0;
+    return bar;
 }
 
 function formatProviderPanelLabel(provider, summary, displayMode) {
@@ -845,21 +844,6 @@ function normalizeProgressPercent(percent) {
     return Math.max(0, Math.min(percent, 1));
 }
 
-function getProgressColor(percent, displayMode) {
-    if (displayMode !== DISPLAY_MODE_USED) {
-        if (percent <= 0.15)
-            return '#ed333b';
-        if (percent <= 0.35)
-            return '#f6d32d';
-        return '#2ec27e';
-    }
-
-    if (percent >= 0.85)
-        return '#ed333b';
-    if (percent >= 0.65)
-        return '#f6d32d';
-    return '#62a0ea';
-}
 
 function formatNumber(value) {
     return new Intl.NumberFormat().format(Math.round(value));

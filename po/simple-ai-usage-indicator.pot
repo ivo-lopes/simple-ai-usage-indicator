@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: simple-ai-usage-indicator\n"
 "Report-Msgid-Bugs-To: https://github.com/ivo-lopes/simple-ai-usage-indicator/"
 "issues\n"
-"POT-Creation-Date: 2026-10-05 16:50-0300\n"
+"POT-Creation-Date: 2026-10-05 17:42-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,173 +19,177 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: extension.js:75
+#: extension.js:49
+msgid "Usage details"
+msgstr ""
+
+#: extension.js:78 extension.js:296
 msgid "Simple AI Usage Indicator"
 msgstr ""
 
-#: extension.js:149
+#: extension.js:151 extension.js:153
 msgid "Refresh now"
 msgstr ""
 
-#: extension.js:164
+#: extension.js:170
 msgid "Settings"
 msgstr ""
 
-#: extension.js:208
+#: extension.js:214
 msgid "Refreshing..."
 msgstr ""
 
-#: extension.js:247
+#: extension.js:253
 msgid "Codex limit reset"
 msgstr ""
 
-#: extension.js:277
+#: extension.js:282 extension.js:284
 msgid "AI: off"
 msgstr ""
 
-#: extension.js:331
-msgid "No AI assistants enabled. Go to Settings to enable them."
-msgstr ""
-
-#: extension.js:354
+#: extension.js:298 extension.js:368
 msgid "Fetching usage data..."
 msgstr ""
 
-#: extension.js:362
+#: extension.js:299 extension.js:376
 msgid "Quota unavailable"
 msgstr ""
 
-#: extension.js:377
+#: extension.js:345
+msgid "No AI assistants enabled. Go to Settings to enable them."
+msgstr ""
+
+#: extension.js:394
 msgid "Stale quota"
 msgstr ""
 
-#: extension.js:377
+#: extension.js:394
 msgid "Cached quota"
 msgstr ""
 
-#: extension.js:550
+#: extension.js:570
 msgid "Unknown group"
 msgstr ""
 
-#: extension.js:553
+#: extension.js:573
 msgid "Quota"
 msgstr ""
 
-#: extension.js:560 extension.js:564 extension.js:572
+#: extension.js:580 extension.js:584 extension.js:592
 msgid "5-hour window"
 msgstr ""
 
-#: extension.js:562 extension.js:566 extension.js:574
+#: extension.js:582 extension.js:586 extension.js:594
 msgid "Weekly limit"
 msgstr ""
 
-#: extension.js:568
+#: extension.js:588
 msgid "Window"
 msgstr ""
 
-#: extension.js:570
+#: extension.js:590
 msgid "Weekly tokens"
 msgstr ""
 
-#: extension.js:576
+#: extension.js:596
 msgid "Tokens today"
 msgstr ""
 
-#: extension.js:635
+#: extension.js:658
 msgid "Active Models & Quota"
 msgstr ""
 
-#: extension.js:646
+#: extension.js:669
 msgid "Model"
 msgstr ""
 
-#: extension.js:680
+#: extension.js:705
 #, javascript-format
 msgid "%s rate limit reset available"
 msgid_plural "%s rate limit resets available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:682
+#: extension.js:707
 #, javascript-format
 msgid "%s CLI session stored locally"
 msgid_plural "%s CLI sessions stored locally"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:684
+#: extension.js:709
 #, javascript-format
 msgid "%s Claude Code session"
 msgid_plural "%s Claude Code sessions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:752 extension.js:758
+#: extension.js:751 extension.js:757
 msgid "left"
 msgstr ""
 
-#: extension.js:758 extension.js:787 extension.js:790 extension.js:816
+#: extension.js:757 extension.js:786 extension.js:789 extension.js:815
 msgid "used"
 msgstr ""
 
-#: extension.js:768
+#: extension.js:767
 msgid "OK"
 msgstr ""
 
-#: extension.js:773
+#: extension.js:772
 msgid "never"
 msgstr ""
 
-#: extension.js:793 extension.js:796 extension.js:799
+#: extension.js:792 extension.js:795 extension.js:798
 msgid "remaining"
 msgstr ""
 
-#: extension.js:802 providers/antigravityProvider.js:73
+#: extension.js:801 providers/antigravityProvider.js:73
 #: providers/claudeProvider.js:72 providers/claudeProvider.js:75
 msgid "Unknown"
 msgstr ""
 
-#: extension.js:813
+#: extension.js:812
 msgid "total"
 msgstr ""
 
-#: prefs.js:33
+#: prefs.js:30
 msgid "General"
 msgstr ""
 
-#: prefs.js:67
-msgid "Display & Refresh"
+#: prefs.js:64
+msgid "Display and Refresh"
 msgstr ""
 
-#: prefs.js:68
+#: prefs.js:65
 msgid "Configure refresh rates and appearance in the top panel."
 msgstr ""
 
-#: prefs.js:80
+#: prefs.js:78
 msgid "Update interval"
 msgstr ""
 
-#: prefs.js:81
+#: prefs.js:79
 msgid "Seconds between automatic usage refreshes"
 msgstr ""
 
-#: prefs.js:97
+#: prefs.js:96
 msgid "Display mode"
 msgstr ""
 
-#: prefs.js:98
+#: prefs.js:97
 msgid "Choose whether to show remaining quota, consumed quota, or percentage."
 msgstr ""
 
-#: prefs.js:100
+#: prefs.js:99
 msgid "Remaining quota (left)"
 msgstr ""
 
-#: prefs.js:101
+#: prefs.js:100
 msgid "Consumed quota (used)"
 msgstr ""
 
-#: prefs.js:102
+#: prefs.js:101
 msgid "Percentage (%)"
 msgstr ""
 
@@ -194,7 +198,7 @@ msgid "Top bar layout"
 msgstr ""
 
 #: prefs.js:119
-msgid "Show all enabled assistants side-by-side or cycle with a click."
+msgid "Show all enabled assistants or only the selected assistant."
 msgstr ""
 
 #: prefs.js:121
@@ -202,107 +206,107 @@ msgid "Show all enabled assistants"
 msgstr ""
 
 #: prefs.js:122
-msgid "Cycle one at a time"
-msgstr ""
-
-#: prefs.js:147
-msgid "Icon style"
+msgid "Show selected assistant"
 msgstr ""
 
 #: prefs.js:148
-msgid ""
-"Choose monochrome white, monochrome black, or colored generic icons in the "
-"panel and menu."
+msgid "Icon style"
 msgstr ""
 
-#: prefs.js:150
-msgid "Monochrome white (Symbolic)"
+#: prefs.js:149
+msgid ""
+"Choose themed symbolic, black, or colored generic icons in the panel and "
+"menu."
 msgstr ""
 
 #: prefs.js:151
-msgid "Monochrome black (Black)"
+msgid "Symbolic (theme color)"
 msgstr ""
 
 #: prefs.js:152
+msgid "Monochrome black (Black)"
+msgstr ""
+
+#: prefs.js:153
 msgid "Colored icons (Color)"
 msgstr ""
 
-#: prefs.js:167
+#: prefs.js:168
 msgid "Coding Assistants"
 msgstr ""
 
-#: prefs.js:168
+#: prefs.js:169
 msgid "Manage monitored assistants and test their local authentication."
 msgstr ""
 
-#: prefs.js:183
+#: prefs.js:185
 msgid "Checking auth..."
 msgstr ""
 
-#: prefs.js:196
+#: prefs.js:199
 msgid "Local authentication"
 msgstr ""
 
-#: prefs.js:197
+#: prefs.js:200
 msgid "Checking status..."
 msgstr ""
 
-#: prefs.js:200
+#: prefs.js:203
 msgid "Test connection"
 msgstr ""
 
-#: prefs.js:221
+#: prefs.js:224
 msgid "Available"
 msgstr ""
 
-#: prefs.js:221
+#: prefs.js:224
 msgid "Not found"
 msgstr ""
 
-#: prefs.js:224
+#: prefs.js:227
 msgid "Token expired"
 msgstr ""
 
-#: prefs.js:224 prefs.js:257
+#: prefs.js:227 prefs.js:260
 msgid "Connected"
 msgstr ""
 
-#: prefs.js:225
+#: prefs.js:228
 msgid "Not configured"
 msgstr ""
 
-#: prefs.js:229
+#: prefs.js:232
 msgid "Authentication check unavailable."
 msgstr ""
 
-#: prefs.js:230 prefs.js:262
+#: prefs.js:233 prefs.js:265
 msgid "Error"
 msgstr ""
 
-#: prefs.js:237
+#: prefs.js:240
 msgid "Testing connection..."
 msgstr ""
 
-#: prefs.js:243
+#: prefs.js:246
 #, javascript-format
 msgid "Error: %s"
 msgstr ""
 
-#: prefs.js:244
+#: prefs.js:247
 msgid "Failed"
 msgstr ""
 
-#: prefs.js:254
+#: prefs.js:257
 #, javascript-format
 msgid "%s%% used"
 msgstr ""
 
-#: prefs.js:256
+#: prefs.js:259
 #, javascript-format
 msgid "Success! %s"
 msgstr ""
 
-#: prefs.js:261
+#: prefs.js:264
 msgid "Test failed. Check authentication and connectivity."
 msgstr ""
 
@@ -386,7 +390,7 @@ msgstr ""
 msgid "Codex request unavailable. Check authentication and connectivity."
 msgstr ""
 
-#: providers/index.js:76
+#: providers/index.js:73
 msgid "Usage unavailable. Check authentication and connectivity."
 msgstr ""
 

@@ -2,7 +2,7 @@
 <!-- Original generic artwork for Simple AI Usage Indicator; see ASSETS.md. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <title>Code brackets</title>
-  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m8 6-5 6 5 6m8-12 5 6-5 6m-3-13-2 14"/>
+  <g fill="#2e3436">
+    <path d="M8 4.6 9.4 6 4.4 12 9.4 18 8 19.4 1.9 12Z M16 4.6 14.6 6 19.6 12 14.6 18 16 19.4 22.1 12Z M12 4h2l-2 16h-2Z"/>
   </g>
 </svg>

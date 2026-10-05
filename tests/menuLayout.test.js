@@ -20,12 +20,20 @@ for (const properties of [['vertical'], ['vertical', 'orientation'], ['orientati
     }
     for (const property of properties)
         Object.defineProperty(BoxLayout.prototype, property, {value: null, writable: true});
+    class MenuItem extends Actor {
+        constructor(params = {}) {
+            for (const key of Object.keys(params))
+                assert(['reactive', 'can_focus', 'style_class', 'activate', 'hover'].includes(key), `Unknown popup constructor option: ${key}`);
+            super(params);
+        }
+    }
     const bindings = {
+        BarLevel: {BarLevel: Actor},
         St: {BoxLayout, Label: Actor, Icon: Actor, Widget: Actor},
         Clutter: {Orientation: {VERTICAL: 1}, ActorAlign: {START: 0, CENTER: 1, END: 2}, FixedLayout: class {}},
         GObject: {registerClass: klass => klass},
         PanelMenu: {Button: Actor},
-        PopupMenu: {PopupMenuSection: Actor, PopupBaseMenuItem: Actor},
+        PopupMenu: {PopupMenuSection: Actor, PopupBaseMenuItem: MenuItem},
         Gio: {icon_new_for_string: path => path},
         GLib: {build_filenamev: parts => parts.join('/')},
         formatQuotaReset, Extension: class {}, _: text => text, format, ngettext,
@@ -50,3 +58,24 @@ for (const properties of [['vertical'], ['vertical', 'orientation'], ['orientati
     }
 }
 print('menu layout tests passed: old/transitional/GNOME 51 St APIs');
+
+for (const legacy of [true, false]) {
+    class ScrollView extends Actor {
+        set_child(child) {
+            assert(!legacy, 'GNOME 45 inherited St.Bin.set_child must not be used');
+            this.scrollChild = child;
+        }
+    }
+    if (legacy)
+        ScrollView.prototype.add_actor = function(child) { this.scrollChild = child; };
+    class Section extends Actor { constructor() { super(); this.box = new Actor(); } }
+    const {PopupScrollMenuSection} = loadSource('extension.js', {
+        Clutter: {Orientation: {VERTICAL: 1}},
+        St: {BoxLayout: Actor, ScrollView, PolicyType: {NEVER: 0, AUTOMATIC: 1}},
+        PopupMenu: {PopupMenuSection: Section}, PanelMenu: {Button: Actor},
+        GObject: {registerClass: klass => klass}, Extension: class {}, _: text => text,
+    }, ['PopupScrollMenuSection']);
+    const section = new PopupScrollMenuSection();
+    assert(section._scrollView.scrollChild === section.box, 'Scroll container installs child using supported API');
+}
+print('ScrollView regression passed: GNOME 45 container API and GNOME 46+ child API');

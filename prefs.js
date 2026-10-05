@@ -19,9 +19,6 @@ import {
     ICON_STYLE_BLACK,
     ICON_STYLE_COLOR,
     ICON_STYLE_SYMBOLIC,
-    PROVIDER_ANTIGRAVITY,
-    PROVIDER_CLAUDE,
-    PROVIDER_CODEX,
 } from './constants.js';
 import {ProviderManager} from './providers/index.js';
 import {format} from './i18n.js';
@@ -64,7 +61,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
 
     _buildGeneralGroup() {
         const group = new Adw.PreferencesGroup({
-            title: _('Display & Refresh'),
+            title: _('Display and Refresh'),
             description: _('Configure refresh rates and appearance in the top panel.'),
         });
 
@@ -77,6 +74,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         });
 
         const refreshRow = new Adw.SpinRow({
+            use_markup: false,
             title: _('Update interval'),
             subtitle: _('Seconds between automatic usage refreshes'),
             adjustment,
@@ -94,6 +92,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
 
         const currentDisplayMode = this._settings.get_string('display-mode');
         const displayRow = new Adw.ComboRow({
+            use_markup: false,
             title: _('Display mode'),
             subtitle: _('Choose whether to show remaining quota, consumed quota, or percentage.'),
             model: Gtk.StringList.new([
@@ -115,11 +114,12 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
 
         const currentBarMode = this._getBarDisplayMode();
         const barRow = new Adw.ComboRow({
+            use_markup: false,
             title: _('Top bar layout'),
-            subtitle: _('Show all enabled assistants side-by-side or cycle with a click.'),
+            subtitle: _('Show all enabled assistants or only the selected assistant.'),
             model: Gtk.StringList.new([
                 _('Show all enabled assistants'),
-                _('Cycle one at a time'),
+                _('Show selected assistant'),
             ]),
             selected: currentBarMode === BAR_DISPLAY_CYCLE ? 1 : 0,
         });
@@ -144,10 +144,11 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             selectedIconIndex = 2;
 
         const iconStyleRow = new Adw.ComboRow({
+            use_markup: false,
             title: _('Icon style'),
-            subtitle: _('Choose monochrome white, monochrome black, or colored generic icons in the panel and menu.'),
+            subtitle: _('Choose themed symbolic, black, or colored generic icons in the panel and menu.'),
             model: Gtk.StringList.new([
-                _('Monochrome white (Symbolic)'),
+                _('Symbolic (theme color)'),
                 _('Monochrome black (Black)'),
                 _('Colored icons (Color)'),
             ]),
@@ -179,6 +180,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
 
     _createProviderExpander(provider) {
         const expander = new Adw.ExpanderRow({
+            use_markup: false,
             title: provider.name,
             subtitle: _('Checking auth...'),
             show_enable_switch: true,
@@ -193,6 +195,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         });
 
         const authRow = new Adw.ActionRow({
+            use_markup: false,
             title: _('Local authentication'),
             subtitle: _('Checking status...'),
         });
@@ -265,15 +268,11 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
 
     _isProviderEnabled(providerId) {
         const enabled = this._settings.get_strv('enabled-providers');
-        if (!enabled || enabled.length === 0)
-            return true;
         return enabled.includes(providerId);
     }
 
     _setProviderEnabled(providerId, enable) {
-        let enabled = this._settings.get_strv('enabled-providers');
-        if (!enabled || enabled.length === 0)
-            enabled = [PROVIDER_CODEX, PROVIDER_CLAUDE, PROVIDER_ANTIGRAVITY];
+        const enabled = this._settings.get_strv('enabled-providers');
 
         const set = new Set(enabled);
         if (enable) {
