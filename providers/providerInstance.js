@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+import {gettext as _} from '../i18n.js';
 
 // A provider adapter belongs to exactly one logical account. No shared I/O/cache.
 export class ProviderInstance {
@@ -6,6 +7,7 @@ export class ProviderInstance {
         Object.assign(this, account);
         this.id = account.instanceId; // compatibility for panel/manager callers
         this.name = account.displayName;
+        this.providerName = provider.name;
         this.iconFileName = provider.iconFileName;
         this._provider = provider;
         this._destroyed = false;
@@ -32,6 +34,9 @@ export class ProviderInstance {
             this.lastUpdated = summary.lastUpdated;
             this.error = summary.error;
             return this.usageSummary;
+        }).catch(() => {
+            this.error = _('Usage unavailable. Check authentication and connectivity.');
+            throw new Error(this.error);
         }).finally(() => { this._inFlight = null; });
         return this._inFlight;
     }

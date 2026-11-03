@@ -5,6 +5,11 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+- Add independent Codex/Claude account instances using existing CLI directories,
+  Preferences account management, safe legacy migration, incremental refresh and
+  cancellation per instance. Antigravity remains a single shared session until
+  an independent authentication selector is verified (GitHub #1).
+
 - Antigravity: regression fixture from CLI 1.4.12 with three groups/five buckets,
   independent Argon weekly quota, group headings, two-decimal popup percentages
   and no availability bar for missing metrics. Backend fractions/resets remain exact;

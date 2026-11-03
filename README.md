@@ -271,3 +271,8 @@ The latest published GitHub release is v22. Release changes are documented in
 managed version. Follow [docs/RELEASING.md](docs/RELEASING.md) and the
 [EGO checklist](docs/EGO-CHECKLIST.md) before publishing or submitting manually.
 [UPSTREAM.md](UPSTREAM.md) documents selective upstream review before releases.
+
+## Multiple accounts
+
+See [account configuration and provider limits](docs/ACCOUNTS.md) for independent
+Codex/Claude sessions, migration and the Antigravity authentication blocker.

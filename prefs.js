@@ -22,6 +22,7 @@ import {
 } from './constants.js';
 import {ProviderManager} from './providers/index.js';
 import {format} from './i18n.js';
+import {readAccounts, writeAccounts, ACCOUNT_PROVIDERS, PROVIDER_NAMES} from './providers/accounts.js';
 
 const SimpleAiUsagePreferencesPage = GObject.registerClass(
 class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
@@ -38,7 +39,9 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         this._providerManager = new ProviderManager({settings});
 
         this.add(this._buildGeneralGroup());
-        this.add(this._buildAssistantsGroup());
+        this._accountSignalStart = this._signals.length;
+        this._accountGeneration = 0;
+        this._rebuildAccounts();
     }
 
     _connect(object, signal, callback) {
@@ -53,6 +56,8 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         if (this._disposed)
             return;
         this._disposed = true;
+        this._chooser?.destroy();
+        this._chooser = null;
         for (const [object, id] of this._signals)
             object.disconnect(id);
         this._signals = [];
@@ -171,63 +176,161 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         return group;
     }
 
+    _rebuildAccounts() {
+        this._accountGeneration++;
+        for (const [object, id] of this._signals.splice(this._accountSignalStart))
+            object.disconnect(id);
+        if (this._accountsGroup)
+            this.remove(this._accountsGroup);
+        this._accountsGroup = this._buildAssistantsGroup();
+        this.add(this._accountsGroup);
+    }
+
+    _saveAccounts(accounts) {
+        try {
+            writeAccounts(this._settings, accounts);
+            this._providerManager.syncAccounts();
+            this._rebuildAccounts();
+        } catch {
+            this._accountStatus.subtitle = _('Invalid or duplicate CLI directory. Use a separate authenticated directory.');
+        }
+    }
+
     _buildAssistantsGroup() {
         const group = new Adw.PreferencesGroup({
             title: _('Coding Assistants'),
-            description: _('Manage monitored assistants and test their local authentication.'),
+            description: _('Monitor existing CLI sessions. Removing an account keeps its credentials.'),
         });
-
-        const providers = this._providerManager.getAllProviders();
-        for (const provider of providers) {
-            const expander = this._createProviderExpander(provider);
-            group.add(expander);
+        let accounts;
+        try { accounts = readAccounts(this._settings); } catch {
+            group.add(new Adw.ActionRow({title: _('Invalid account configuration'),
+                subtitle: _('Configuration was preserved. Repair accounts-config before continuing.'), use_markup: false}));
+            return group;
         }
-
+        this._accountStatus = new Adw.ActionRow({title: _('Accounts'), use_markup: false});
+        group.add(this._accountStatus);
+        if (accounts.length) {
+            const selected = Math.max(0, accounts.findIndex(a => a.instanceId === this._settings.get_string('active-provider')));
+            const active = new Adw.ComboRow({title: _('Selected account'), use_markup: false,
+                model: Gtk.StringList.new(accounts.map(a => a.displayName)), selected});
+            this._connect(active, 'notify::selected', () => {
+                this._settings.set_string('active-provider', accounts[active.selected].instanceId);
+            });
+            group.add(active);
+        }
+        for (const [index, account] of accounts.entries()) {
+            const provider = this._providerManager.getProvider(account.instanceId);
+            const expander = new Adw.ExpanderRow({use_markup: false, title: account.displayName,
+                subtitle: PROVIDER_NAMES[account.providerId], show_enable_switch: true,
+                enable_expansion: account.enabled});
+            this._connect(expander, 'notify::enable-expansion', () => {
+                const current = readAccounts(this._settings);
+                current[index].enabled = expander.get_enable_expansion();
+                this._saveAccounts(current);
+            });
+            const name = new Adw.EntryRow({title: _('Account name'), text: account.displayName});
+            expander.add_row(name);
+            const directory = new Adw.EntryRow({title: _('CLI configuration directory'), text: account.credentialReference || ''});
+            directory.sensitive = account.providerId !== 'antigravity';
+            expander.add_row(directory);
+            const browse = new Gtk.Button({label: _('Choose directory'), valign: Gtk.Align.CENTER});
+            browse.sensitive = account.providerId !== 'antigravity';
+            directory.add_suffix(browse);
+            this._connect(browse, 'clicked', () => this._chooseDirectory(directory));
+            const save = new Gtk.Button({label: _('Save account'), valign: Gtk.Align.CENTER});
+            name.add_suffix(save);
+            this._connect(save, 'clicked', () => {
+                const current = readAccounts(this._settings);
+                current[index] = {...account, displayName: name.text.trim(), credentialReference: directory.text.trim() || null};
+                this._saveAccounts(current);
+            });
+            const authRow = new Adw.ActionRow({use_markup: false, title: _('Local authentication'), subtitle: _('Checking status...')});
+            const test = new Gtk.Button({label: _('Test connection'), valign: Gtk.Align.CENTER});
+            this._connect(test, 'clicked', async () => {
+                test.sensitive = false;
+                const generation = this._accountGeneration;
+                await this._testProvider(provider, authRow, expander);
+                if (!this._disposed && generation === this._accountGeneration)
+                    test.sensitive = true;
+            });
+            authRow.add_suffix(test);
+            expander.add_row(authRow);
+            const actions = new Adw.ActionRow({title: _('Order and removal'), use_markup: false});
+            for (const [label, offset] of [[_('Move up'), -1], [_('Move down'), 1], [_('Remove account'), 0]]) {
+                const button = new Gtk.Button({label, valign: Gtk.Align.CENTER});
+                button.sensitive = offset === 0 || (index + offset >= 0 && index + offset < accounts.length);
+                this._connect(button, 'clicked', () => {
+                    const current = readAccounts(this._settings);
+                    if (offset === 0)
+                        current.splice(index, 1);
+                    else
+                        [current[index], current[index + offset]] = [current[index + offset], current[index]];
+                    this._saveAccounts(current);
+                });
+                actions.add_suffix(button);
+            }
+            expander.add_row(actions);
+            group.add(expander);
+            void this._checkProviderAuth(provider, authRow, expander);
+        }
+        const type = new Adw.ComboRow({title: _('Provider'), use_markup: false,
+            model: Gtk.StringList.new(ACCOUNT_PROVIDERS.map(id => PROVIDER_NAMES[id]))});
+        const add = new Gtk.Button({label: _('Add account'), valign: Gtk.Align.CENTER});
+        type.add_suffix(add);
+        group.add(type);
+        this._connect(add, 'clicked', () => {
+            const providerId = ACCOUNT_PROVIDERS[type.selected];
+            const current = readAccounts(this._settings);
+            if (current.some(a => a.providerId === providerId && (providerId === 'antigravity' || a.credentialReference === null))) {
+                this._accountStatus.subtitle = providerId === 'antigravity'
+                    ? _('Antigravity supports one shared session. Independent authentication is not available.')
+                    : _('Choose a separate CLI directory for the new account.');
+                if (providerId !== 'antigravity')
+                    this._chooseDirectory(null, path => this._addAccount(providerId, path));
+                return;
+            }
+            this._addAccount(providerId, null);
+        });
         return group;
     }
 
-    _createProviderExpander(provider) {
-        const expander = new Adw.ExpanderRow({
-            use_markup: false,
-            title: provider.name,
-            subtitle: _('Checking auth...'),
-            show_enable_switch: true,
-            enable_expansion: true,
-        });
+    _addAccount(providerId, credentialReference) {
+        const accounts = readAccounts(this._settings);
+        const accountId = GLib.uuid_string_random();
+        accounts.push({instanceId: `${providerId}:${accountId}`, providerId, accountId,
+            displayName: `${PROVIDER_NAMES[providerId]} ${accounts.filter(a => a.providerId === providerId).length + 1}`,
+            enabled: true, credentialReference});
+        this._saveAccounts(accounts);
+    }
 
-        const isEnabled = this._isProviderEnabled(provider.id);
-        expander.set_enable_expansion(isEnabled);
-
-        this._connect(expander, 'notify::enable-expansion', () => {
-            this._setProviderEnabled(provider.id, expander.get_enable_expansion());
+    _chooseDirectory(entry, callback = null) {
+        const chooser = new Gtk.FileChooserNative({title: _('CLI configuration directory'),
+            transient_for: this.get_root(), action: Gtk.FileChooserAction.SELECT_FOLDER,
+            accept_label: _('Select'), cancel_label: _('Cancel')});
+        const generation = this._accountGeneration;
+        chooser.connect('response', (_dialog, response) => {
+            if (!this._disposed && generation === this._accountGeneration && response === Gtk.ResponseType.ACCEPT) {
+                const path = chooser.get_file()?.get_path();
+                if (path) {
+                    if (entry) entry.text = path;
+                    callback?.(path);
+                }
+            }
+            chooser.destroy();
+            this._chooser = null;
         });
-
-        const authRow = new Adw.ActionRow({
-            use_markup: false,
-            title: _('Local authentication'),
-            subtitle: _('Checking status...'),
-        });
-        const checkButton = new Gtk.Button({
-            label: _('Test connection'),
-            valign: Gtk.Align.CENTER,
-        });
-        this._connect(checkButton, 'clicked', () => {
-            void this._testProvider(provider, authRow, expander);
-        });
-        authRow.add_suffix(checkButton);
-        expander.add_row(authRow);
-
-        void this._checkProviderAuth(provider, authRow, expander);
-
-        return expander;
+        this._chooser?.destroy();
+        this._chooser = chooser;
+        chooser.show();
     }
 
     async _checkProviderAuth(provider, authRow, expander) {
+        const generation = this._accountGeneration;
         if (this._disposed)
             return;
         try {
             const auth = await provider.checkAuth({allowExpired: true});
-            if (this._disposed)
+            if (this._disposed || generation !== this._accountGeneration)
                 return;
             const statusText = auth.details || (auth.available ? _('Available') : _('Not found'));
             authRow.subtitle = statusText;
@@ -235,7 +338,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
                 ? (auth.expired ? _('Token expired') : _('Connected'))
                 : _('Not configured');
         } catch (error) {
-            if (this._disposed)
+            if (this._disposed || generation !== this._accountGeneration)
                 return;
             authRow.subtitle = _('Authentication check unavailable.');
             expander.subtitle = _('Error');
@@ -243,12 +346,13 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
     }
 
     async _testProvider(provider, authRow, expander) {
+        const generation = this._accountGeneration;
         if (this._disposed)
             return;
         authRow.subtitle = _('Testing connection...');
         try {
             const usage = await provider.fetchUsage({force: true});
-            if (this._disposed)
+            if (this._disposed || generation !== this._accountGeneration)
                 return;
             if (usage.error) {
                 authRow.subtitle = format(_('Error: %s'), usage.error.message || usage.error);
@@ -267,29 +371,11 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             authRow.subtitle = format(_('Success! %s'), parts.join(' · '));
             expander.subtitle = _('Connected');
         } catch (error) {
-            if (this._disposed)
+            if (this._disposed || generation !== this._accountGeneration)
                 return;
             authRow.subtitle = _('Test failed. Check authentication and connectivity.');
             expander.subtitle = _('Error');
         }
-    }
-
-    _isProviderEnabled(providerId) {
-        const enabled = this._settings.get_strv('enabled-providers');
-        return enabled.includes(providerId);
-    }
-
-    _setProviderEnabled(providerId, enable) {
-        const enabled = this._settings.get_strv('enabled-providers');
-
-        const set = new Set(enabled);
-        if (enable) {
-            set.add(providerId);
-        } else {
-            set.delete(providerId);
-        }
-
-        this._settings.set_strv('enabled-providers', Array.from(set));
     }
 
     _getBarDisplayMode() {

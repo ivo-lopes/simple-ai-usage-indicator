@@ -48,3 +48,48 @@ Gio/process and native-Shell lab fixtures.
 Contract: bucket `usedPercent`/`leftPercent` are fractions and `resetsAt` is the
 canonical reset. Codex/Claude's existing `percent` bucket alias is transitional;
 summary `percent`/`resetAt` are documented topbar projections, never quota aggregation.
+
+## GitHub #1
+
+Implemented `ProviderInstance` identity separate from adapter `providerId` and logical
+`accountId`, using existing file-backed Codex/Claude directories. Tests with real
+synthetic files and loopback Soup HTTP prove two simultaneous accounts per supported
+provider, correct token/account headers, distinct quotas, no Claude environment
+fallback, independent failure, early per-instance rendering, cancellation/removal,
+ordering and lossless implicit migration. No real login/logout or credential copy.
+Preferences has native GTK add/rename/directory selection/enable/test/order/remove
+and selected-account controls. Portuguese catalogs updated. See docs/ACCOUNTS.md.
+
+Antigravity multi-account is BLOCKED: installed 1.4.12 help and official auth/config
+docs do not establish an independent consumer OAuth credential selector. Shared
+keyring profiles, HOME changes and token-switching tools cannot prove isolation.
+Only one shared session is exposed; unsupported duplication is rejected. Two live
+Codex/Claude accounts were not supplied, so loopback evidence is not claimed as a
+real provider multi-account test. GitHub #1 remains open.
+
+Native GNOME 48.7 at 800×600: initial P0 run and first account run passed popup,
+keyboard focus, light/dark/high contrast bounds and native GTK controls but the
+optional AT-SPI reader SIGTRAPed connecting to its private bus (no extension JS errors).
+The complete commands are FAIL, not PASS. A separate run explicitly excludes only
+that optional reader (`--skip-atspi`); the runner records SKIPPED in result.json.
+The account GTK test clicks actual save/move/remove buttons and checks persistence,
+identity and directory preservation. No host desktop/settings/credentials changed.
+Docker lab unavailable: rootless Docker socket absent. Current native validation is
+48.7 only; the historical 45–51 evidence in PRE_SUBMISSION is not re-used as a new run.
+
+A second real integration query used the production `ProviderManager` →
+`ProviderInstance` → `AntigravityProvider` → Gio subprocess path, forcing refresh.
+`antigravity-live.json` is its allowlisted output: `agy-json`, three groups/five
+buckets, no unavailable state, original observation time. No raw CLI response,
+account identifier, conversation data or credentials were persisted.
+Baseline GitHub Actions run 37377926229 at original `a4a8996`: success.
+
+P1 final pre-merge native run `/tmp/saui-p1-controls48`: PASS on GNOME 48.7,
+including actual GTK account buttons/persistence, popup with all five buckets,
+light/dark/high contrast at 800×600, refresh and repeated enable/disable with process
+cleanup. AT-SPI explicitly SKIPPED; `accounts-native48.json` / `popup-native48.json`
+are compact evidence. One intervening runner attempt failed because the test helper
+called the Shell gettext wrapper outside the extension; fixed to use prefs.gettext.
+This was a lab-helper error, and that failed run was not counted as validation.
+Symlinked credential files are also rejected as duplicate references, tested with
+synthetic files. Full lint/GJS/schema/catalog/package inspector passed before merge.

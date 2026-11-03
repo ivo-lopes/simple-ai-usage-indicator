@@ -58,3 +58,10 @@ A lifecycle smoke validates the loaded extension with real native widgets; it do
 not validate a complete GDM desktop, actual provider credentials/backend availability,
 hardware HiDPI, speech output or every distro theme. Keep those separate in
 PRE_SUBMISSION.md. Do not turn absent integration dependencies into PASS.
+
+The current fixture is sanitized agy 1.4.12 with three groups/five buckets;
+the native popup test requires all five. The native GTK test also adds, renames,
+disables, reorders and removes a logical account against an empty private directory.
+If the optional AT-SPI reader cannot connect to the private accessibility bus, retain
+that failed result. A separate `--skip-atspi` run can validate the remaining native
+Shell/GTK controls; its report explicitly records AT-SPI as SKIPPED, never PASS.

@@ -32,6 +32,11 @@ for (const providerId of ['codex', 'claude']) {
 writeAccounts(config, accounts);
 assert(readAccounts(config).length === 4 && !config.value.includes('synthetic'), 'persistence contains references only');
 rejects(() => validateAccounts({version: 1, accounts: [...accounts, {...accounts[0], instanceId: 'duplicate'}]}), 'same reference rejected');
+const alias = `${directory}/alias`;
+GLib.mkdir_with_parents(alias, 0o700);
+Gio.File.new_for_path(`${alias}/auth.json`).make_symbolic_link(paths[0], null);
+paths.push(`${alias}/auth.json`, alias);
+rejects(() => validateAccounts({version: 1, accounts: [...accounts, {...accounts[0], instanceId: 'alias', credentialReference: alias}]}), 'symlinked credential store cannot fake an independent account');
 rejects(() => validateAccounts({version: 1, accounts: [{...accounts[0], credentialReference: 'relative'}]}), 'relative reference rejected');
 rejects(() => validateAccounts({version: 1, accounts: [{...accounts[0], providerId: 'antigravity'}]}), 'unverified Antigravity isolation rejected');
 const requests = [];

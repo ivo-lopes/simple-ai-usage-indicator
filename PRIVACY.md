@@ -33,3 +33,8 @@ not added to logs, fixtures, CI artifacts or arguments. Cancellation bounds I/O;
 JavaScript does not provide guaranteed secret-memory zeroization.
 
 [SECURITY.md](SECURITY.md) documents removal of the old Claude dconf value.
+
+Explicit Codex/Claude accounts use the selected CLI configuration directory instead
+of the default paths above. GSettings stores only logical IDs, names, enabled state,
+order and directory references. Explicit Claude instances never use a shared OAuth
+environment token or another directory as fallback. See [accounts](docs/ACCOUNTS.md).

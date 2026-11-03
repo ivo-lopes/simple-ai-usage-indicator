@@ -489,3 +489,83 @@ msgstr[1] "%s minutos"
 #: limitReset.js:149
 msgid "less than a minute"
 msgstr "menos de um minuto"
+
+#: prefs.js
+msgid "Account name"
+msgstr "Nome da conta"
+
+#: prefs.js
+msgid "Accounts"
+msgstr "Contas"
+
+#: prefs.js
+msgid "Add account"
+msgstr "Adicionar conta"
+
+#: prefs.js
+msgid "Antigravity supports one shared session. Independent authentication is not available."
+msgstr "O Antigravity oferece uma sessão compartilhada. A autenticação independente não está disponível."
+
+#: prefs.js
+msgid "CLI configuration directory"
+msgstr "Diretório de configuração do CLI"
+
+#: prefs.js
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: prefs.js
+msgid "Choose a separate CLI directory for the new account."
+msgstr "Escolha um diretório de CLI separado para a nova conta."
+
+#: prefs.js
+msgid "Choose directory"
+msgstr "Escolher diretório"
+
+#: prefs.js
+msgid "Monitor existing CLI sessions. Removing an account keeps its credentials."
+msgstr "Monitore sessões existentes dos CLIs. Remover uma conta preserva suas credenciais."
+
+#: prefs.js
+msgid "Invalid or duplicate CLI directory. Use a separate authenticated directory."
+msgstr "Diretório de CLI inválido ou duplicado. Use um diretório autenticado separado."
+
+#: prefs.js
+msgid "Invalid account configuration"
+msgstr "Configuração de contas inválida"
+
+#: prefs.js
+msgid "Configuration was preserved. Repair accounts-config before continuing."
+msgstr "A configuração foi preservada. Corrija accounts-config antes de continuar."
+
+#: prefs.js
+msgid "Save account"
+msgstr "Salvar conta"
+
+#: prefs.js
+msgid "Order and removal"
+msgstr "Ordem e remoção"
+
+#: prefs.js
+msgid "Move up"
+msgstr "Mover para cima"
+
+#: prefs.js
+msgid "Move down"
+msgstr "Mover para baixo"
+
+#: prefs.js
+msgid "Remove account"
+msgstr "Remover conta"
+
+#: prefs.js
+msgid "Provider"
+msgstr "Provedor"
+
+#: prefs.js
+msgid "Selected account"
+msgstr "Conta selecionada"
+
+#: prefs.js
+msgid "Select"
+msgstr "Selecionar"

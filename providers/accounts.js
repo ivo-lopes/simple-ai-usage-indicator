@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
 export const ACCOUNT_PROVIDERS = ['codex', 'claude', 'antigravity'];
 export const PROVIDER_NAMES = {codex: 'Codex CLI', claude: 'Claude Code', antigravity: 'Antigravity CLI'};
@@ -36,7 +37,7 @@ export function validateAccounts(config) {
         if (account.providerId === 'antigravity' && reference !== null)
             throw new Error('Antigravity has no verified independent credential selector');
         const resolved = reference ?? defaultConfigDirectory(account.providerId);
-        const key = `${account.providerId}:${resolved ? GLib.canonicalize_filename(resolved, null) : 'shared'}`;
+        const key = `${account.providerId}:${resolved ? credentialIdentity(account.providerId, resolved) : 'shared'}`;
         if (references.has(key))
             throw new Error('This CLI configuration is already monitored');
         ids.add(account.instanceId);
@@ -46,6 +47,18 @@ export function validateAccounts(config) {
             accountId: account.accountId, displayName: account.displayName.trim(),
             enabled: account.enabled, credentialReference: reference};
     });
+}
+
+function credentialIdentity(providerId, directory) {
+    const filename = providerId === 'codex' ? 'auth.json' : '.credentials.json';
+    // Follow file symlinks too: two directory aliases must not fake two sessions.
+    try {
+        const info = Gio.File.new_for_path(GLib.build_filenamev([directory, filename]))
+            .query_info('id::filesystem,id::file', Gio.FileQueryInfoFlags.NONE, null);
+        if (info.get_attribute_string('id::file'))
+            return `${info.get_attribute_string('id::filesystem')}:${info.get_attribute_string('id::file')}`;
+    } catch { /* Missing files remain configurable and fail their connection test. */ }
+    return GLib.canonicalize_filename(directory, null);
 }
 
 export function defaultConfigDirectory(providerId) {

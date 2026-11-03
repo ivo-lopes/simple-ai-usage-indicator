@@ -126,6 +126,16 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             this,
         );
         this._settings.connectObject(
+            'changed::accounts-config',
+            () => {
+                this._providerManager.syncAccounts();
+                this._state.summaries.clear();
+                this._state.previousSnapshots.clear();
+                this._renderCurrentState();
+                void this.refresh({force: true});
+            }, this,
+        );
+        this._settings.connectObject(
             'changed::active-provider',
             () => this._renderCurrentState(),
             this,
@@ -232,14 +242,20 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     async _refreshAllUsage(options = {}) {
-        const summaries = await this._providerManager.fetchAllUsage(options);
+        const summaries = await this._providerManager.fetchAllUsage({...options, onSummary: (id, summary) => {
+            if (this._destroyed)
+                return;
+            this._state.summaries.set(id, summary);
+            this._renderCurrentState();
+        }});
         if (this._destroyed)
             return;
         const lastUpdated = GLib.DateTime.new_now_local();
 
-        const codexSummary = summaries.get(PROVIDER_CODEX);
-        if (codexSummary && !codexSummary.error) {
-            const prevSnapshot = this._state.previousSnapshots.get(PROVIDER_CODEX);
+        for (const [instanceId, codexSummary] of summaries) {
+            if ((codexSummary.providerId ?? instanceId) !== PROVIDER_CODEX || codexSummary.error)
+                continue;
+            const prevSnapshot = this._state.previousSnapshots.get(instanceId);
             const currentSnapshot = {
                 accountId: codexSummary.account || 'codex',
                 observedAt: lastUpdated.to_unix(),
@@ -255,7 +271,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                     );
                 }
             }
-            this._state.previousSnapshots.set(PROVIDER_CODEX, currentSnapshot);
+            this._state.previousSnapshots.set(instanceId, currentSnapshot);
         }
 
         this._state.summaries = summaries;
@@ -387,7 +403,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             return;
         }
 
-        const stale = summary.stale || (provider.id === PROVIDER_ANTIGRAVITY &&
+        const stale = summary.stale || ((provider.providerId ?? provider.id) === PROVIDER_ANTIGRAVITY &&
             Date.now() - summary.lastUpdated?.getTime() >= 45000);
         if (summary.cached || stale) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
@@ -396,7 +412,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             ));
         }
         // Antigravity buckets are independent quotas, all labeled by their group.
-        const windows = provider.id === PROVIDER_ANTIGRAVITY && summary.windows
+        const windows = (provider.providerId ?? provider.id) === PROVIDER_ANTIGRAVITY && summary.windows
             ? summary.windows : [summary.primaryWindow, summary.weekWindow].filter(Boolean);
         let previousGroup = null;
         for (const window of windows) {
@@ -556,6 +572,8 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     titleBox.add_child(titleLabel);
 
     const subtitleParts = [];
+    if (provider.providerName && provider.providerName !== provider.name)
+        subtitleParts.push(provider.providerName);
     if (summary?.planType)
         subtitleParts.push(summary.planType);
     if (summary?.account)
@@ -753,7 +771,7 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
     if (summary.error)
         return '!';
 
-    if (summary.percent !== null) {
+    if (typeof summary.percent === 'number' && Number.isFinite(summary.percent)) {
         if (displayMode === DISPLAY_MODE_USED) {
             return `${Math.round(summary.percent * 100)}%`;
         } else if (displayMode === DISPLAY_MODE_PERCENT) {
@@ -775,7 +793,7 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
     if (summary.primaryWindow?.usedFormatted)
         return summary.primaryWindow.usedFormatted;
 
-    return provider.id === PROVIDER_ANTIGRAVITY ? '?' : _('OK');
+    return (provider.providerId ?? provider.id) === PROVIDER_ANTIGRAVITY ? '?' : _('OK');
 }
 
 function formatLastUpdatedValue(lastUpdated) {
