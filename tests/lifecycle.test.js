@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+import * as usagePresentation from '../usagePresentation.js';
 import GLib from 'gi://GLib';
 import {format, ngettext} from '../i18n.js';
 import {ProviderManager} from '../providers/index.js';
@@ -49,7 +50,7 @@ class Button {
     }
     destroy() { this._refreshTimestampLabel.dead = true; }
 }
-const {SimpleAiUsageIndicator, SimpleAiUsageExtension} = loadSource('extension.js', {
+const {SimpleAiUsageIndicator, SimpleAiUsageExtension} = loadSource('extension.js', {...usagePresentation,
     St: {BoxLayout: Actor}, Clutter: {}, GObject: {registerClass: klass => klass},
     PanelMenu: {Button}, PopupMenu: {PopupMenuSection: Actor}, Extension: class {},
     GLib: {Source: {remove: () => timersRemoved++}, DateTime: {new_now_local: () => ({to_unix: () => 0})}},

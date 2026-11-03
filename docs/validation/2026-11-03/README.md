@@ -131,3 +131,12 @@ quota/credit metrics. Optional reset-credit HTTP failures cannot erase valid usa
 Legacy generic percent heuristics remain for compatibility; they are not the
 contract for explicit `used_percent`. Contract/HTTP-loopback regressions cover these
 changes, failures and sanitized errors. SAUI-20 remains partial; Plane unmodified.
+
+## SAUI-14 continuation (partial)
+
+Extracted pure labels, quota value/reset/progress formatting and panel presentation
+into usagePresentation.js (no Shell actors, timers or I/O). extension.js shrank from
+923 to 762 lines before import wrapping; actor/lifecycle ownership stays in place.
+Existing source-render, theme/layout, quota and lifecycle tests use the extracted
+production functions. This is a bounded first extraction, not completion of the
+menu/controller decomposition. No full rewrite or provider framework was added.

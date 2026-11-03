@@ -205,6 +205,16 @@ def ui_checks(root, args):
         assert info['width'] <= info['stageWidth'] and info['height'] <= info['stageHeight'], info
         results.append(dict(theme=theme, **info))
     (root / 'cache/ui.json').write_text(json.dumps(results, indent=2))
+    scroll = indicator('''const view = i._usageSection._scrollView;
+        const bar = view.get_vscroll_bar?.() ?? view.vscroll;
+        const adjustment = view.get_vadjustment?.() ?? view.vadjustment ?? bar?.get_adjustment?.() ?? bar?.adjustment;
+        if (!adjustment) throw new Error('Native scroll adjustment unavailable');
+        adjustment.value = Math.max(0, adjustment.upper - adjustment.page_size);
+        return {value: adjustment.value, upper: adjustment.upper, pageSize: adjustment.page_size};''')
+    assert scroll['value'] > 0, scroll
+    time.sleep(.3)
+    screenshot(root / 'cache/quota-bottom.png')
+    (root / 'cache/scroll.json').write_text(json.dumps(scroll, indent=2))
     print('PASS: all-provider popup light/dark/high contrast screenshots and bounds', flush=True)
 
 

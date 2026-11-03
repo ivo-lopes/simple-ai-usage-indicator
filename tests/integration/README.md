@@ -65,3 +65,6 @@ disables, reorders and removes a logical account against an empty private direct
 If the optional AT-SPI reader cannot connect to the private accessibility bus, retain
 that failed result. A separate `--skip-atspi` run can validate the remaining native
 Shell/GTK controls; its report explicitly records AT-SPI as SKIPPED, never PASS.
+
+The UI laboratory also scrolls the actual native popup to its bottom and captures
+quota-bottom.png, checking that long grouped quotas remain reachable with fixed actions.

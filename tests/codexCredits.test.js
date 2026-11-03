@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Cases adapted from upstream c0008d1's menuLayout regression suite.
+import * as usagePresentation from '../usagePresentation.js';
 import {creditBalance, formatCreditBalance, formatCodexCreditPanel} from '../providers/codexCredits.js';
 import {normalizeSummary} from '../usageApi.js';
 import {CodexProvider} from '../providers/codexProvider.js';
@@ -45,7 +46,7 @@ const modelOnly = normalizeSummary({additional_rate_limits: [{limit_name: 'other
     limit_reached: true, primary_window: {used_percent: 95, window_seconds: 18000},
 }}], credits: {balance: 12}});
 assert(formatCodexCreditPanel(adapt(modelOnly), 'left') === null, 'model-only window cannot trigger main allowance warning');
-const m = loadSource('extension.js', {St: {BoxLayout: Actor}, Clutter: {},
+const m = loadSource('extension.js', {...usagePresentation, St: {BoxLayout: Actor}, Clutter: {},
     GObject: {registerClass: k => k}, PanelMenu: {Button: Actor}, PopupMenu: {PopupMenuSection: Actor},
     Extension: class {}, _: s => s, PROVIDER_CODEX: 'codex', PROVIDER_ANTIGRAVITY: 'antigravity',
     DISPLAY_MODE_USED: 'used', DISPLAY_MODE_PERCENT: 'percent', formatCodexCreditPanel,

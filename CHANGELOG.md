@@ -5,6 +5,9 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+- Extract pure quota/panel presentation from extension.js for focused tests and
+  smaller Shell review scope (partial SAUI-14).
+
 - Strengthen Claude percentage/reset parsing and unknown-payload handling; preserve
   independent model windows and mark local statistics as unavailable quota. Codex
   explicit percentages and optional reset-credit failures now degrade safely.

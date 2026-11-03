@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+import * as usagePresentation from '../usagePresentation.js';
 import Gio from 'gi://Gio';
 import {parseAgyUsage} from '../providers/agyUsage.js';
 import {formatQuotaReset} from '../quotaReset.js';
@@ -7,7 +8,7 @@ function assert(value, message) { if (!value) throw new Error(message); }
 class Item extends Actor {
     constructor(text) { super(); this.label = new Actor({text, clutter_text: {}}); this.add_child(this.label); }
 }
-const m = loadSource('extension.js', {
+const m = loadSource('extension.js', {...usagePresentation,
     St: {BoxLayout: Actor, Label: Actor, Icon: Actor},
     Clutter: {Orientation: {VERTICAL: 1}, ActorAlign: {START: 0, CENTER: 1, END: 2}},
     BarLevel: {BarLevel: Actor}, GObject: {registerClass: k => k}, PanelMenu: {Button: Actor},
