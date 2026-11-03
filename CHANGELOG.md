@@ -5,6 +5,11 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+- Antigravity: regression fixture from CLI 1.4.12 with three groups/five buckets,
+  independent Argon weekly quota, group headings, two-decimal popup percentages
+  and no availability bar for missing metrics. Backend fractions/resets remain exact;
+  the topbar retains its most constrained five-hour policy (GitHub #2 / SAUI-3).
+
 ## v22 — 2026-10-05
 
 ### Added

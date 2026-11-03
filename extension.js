@@ -398,7 +398,17 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
         // Antigravity buckets are independent quotas, all labeled by their group.
         const windows = provider.id === PROVIDER_ANTIGRAVITY && summary.windows
             ? summary.windows : [summary.primaryWindow, summary.weekWindow].filter(Boolean);
+        let previousGroup = null;
         for (const window of windows) {
+            const group = window.groupId ?? window.groupName;
+            if (group && group !== previousGroup) {
+                const heading = new PopupMenu.PopupMenuItem(window.groupName === 'Unknown group'
+                    ? _('Unknown group') : window.groupName,
+                {reactive: true, activate: false, hover: false, can_focus: false});
+                heading.label.style = MENU_TITLE_STYLE;
+                this._usageSection.addMenuItem(heading);
+                previousGroup = group;
+            }
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
                 formatBucketLabel(window), window, displayMode,
             ));
@@ -623,7 +633,8 @@ function createUsageProgressMenuItem(title, window, displayMode) {
     }));
 
     const progressPercent = getWindowProgressPercent(window, displayMode);
-    content.add_child(createProgressBar(progressPercent, `${title}: ${formatWindowValue(window, displayMode)}`));
+    if (progressPercent !== null)
+        content.add_child(createProgressBar(progressPercent, `${title}: ${formatWindowValue(window, displayMode)}`));
 
     const subtitle = formatWindowSubtitle(window);
     if (subtitle) {
@@ -786,16 +797,16 @@ function formatWindowValue(window, displayMode) {
             return `${formatCompact(window.used)} ${_('used')}`;
 
         if (window.usedPercent !== null && window.usedPercent !== undefined)
-            return `${Math.round(window.usedPercent * 100)}% ${_('used')}`;
+            return `${formatQuotaPercent(window.usedPercent)} ${_('used')}`;
     } else {
         if (window.left !== null && window.left !== undefined)
             return `${formatCompact(window.left)} ${_('remaining')}`;
 
         if (window.leftPercent !== null && window.leftPercent !== undefined)
-            return `${Math.round(window.leftPercent * 100)}% ${_('remaining')}`;
+            return `${formatQuotaPercent(window.leftPercent)} ${_('remaining')}`;
 
         if (window.usedPercent !== null && window.usedPercent !== undefined)
-            return `${Math.round((1 - window.usedPercent) * 100)}% ${_('remaining')}`;
+            return `${formatQuotaPercent(1 - window.usedPercent)} ${_('remaining')}`;
     }
 
     return _('Unknown');
@@ -815,6 +826,12 @@ function formatWindowSubtitle(window) {
         parts.push(`${formatNumber(window.used)} ${_('used')}`);
 
     return parts.join('  •  ');
+}
+
+function formatQuotaPercent(fraction) {
+    return new Intl.NumberFormat(undefined, {
+        style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2,
+    }).format(fraction);
 }
 
 function formatWindowReset(window) {

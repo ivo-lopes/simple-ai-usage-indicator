@@ -12,10 +12,10 @@ import GLib from 'gi://GLib';
  * @property {string} label - Human-readable window description (e.g. '5-hour window', 'Weekly limit')
  * @property {number|null} [used] - Numeric count of units consumed in the window
  * @property {number|null} [limit] - Maximum numeric capacity of the window
- * @property {number|null} [percent] - Normalized fraction (0.0 to 1.0) of quota consumed
+ * @property {number|null} [percent] - Legacy Codex/Claude alias of usedPercent; new adapters use usedPercent only
  * @property {number|null} [usedPercent] - Normalized fraction (0.0 to 1.0) of quota consumed
  * @property {number|null} [leftPercent] - Normalized fraction (0.0 to 1.0) of quota remaining
- * @property {string|number|null} [resetsAt] - ISO timestamp or Unix epoch seconds when the quota window resets
+ * @property {string|number|null} [resetsAt] - Canonical bucket reset: ISO timestamp or Unix epoch seconds
  * @property {number|null} [resetAfterSeconds] - Remaining seconds until quota resets
  * @property {number|null} [remainingPercent] - Integer percentage (0 to 100) remaining
  * @property {string|null} [status] - Textual status if numeric metrics are unavailable
@@ -34,7 +34,7 @@ import GLib from 'gi://GLib';
  * @property {number|null} left - Primary remaining value (or percentage)
  * @property {number|null} percent - Fraction of primary quota used (0.0 to 1.0)
  * @property {number|null} leftPercent - Fraction of primary quota remaining (0.0 to 1.0)
- * @property {string|number|null} resetAt - Reset timestamp for the active window
+ * @property {string|number|null} resetAt - Legacy panel projection of primaryWindow.resetsAt (not another bucket)
  * @property {number|null} resetAfterSeconds - Seconds until reset for the active window
  * @property {UsageWindow|null} primaryWindow - Rolling short-term window (e.g. 5 hours)
  * @property {UsageWindow|null} weekWindow - Rolling long-term window (e.g. 7 days / weekly)
