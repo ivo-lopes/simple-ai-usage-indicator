@@ -140,3 +140,39 @@ into usagePresentation.js (no Shell actors, timers or I/O). extension.js shrank 
 Existing source-render, theme/layout, quota and lifecycle tests use the extracted
 production functions. This is a bounded first extraction, not completion of the
 menu/controller decomposition. No full rewrite or provider framework was added.
+
+## Final checks and limits
+
+- Full `npm ci --ignore-scripts --no-audit --no-fund` with temporary npm-cli 10.9.4;
+  `npm run lint`, `scripts/validate.sh`, all 18 `gjs -m tests/*.test.js`, `package.sh`,
+  strict schema compile, msgfmt/catalog completeness, ZIP integrity/allowlist and
+  byte inspector: PASS. Final static log `/tmp/saui-final-static.log`.
+- Final native GNOME Shell **48.7**: popup, five buckets, keyboard focus, native GTK
+  account controls, themes, repeated refresh/enable/disable and process cleanup PASS.
+  `final-native48.json` explicitly marks AT-SPI SKIPPED. No new 45/46/47/49/50/51
+  claim; Docker daemon/socket unavailable. Historical PRE_SUBMISSION remains historical.
+- Native popup scrolled to bottom: value 607, upper 975, page size 368. Visual
+  inspection confirmed independent Argon **0.80%** and real reset text, with fixed
+  Refresh/Settings visible at 800×600. `scroll.json`, `final-scroll48.json` and
+  visual-inspection.json record results/hashes. Screenshots remain local to avoid
+  redistributing distro artwork; light/dark/high contrast images were inspected.
+- Independent timeout integration: actual Gio subprocess with synthetic sleep,
+  terminated/reaped in 12.39s, 123 main-loop ticks during wait; PASS. This is distinct
+  from a real agy backend test and the compositor smoke.
+- Real agy/manager reads passed, Codex final production adapter read returned quota;
+  real authenticated Claude quota and two live accounts per provider unavailable.
+  No login/logout/credential changes or EGO installation in the host desktop.
+- Final tested ZIP: 37 source-matched files, SHA256
+  `3cf569160c020175e3b214b901afd59a7cfa35c920b2e212de46464f5f875f76`.
+  No credentials, local config, tests, docs, node_modules, old schema or upstream
+  ZIPs are packaged. Pattern scans are bounded, not a guarantee about arbitrary secrets.
+- Plane SAUI-3/14/20 and equivalent #1 task: no read/write possible in pessoal-ivo
+  with current consent. No duplicate created elsewhere, owners/history untouched.
+  Suggested reconciliation: SAUI-3 review grouped quota slice; SAUI-14/20 retain
+  partial status; locate/create #1 work item only after workspace access is restored.
+- Mindsite IVOAI memory/Context still unavailable on re-consult; no canonical page
+  identified or updated. Voicecorp consulted read-only, no relevant project result.
+- Main/release tags unchanged. Work delivered via isolated branch and PR; no auto
+  merge, new tag, release or EGO upload. GitHub #1 remains open for genuine Antigravity
+  isolation and real account validation; #2 is fixed in the proposed source and its
+  original missing-group report was not reproduced on current parser/CLI.

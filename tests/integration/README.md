@@ -68,3 +68,13 @@ Shell/GTK controls; its report explicitly records AT-SPI as SKIPPED, never PASS.
 
 The UI laboratory also scrolls the actual native popup to its bottom and captures
 quota-bottom.png, checking that long grouped quotas remain reachable with fixed actions.
+
+To check the independent process timeout without credentials or a compositor:
+
+```sh
+gjs -m tests/integration/agy-timeout.js
+```
+
+This launches a synthetic `sleep 60` executable through the real provider subprocess,
+requires its independent 12-second deadline to terminate/reap it, and counts GJS main
+loop ticks while waiting. It is a controlled integration test, not a live CLI test.

@@ -1,0 +1,16 @@
+[
+  {
+    "provider": "codex",
+    "hasError": false,
+    "hasQuota": true,
+    "quotaPercent": 0.76,
+    "quotaShape": null
+  },
+  {
+    "provider": "claude",
+    "hasError": false,
+    "hasQuota": false,
+    "quotaPercent": null,
+    "quotaShape": null
+  }
+]
