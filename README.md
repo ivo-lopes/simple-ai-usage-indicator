@@ -1,7 +1,7 @@
 # Simple AI Usage Indicator
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45%20--%2051-blue.svg)](https://extensions.gnome.org)
-[![Version](https://img.shields.io/badge/version-22-green.svg)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
+[![Version](https://img.shields.io/github/v/release/ivo-lopes/simple-ai-usage-indicator)](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
 A GNOME Shell extension for GNOME Shell **45–51** that displays usage and quotas
@@ -266,11 +266,14 @@ real Shell versions, lifecycle/Preferences results and the limits of headless te
 Reproduce the disposable matrix with [tests/integration/README.md](tests/integration/README.md).
 A lifecycle smoke is distinct from a complete interactive desktop test.
 
-The latest published GitHub release is v22. Release changes are documented in
+The latest published GitHub release is available on the
+[releases page](https://github.com/ivo-lopes/simple-ai-usage-indicator/releases/latest).
+Release changes are documented in
 [CHANGELOG.md](CHANGELOG.md); GitHub tag versions are independent of EGO's internally
 managed version. Follow [docs/RELEASING.md](docs/RELEASING.md) and the
 [EGO checklist](docs/EGO-CHECKLIST.md) before publishing or submitting manually.
-[UPSTREAM.md](UPSTREAM.md) documents selective upstream review before releases.
+[UPSTREAM.md](UPSTREAM.md) documents the full upstream merge, conflict resolutions
+and review before releases.
 
 ## Multiple accounts
 

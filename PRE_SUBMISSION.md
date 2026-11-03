@@ -1,5 +1,10 @@
 # Pré-submissão — Simple AI Usage Indicator
 
+> Relatório histórico de 05/10/2026. A preparação da v23 usa a
+> [validação de 03/11/2026](docs/validation/2026-11-03/README.md), com teste nativo
+> novo somente no GNOME 48.7 e limitações AT-SPI/contas reais explícitas.
+> A publicação GitHub autorizada é separada de uma submissão EGO.
+
 Auditoria de 05/10/2026. Projeto **pessoal de Ivo Lopes**; o Plane da Mindsite é
 usado somente para backlog/rastreabilidade. Esta execução não publica v22,
 não cria tag e não envia nem altera uma submissão no GNOME Extensions (EGO).

@@ -176,3 +176,26 @@ menu/controller decomposition. No full rewrite or provider framework was added.
   merge, new tag, release or EGO upload. GitHub #1 remains open for genuine Antigravity
   isolation and real account validation; #2 is fixed in the proposed source and its
   original missing-group report was not reproduced on current parser/CLI.
+
+## v23 release preparation
+
+The operator subsequently authorized merging/publishing a release, closing resolved
+issues and removing branches whose work is incorporated. Prepare v23 from PR #3
+using a merge commit so upstream ancestry remains intact. GitHub #2 has the observed
+three-group/five-bucket and native popup evidence to close after publication;
+GitHub #1 stays open for Antigravity independent authentication and live account
+validation. SAUI-14/20 remain partial.
+
+The reviewed development tip `e4ef10b497f387d397ade02cd19b1fd3bfa13991` passed
+[push CI](https://github.com/ivo-lopes/simple-ai-usage-indicator/actions/runs/41729275218)
+and [PR CI](https://github.com/ivo-lopes/simple-ai-usage-indicator/actions/runs/41729428675).
+Its downloaded CI ZIP had 37 source-matched members and SHA256
+`cddc03682cd3ba832cc4910b4b429a69dae9a73e2b4eb2d0d13e24eb8c8ef68b`.
+The release uses a freshly verified artifact from CI on the exact merged main
+commit, with SHA256SUMS and downloaded-asset verification. Release notes carry the
+final main/tag/artifact hashes. No EGO upload is authorized or performed.
+
+Mindsite IVOAI memory/Context remained unavailable at release preparation. Only
+origin main and the delivered PR branch existed remotely; local recovery refs are
+ancestors and can be removed after confirming incorporation. Preserve main and
+all release tags. A branch with unmerged or dirty work must be retained.
