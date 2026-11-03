@@ -105,3 +105,29 @@ helper from the proposed result. All conflicts were staged explicitly after revi
 Full lint/17 GJS tests/schema/catalog/package passed (35 byte-matched ZIP members).
 Native merge run GNOME 48.7 at 800×600: PASS with GTK account controls, popup five
 buckets, themes, focus, refresh, enable/disable/process cleanup. AT-SPI SKIPPED.
+
+## SAUI-20 continuation (partial)
+
+Re-consulted Mindsite IVOAI memory/Context: still internal errors; no canonical page
+was available to reconcile. A real read with the default production Codex adapter
+returned quota; a default Claude read had no authenticated quota. Sanitized result
+in live-contracts.json contains no identity/credentials. Two real accounts per
+provider still not available. No CLI login/logout was attempted.
+
+Claude's previous adapter interpreted `used_percentage:0.5` as 50%, and rejected ISO
+resets via Date arithmetic. New pure parser uses explicit 0–100 scales, finite
+bounds, epoch/ISO reset handling, independent model windows and controlled unknown
+payload fallback. Local statistics are explicitly quotaUnavailable and cannot pass
+a connection test. Legacy used_percentage/epoch format remains supported.
+[Official statusline data](https://code.claude.com/docs/en/statusline) documents the
+percentage/epoch contract. OAuth utilization/ISO is a reported backend shape in
+[upstream issue 84995](https://github.com/anthropics/claude-code/issues/84995), not a
+published vendor API guarantee or a live observation in this session. Fixtures for
+that shape are synthetic. We do not promise support for every future schema.
+
+Codex uses explicit scaling for `used_percent`, rejects impossible percentages,
+reuses its ISO timestamp normalizer and rejects HTTP 200 responses with no recognized
+quota/credit metrics. Optional reset-credit HTTP failures cannot erase valid usage.
+Legacy generic percent heuristics remain for compatibility; they are not the
+contract for explicit `used_percent`. Contract/HTTP-loopback regressions cover these
+changes, failures and sanitized errors. SAUI-20 remains partial; Plane unmodified.

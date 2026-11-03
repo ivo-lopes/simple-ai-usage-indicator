@@ -9,7 +9,11 @@ blocker; no false second session is exposed.
 Original fork: `a4a899678c127186555a02d0d6a6e6d2e2fb42a0` (35 ahead / 12 behind).
 Pre-merge fork: `e3428cc` (38 ahead / 12 behind), recovery ref
 `recovery/pre-upstream-20261103`. Shared base: `f2bd496acb648bbf343e3ea7a4a1a54f6c0bbb55`.
-The final merge SHA and ancestry checks are recorded after the merge below.
+Merge commit: `aeab1fb8502f338fef44793210f7817a1b965542`, parents `e3428cc` and
+`5096c4f`. `merge-base --is-ancestor` passed; upstream/main...HEAD was **0 / 39**
+(upstream-only / fork-only). A post-merge fetch still resolved to the same upstream.
+Subsequent fork-only commits add contract tests/refactoring; no upstream commit was
+left behind for this snapshot.
 
 | Upstream commit | Classification | Current decision |
 |---|---|---|

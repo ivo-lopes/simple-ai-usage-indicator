@@ -7,6 +7,7 @@ import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
 import {BaseProvider} from './baseProvider.js';
+import {parseClaudeUsage} from './claudeUsage.js';
 import {
     CLAUDE_API_BASE_URL,
     CLAUDE_BETA_HEADER,
@@ -174,36 +175,18 @@ export class ClaudeProvider extends BaseProvider {
     }
 
     _normalizeApiSummary(apiData, statsPayload, account, planType) {
-        const fiveHour = apiData?.five_hour || apiData?.fiveHour || null;
-        const sevenDay = apiData?.seven_day || apiData?.sevenDay || null;
-
-        const fiveHourUsedPercent = typeof fiveHour?.used_percentage === 'number'
-            ? normalizePercentValue(fiveHour.used_percentage)
-            : null;
-
-        const sevenDayUsedPercent = typeof sevenDay?.used_percentage === 'number'
-            ? normalizePercentValue(sevenDay.used_percentage)
-            : null;
-
-        const primaryWindow = fiveHour ? {
-            label: '5-hour window',
-            usedPercent: fiveHourUsedPercent,
-            percent: fiveHourUsedPercent,
-            leftPercent: fiveHourUsedPercent !== null ? Math.max(1 - fiveHourUsedPercent, 0) : null,
-            resetsAt: formatUnixTime(fiveHour.resets_at),
-            resetAfterSeconds: calculateSecondsUntil(fiveHour.resets_at),
-        } : null;
-
-        const weekWindow = sevenDay ? {
-            label: 'Weekly limit',
-            usedPercent: sevenDayUsedPercent,
-            percent: sevenDayUsedPercent,
-            leftPercent: sevenDayUsedPercent !== null ? Math.max(1 - sevenDayUsedPercent, 0) : null,
-            resetsAt: formatUnixTime(sevenDay.resets_at),
-            resetAfterSeconds: calculateSecondsUntil(sevenDay.resets_at),
-        } : null;
-
-        const activeWindow = primaryWindow ?? weekWindow;
+        const parsed = parseClaudeUsage(apiData);
+        if (!parsed)
+            throw new Error('Claude quota payload has no recognized metrics');
+        const windows = parsed.windows.map(window => ({...window,
+            label: window.period === '5h' ? '5-hour window'
+                : window.id === 'seven_day' || window.id === 'sevenDay' ? 'Weekly limit'
+                    : `${_('Weekly limit')} · ${window.id.replace(/^seven_day_/, '')}`,
+        }));
+        const primaryWindow = windows.find(w => w.id === parsed.primary?.id) ?? null;
+        const weekWindow = windows.find(w => w.id === parsed.week?.id) ?? null;
+        const activeWindow = primaryWindow && primaryWindow.usedPercent !== null ? primaryWindow
+            : weekWindow ?? windows.find(w => w.usedPercent !== null);
         const percent = activeWindow?.usedPercent ?? null;
         const leftPercent = percent !== null ? Math.max(1 - percent, 0) : null;
 
@@ -222,6 +205,7 @@ export class ClaudeProvider extends BaseProvider {
             resetAfterSeconds: activeWindow?.resetAfterSeconds ?? null,
             primaryWindow,
             weekWindow,
+            windows,
             models: extractModelUsage(statsPayload),
             extraCredits: null,
             raw: apiData,
@@ -241,6 +225,7 @@ export class ClaudeProvider extends BaseProvider {
             iconFileName: this.iconFileName,
             planType: planType || 'Claude Code',
             account,
+            quotaUnavailable: true,
             used: todayTokens,
             limit: null,
             left: null,
@@ -293,26 +278,6 @@ export class ClaudeProvider extends BaseProvider {
             return null;
         }
     }
-}
-
-function normalizePercentValue(val) {
-    if (val > 1)
-        return Math.min(Math.max(val / 100, 0), 1);
-    return Math.min(Math.max(val, 0), 1);
-}
-
-function calculateSecondsUntil(unixTimestamp) {
-    if (!unixTimestamp)
-        return null;
-    const now = Math.floor(Date.now() / 1000);
-    return Math.max(unixTimestamp - now, 0);
-}
-
-function formatUnixTime(unixTimestamp) {
-    if (!unixTimestamp)
-        return null;
-    const date = new Date(unixTimestamp * 1000);
-    return date.toISOString();
 }
 
 function formatClaudePlan(tier) {

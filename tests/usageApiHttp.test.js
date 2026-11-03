@@ -25,6 +25,7 @@ function setJsonResponse(message, statusCode, payload) {
     );
 }
 
+let unexpectedPayload = false;
 const requestCounts = new Map();
 const requestAccountIds = new Map();
 const server = new Soup.Server();
@@ -35,6 +36,11 @@ server.add_handler(null, (_server, message, path) => {
     requestAccountIds.set(path, accountIds);
 
     if (path === SUMMARY_ENDPOINT) {
+        if (unexpectedPayload) {
+            setJsonResponse(message, 200, {changed_contract: true});
+            return;
+        }
+
         setJsonResponse(message, 200, {
             account_id: 'payload-account',
             rate_limit: {
@@ -49,6 +55,7 @@ server.add_handler(null, (_server, message, path) => {
 
     if (path === RATE_LIMIT_RESET_CREDITS_ENDPOINT) {
         const accountId = message.get_request_headers().get_one('ChatGPT-Account-Id');
+        if (accountId === 'optional-failure') { setJsonResponse(message, 503, {message: 'not logged'}); return; }
         if (accountId === 'payload-account' || accountId === 'auth-account') {
             setJsonResponse(message, 200, {
                 available_count: 2,
@@ -110,6 +117,16 @@ Promise.resolve()
             'summary endpoint should be requested once per refresh');
         assertEqual(requestCounts.get(RATE_LIMIT_RESET_CREDITS_ENDPOINT), 3,
             'reset-credit endpoint should be requested once per refresh');
+        const optional = await client.fetchSummary('test-token', 'optional-failure');
+        assertEqual(optional.percent, .25, 'optional credits HTTP failure cannot erase quota');
+        assertEqual(optional.rateLimitResetCredits, null, 'optional failure explicitly unknown');
+        unexpectedPayload = true;
+        let rejected = false;
+        try { await client.fetchSummary('test-token'); } catch (error) {
+            rejected = error.message === 'Usage payload contains no recognized quota.';
+        }
+        assertEqual(rejected, true, 'HTTP 200 with changed contract fails explicitly');
+
     })
     .catch(error => {
         testError = error;

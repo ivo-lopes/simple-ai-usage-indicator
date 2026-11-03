@@ -14,7 +14,7 @@ import GLib from 'gi://GLib';
  * @property {string} label - Human-readable window description (e.g. '5-hour window', 'Weekly limit')
  * @property {number|null} [used] - Numeric count of units consumed in the window
  * @property {number|null} [limit] - Maximum numeric capacity of the window
- * @property {number|null} [percent] - Legacy Codex/Claude alias of usedPercent; new adapters use usedPercent only
+ * @property {number|null} [percent] - Legacy Codex alias of usedPercent; new adapters use usedPercent only
  * @property {number|null} [usedPercent] - Normalized fraction (0.0 to 1.0) of quota consumed
  * @property {number|null} [leftPercent] - Normalized fraction (0.0 to 1.0) of quota remaining
  * @property {string|number|null} [resetsAt] - Canonical bucket reset: ISO timestamp or Unix epoch seconds

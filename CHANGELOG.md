@@ -5,6 +5,10 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+- Strengthen Claude percentage/reset parsing and unknown-payload handling; preserve
+  independent model windows and mark local statistics as unavailable quota. Codex
+  explicit percentages and optional reset-credit failures now degrade safely.
+
 - Merge upstream through `5096c4f`, preserving fork identity and ancestry. Add
   Codex credit-balance popup/panel near main quota exhaustion and relative/absolute
   reset-credit expiry; retain independent model quota semantics.

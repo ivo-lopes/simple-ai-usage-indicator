@@ -605,3 +605,7 @@ msgstr "Tempo restante"
 #: prefs.js
 msgid "Date and time"
 msgstr "Data e hora"
+
+#: prefs.js
+msgid "Usage payload contains no recognized quota."
+msgstr "A resposta de uso não contém uma quota reconhecida."

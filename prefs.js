@@ -362,8 +362,8 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             const usage = await provider.fetchUsage({force: true});
             if (this._disposed || generation !== this._accountGeneration)
                 return;
-            if (usage.error) {
-                authRow.subtitle = format(_('Error: %s'), usage.error.message || usage.error);
+            if (usage.error || usage.quotaUnavailable) {
+                authRow.subtitle = format(_('Error: %s'), usage.error?.message || usage.error || _('Quota unavailable'));
                 expander.subtitle = _('Failed');
                 return;
             }

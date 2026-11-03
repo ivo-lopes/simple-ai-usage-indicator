@@ -62,7 +62,7 @@ unzip -tq "$ZIP_NAME"
 while IFS= read -r entry; do
     case "$entry" in
         extension.js|prefs.js|metadata.json|stylesheet.css|constants.js|codexAuth.js|usageApi.js|limitReset.js|quotaReset.js|resetCreditExpiry.js|i18n.js|LICENSE|NOTICE|ASSETS.md) ;;
-        providers/|providers/baseProvider.js|providers/index.js|providers/codexProvider.js|providers/claudeProvider.js|providers/antigravityProvider.js|providers/agyUsage.js|providers/accounts.js|providers/providerInstance.js|providers/codexCredits.js) ;;
+        providers/|providers/baseProvider.js|providers/index.js|providers/codexProvider.js|providers/claudeProvider.js|providers/antigravityProvider.js|providers/agyUsage.js|providers/accounts.js|providers/providerInstance.js|providers/codexCredits.js|providers/claudeUsage.js) ;;
         icons/|icons/codex-symbolic.svg|icons/codex-black.svg|icons/codex-color.svg|icons/claude-symbolic.svg|icons/claude-black.svg|icons/claude-color.svg|icons/antigravity-symbolic.svg|icons/antigravity-black.svg|icons/antigravity-color.svg) ;;
         schemas/|schemas/org.gnome.shell.extensions.simple-ai-usage-indicator.gschema.xml) ;;
         locale/|locale/pt/|locale/pt_BR/|locale/pt/LC_MESSAGES/|locale/pt_BR/LC_MESSAGES/|locale/pt/LC_MESSAGES/simple-ai-usage-indicator.mo|locale/pt_BR/LC_MESSAGES/simple-ai-usage-indicator.mo) ;;

@@ -417,8 +417,12 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                 {reactive: true, activate: false, hover: false, can_focus: false},
             ));
         }
-        // Antigravity buckets are independent quotas, all labeled by their group.
-        const windows = (provider.providerId ?? provider.id) === PROVIDER_ANTIGRAVITY && summary.windows
+        if (summary.quotaUnavailable) {
+            this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(_('Quota unavailable'),
+                {reactive: true, activate: false, hover: false, can_focus: false}));
+        }
+        // Non-Codex adapters expose independent buckets without cross-group totals.
+        const windows = (provider.providerId ?? provider.id) !== PROVIDER_CODEX && summary.windows?.length
             ? summary.windows : [summary.primaryWindow, summary.weekWindow].filter(Boolean);
         let previousGroup = null;
         for (const window of windows) {

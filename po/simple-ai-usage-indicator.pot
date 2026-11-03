@@ -593,3 +593,7 @@ msgstr ""
 #: prefs.js
 msgid "Date and time"
 msgstr ""
+
+#: prefs.js
+msgid "Usage payload contains no recognized quota."
+msgstr ""
