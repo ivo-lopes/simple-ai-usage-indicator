@@ -19,7 +19,7 @@ Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish'
 Gio._promisify(Soup.Session.prototype, 'send_and_read_async', 'send_and_read_finish');
 
 export class ClaudeProvider extends BaseProvider {
-    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir(), apiBaseUrl = CLAUDE_API_BASE_URL, proxyResolver = null} = {}) {
+    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir(), configDir = null, apiBaseUrl = CLAUDE_API_BASE_URL, proxyResolver = null} = {}) {
         super({
             id: PROVIDER_CLAUDE,
             name: 'Claude Code',
@@ -32,6 +32,9 @@ export class ClaudeProvider extends BaseProvider {
         this._readFile = readJsonFile;
         this._getenv = getenv;
         this._homeDir = homeDir;
+        this._configDir = configDir || getenv('CLAUDE_CONFIG_DIR') || null;
+        // Explicit instances never fall back to a shared process credential.
+        this._allowEnvToken = configDir === null;
         this._apiBaseUrl = apiBaseUrl;
         const sessionProperties = {timeout: 20};
         if (proxyResolver)
@@ -46,15 +49,15 @@ export class ClaudeProvider extends BaseProvider {
     }
 
     getCredentialsPath() {
-        return GLib.build_filenamev([this._homeDir, '.claude', '.credentials.json']);
+        return GLib.build_filenamev([this._configDir || GLib.build_filenamev([this._homeDir, '.claude']), '.credentials.json']);
     }
 
     getConfigPath() {
-        return GLib.build_filenamev([this._homeDir, '.claude.json']);
+        return GLib.build_filenamev([this._configDir || this._homeDir, '.claude.json']);
     }
 
     getStatsCachePath() {
-        return GLib.build_filenamev([this._homeDir, '.claude', 'stats-cache.json']);
+        return GLib.build_filenamev([this._configDir || GLib.build_filenamev([this._homeDir, '.claude']), 'stats-cache.json']);
     }
 
     async checkAuth() {
@@ -133,7 +136,7 @@ export class ClaudeProvider extends BaseProvider {
         const stored = payload?.claudeAiOauth?.accessToken;
         if (typeof stored === 'string' && stored.trim())
             return stored.trim();
-        const env = this._getenv('CLAUDE_CODE_OAUTH_TOKEN');
+        const env = this._allowEnvToken ? this._getenv('CLAUDE_CODE_OAUTH_TOKEN') : null;
         return typeof env === 'string' && env.trim() ? env.trim() : null;
     }
 
