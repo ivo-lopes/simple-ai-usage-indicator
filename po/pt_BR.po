@@ -569,3 +569,39 @@ msgstr "Conta selecionada"
 #: prefs.js
 msgid "Select"
 msgstr "Selecionar"
+
+#: prefs.js
+msgid "Credit balance"
+msgstr "Saldo de créditos"
+
+#: prefs.js
+msgid "credits"
+msgstr "créditos"
+
+#: prefs.js
+msgid "credits remaining"
+msgstr "créditos restantes"
+
+#: prefs.js
+msgid "Unlimited"
+msgstr "Ilimitados"
+
+#: prefs.js
+msgid "Unavailable"
+msgstr "Indisponível"
+
+#: prefs.js
+msgid "Reset credit expiry"
+msgstr "Expiração de créditos de reinício"
+
+#: prefs.js
+msgid "Choose how expiry times appear below the reset credit count."
+msgstr "Escolha como exibir a expiração dos créditos de reinício."
+
+#: prefs.js
+msgid "Time left"
+msgstr "Tempo restante"
+
+#: prefs.js
+msgid "Date and time"
+msgstr "Data e hora"

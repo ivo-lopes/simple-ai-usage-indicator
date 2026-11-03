@@ -31,6 +31,8 @@ import {
     formatLimitResetMessage,
 } from './limitReset.js';
 import {formatQuotaReset} from './quotaReset.js';
+import {formatResetCreditExpiryList} from './resetCreditExpiry.js';
+import {formatCodexCreditPanel, formatCreditBalance} from './providers/codexCredits.js';
 import {ProviderManager} from './providers/index.js';
 import {format, ngettext} from './i18n.js';
 
@@ -139,6 +141,10 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             'changed::active-provider',
             () => this._renderCurrentState(),
             this,
+        );
+        this._settings.connectObject(
+            'changed::reset-credit-expiry-mode',
+            () => this._renderCurrentState(), this,
         );
         this._settings.connectObject(
             'changed::icon-style',
@@ -430,6 +436,20 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             ));
         }
 
+        if ((provider.providerId ?? provider.id) === PROVIDER_CODEX) {
+            if (summary.credits) {
+                this._usageSection.addMenuItem(createUsageProgressMenuItem(_('Credit balance'),
+                    {usedFormatted: formatCreditBalance(summary.credits, false, _)}, displayMode));
+            }
+            const expiry = formatResetCreditExpiryList(summary.extraCredits, Date.now() / 1000,
+                this._settings.get_string('reset-credit-expiry-mode'));
+            if (expiry) {
+                this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
+                    `${_('Reset credit expiry')}: ${expiry}`,
+                    {reactive: true, activate: false, hover: false, can_focus: false}));
+            }
+        }
+
         if (summary.models && summary.models.length > 0) {
             const modelsItem = createModelsSummaryMenuItem(summary.models);
             if (modelsItem)
@@ -596,7 +616,7 @@ function formatBucketLabel(window) {
     if (!window.source?.startsWith('agy-'))
         return formatWindowLabel(window.label);
     const group = window.groupName === 'Unknown group' ? _('Unknown group') : window.groupName;
-    const bucket = window.raw?.name || (window.period === '5h' ? '5-hour window'
+    const bucket = window.bucketName || window.raw?.name || (window.period === '5h' ? '5-hour window'
         : window.period === 'weekly' ? 'Weekly limit' : window.period);
     return `${group} · ${formatWindowLabel(bucket) || _('Quota')}`;
 }
@@ -770,6 +790,12 @@ function formatProviderPanelLabel(provider, summary, displayMode) {
         return '?';
     if (summary.error)
         return '!';
+
+    if ((provider.providerId ?? provider.id) === PROVIDER_CODEX) {
+        const credits = formatCodexCreditPanel(summary, displayMode, _);
+        if (credits)
+            return credits;
+    }
 
     if (typeof summary.percent === 'number' && Number.isFinite(summary.percent)) {
         if (displayMode === DISPLAY_MODE_USED) {

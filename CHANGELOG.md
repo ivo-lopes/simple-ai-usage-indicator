@@ -5,6 +5,10 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+- Merge upstream through `5096c4f`, preserving fork identity and ancestry. Add
+  Codex credit-balance popup/panel near main quota exhaustion and relative/absolute
+  reset-credit expiry; retain independent model quota semantics.
+
 - Add independent Codex/Claude account instances using existing CLI directories,
   Preferences account management, safe legacy migration, incremental refresh and
   cancellation per instance. Antigravity remains a single shared session until

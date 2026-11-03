@@ -11,9 +11,9 @@ const m = loadSource('extension.js', {
     St: {BoxLayout: Actor, Label: Actor, Icon: Actor},
     Clutter: {Orientation: {VERTICAL: 1}, ActorAlign: {START: 0, CENTER: 1, END: 2}},
     BarLevel: {BarLevel: Actor}, GObject: {registerClass: k => k}, PanelMenu: {Button: Actor},
-    PopupMenu: {PopupMenuSection: Actor, PopupBaseMenuItem: Actor, PopupMenuItem: Item},
+    PopupMenu: {PopupMenuSection: Actor, PopupBaseMenuItem: Actor, PopupMenuItem: Item, PopupSeparatorMenuItem: Actor},
     Gio, GLib: {build_filenamev: p => p.join('/')}, Extension: class {}, _: s => s,
-    PROVIDER_ANTIGRAVITY: 'antigravity', ICON_STYLE_SYMBOLIC: 'symbolic',
+    PROVIDER_CODEX: 'codex', PROVIDER_ANTIGRAVITY: 'antigravity', ICON_STYLE_SYMBOLIC: 'symbolic',
     ICON_STYLE_COLOR: 'color', ICON_STYLE_BLACK: 'black', DISPLAY_MODE_USED: 'used',
     formatQuotaReset,
 }, ['SimpleAiUsageIndicator', 'createUsageProgressMenuItem', 'formatWindowValue']);
@@ -33,4 +33,13 @@ assert(items.flatMap(labels).some(a => /0[.,]80.*%/.test(a.text || '')), 'Argon 
 const unknown = m.createUsageProgressMenuItem('Unknown quota', {leftPercent: null, usedPercent: null}, 'left');
 assert(!labels(unknown).some(a => a.style_class === 'slider'), 'unknown quota has no misleading availability bar');
 assert(m.formatWindowValue({leftPercent: 0, usedPercent: 1}, 'left').includes('0.00'), 'zero remains zero');
+const accounts = ['first', 'second'].map(id => ({id, providerId: 'claude', name: id, getIconFileName: () => 'test.svg'}));
+indicator._state = {summaries: new Map(accounts.map((a, index) => [a.id, {
+    primaryWindow: {usedPercent: index ? .75 : .25, leftPercent: index ? .25 : .75},
+}]))};
+indicator._usageSection.removeAll = () => { items.length = 0; };
+indicator._renderPopupUsage(accounts, 'left');
+const accountLabels = items.flatMap(labels).map(a => a.text || '');
+assert(accountLabels.includes('first') && accountLabels.includes('second'), 'each account has its own popup section');
+assert(accountLabels.some(t => t.includes('25.00')) && accountLabels.some(t => t.includes('75.00')), 'account popup quotas stay independent');
 print('Antigravity popup: actual render path, 3 groups / 5 buckets, precision and unknown metrics passed');

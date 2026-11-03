@@ -6,6 +6,8 @@ import GLib from 'gi://GLib';
  * @typedef {Object} UsageWindow
  * @property {string|null} [id] - Backend bucket identifier
  * @property {string|null} [groupName] - Backend model group
+ * @property {string|null} [groupId] - Independent group identity within an observation
+ * @property {string|null} [bucketName] - Original bucket title, including legacy CLI observations
  * @property {string|null} [period] - Backend window kind
  * @property {number|null} [windowSeconds] - Duration, never a predicted reset
  * @property {string|null} [source] - Quota observation source

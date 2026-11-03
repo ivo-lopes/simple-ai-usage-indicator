@@ -276,3 +276,8 @@ managed version. Follow [docs/RELEASING.md](docs/RELEASING.md) and the
 
 See [account configuration and provider limits](docs/ACCOUNTS.md) for independent
 Codex/Claude sessions, migration and the Antigravity authentication blocker.
+
+Codex credit balances (including zero and unlimited) appear in each account popup.
+When the main Codex allowance is near exhaustion, the topbar can show its credits;
+independent model quotas and other providers retain their own display policy.
+Preferences lets you display reset-credit expiry as time remaining or local date/time.

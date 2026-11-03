@@ -50,6 +50,7 @@ function normalizeBucket(groupName, bucket, source) {
     return {
         id: typeof bucket.id === 'string' ? bucket.id : null,
         groupName: typeof groupName === 'string' ? groupName : 'Unknown group',
+        bucketName: typeof bucket.name === 'string' ? bucket.name : null,
         label: `${typeof groupName === 'string' ? groupName : 'Unknown group'} · ${bucket.name || period || 'Quota'}`,
         period,
         windowSeconds: period === '5h' ? 18000 : period === 'weekly' ? 604800 : null,

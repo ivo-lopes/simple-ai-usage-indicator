@@ -557,3 +557,39 @@ msgstr ""
 #: prefs.js
 msgid "Select"
 msgstr ""
+
+#: prefs.js
+msgid "Credit balance"
+msgstr ""
+
+#: prefs.js
+msgid "credits"
+msgstr ""
+
+#: prefs.js
+msgid "credits remaining"
+msgstr ""
+
+#: prefs.js
+msgid "Unlimited"
+msgstr ""
+
+#: prefs.js
+msgid "Unavailable"
+msgstr ""
+
+#: prefs.js
+msgid "Reset credit expiry"
+msgstr ""
+
+#: prefs.js
+msgid "Choose how expiry times appear below the reset credit count."
+msgstr ""
+
+#: prefs.js
+msgid "Time left"
+msgstr ""
+
+#: prefs.js
+msgid "Date and time"
+msgstr ""

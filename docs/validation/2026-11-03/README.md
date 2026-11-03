@@ -93,3 +93,15 @@ called the Shell gettext wrapper outside the extension; fixed to use prefs.gette
 This was a lab-helper error, and that failed run was not counted as validation.
 Symlinked credential files are also rejected as duplicate references, tested with
 synthetic files. Full lint/GJS/schema/catalog/package inspector passed before merge.
+
+## Upstream merge
+
+Controlled `git merge --no-commit --no-ff upstream/main` produced eight conflicted
+paths; each resolution is recorded in UPSTREAM.md. Preserved fork identity,
+accounts/providers, Portuguese catalogs, icons, license and packaging; LICENSE SHA256
+matches upstream exactly. Added compatible Codex credits/expiry features and adapted
+upstream regression cases. Removed upstream dist ZIPs/obsolete schema/unused diagnostic
+helper from the proposed result. All conflicts were staged explicitly after review.
+Full lint/17 GJS tests/schema/catalog/package passed (35 byte-matched ZIP members).
+Native merge run GNOME 48.7 at 800×600: PASS with GTK account controls, popup five
+buckets, themes, focus, refresh, enable/disable/process cleanup. AT-SPI SKIPPED.

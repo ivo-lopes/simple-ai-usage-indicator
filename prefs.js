@@ -173,6 +173,14 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         });
         group.add(iconStyleRow);
 
+        const expiry = new Adw.ComboRow({title: _('Reset credit expiry'), use_markup: false,
+            subtitle: _('Choose how expiry times appear below the reset credit count.'),
+            model: Gtk.StringList.new([_('Time left'), _('Date and time')]),
+            selected: this._settings.get_string('reset-credit-expiry-mode') === 'date' ? 1 : 0});
+        this._connect(expiry, 'notify::selected', combo => {
+            this._settings.set_string('reset-credit-expiry-mode', combo.selected === 1 ? 'date' : 'left');
+        });
+        group.add(expiry);
         return group;
     }
 
