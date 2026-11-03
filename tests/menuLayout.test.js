@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Compatibility approach derived from upstream 2fc4bcb by Denny Huang; see NOTICE.
+import * as usagePresentation from '../usagePresentation.js';
 import {format, ngettext} from '../i18n.js';
 import {formatQuotaReset} from '../quotaReset.js';
 import {Actor, loadSource} from './helpers/shellSource.js';
@@ -28,6 +29,7 @@ for (const properties of [['vertical'], ['vertical', 'orientation'], ['orientati
         }
     }
     const bindings = {
+        ...usagePresentation,
         BarLevel: {BarLevel: Actor},
         St: {BoxLayout, Label: Actor, Icon: Actor, Widget: Actor},
         Clutter: {Orientation: {VERTICAL: 1}, ActorAlign: {START: 0, CENTER: 1, END: 2}, FixedLayout: class {}},
@@ -69,7 +71,7 @@ for (const legacy of [true, false]) {
     if (legacy)
         ScrollView.prototype.add_actor = function(child) { this.scrollChild = child; };
     class Section extends Actor { constructor() { super(); this.box = new Actor(); } }
-    const {PopupScrollMenuSection} = loadSource('extension.js', {
+    const {PopupScrollMenuSection} = loadSource('extension.js', {...usagePresentation,
         Clutter: {Orientation: {VERTICAL: 1}},
         St: {BoxLayout: Actor, ScrollView, PolicyType: {NEVER: 0, AUTOMATIC: 1}},
         PopupMenu: {PopupMenuSection: Section}, PanelMenu: {Button: Actor},

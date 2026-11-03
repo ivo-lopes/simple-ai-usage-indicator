@@ -27,3 +27,12 @@ assertEqual(exhaustedWeeklyLimit.leftPercent, 0,
     'summary should match the exhausted weekly window');
 
 print('usageApi tests passed');
+
+const small = normalizeSummary({rate_limit: {primary_window: {used_percent: .5, window_seconds: 18000,
+    reset_at: '2026-11-03T12:00:00+00:00'}}});
+assertEqual(small.percent, .005, 'explicit used_percent 0.5 means 0.5%, not 50%');
+assertEqual(small.resetAt, Date.parse('2026-11-03T12:00:00Z') / 1000, 'ISO reset normalized via existing timestamp adapter');
+for (const percent of [-1, 101, Infinity]) {
+    assertEqual(normalizeSummary({rate_limit: {primary_window: {used_percent: percent, window_seconds: 18000}}}).percent,
+        null, 'impossible percentage never becomes available quota');
+}

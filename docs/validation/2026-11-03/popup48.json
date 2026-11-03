@@ -1,0 +1,7 @@
+{
+  "shell": "GNOME Shell 48.7",
+  "backend": "wayland",
+  "result": "PASS",
+  "jsErrors": [],
+  "limitation": "AT-SPI/native Preferences not requested"
+}

@@ -7,8 +7,8 @@ contents, including in a private report. Public Issues are for sanitized ordinar
 
 The current `main` branch and latest public GitHub release are maintained. Fixes
 are delivered in a subsequent release; older releases have no promised backports.
-`v22` is the current public release and includes the credential/lifecycle hardening
-described below. It does not retroactively change the v21 ZIP.
+The latest public release includes the credential/lifecycle hardening first shipped
+in `v22`, described below. It does not retroactively change the v21 ZIP.
 
 The extension reads existing CLI credential stores and uses credentials in memory
 for the provider's quota request. It does not refresh tokens, persist custom tokens

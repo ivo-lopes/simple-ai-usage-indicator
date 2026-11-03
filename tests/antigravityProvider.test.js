@@ -27,6 +27,21 @@ function changedBucket(changes) {
     return parseAgyUsage(JSON.stringify(data)).windows[0];
 }
 const parsed = parseAgyUsage(json);
+const currentJson = fixture('agy-usage-1.4.12.json');
+const current = parseAgyUsage(currentJson);
+equal(new Set(current.windows.map(w => w.groupId)).size, 3, 'real 1.4.12 shape has three independent groups');
+equal(current.windows.length, 5, 'all five observed buckets retained');
+equal(current.windows[4].leftPercent, 0.007979599758982658, 'Argon backend precision retained');
+equal(current.windows[4].resetsAt, '2026-11-03T22:43:52Z', 'Argon real reset retained');
+equal(current.primary.id, '3p-5h', 'Argon does not change short-window topbar policy');
+const onlyArgon = JSON.parse(currentJson);
+onlyArgon.command.data.groups = onlyArgon.command.data.groups.slice(2);
+equal(parseAgyUsage(JSON.stringify(onlyArgon)).windows.length, 1, 'weekly-only Argon needs no 5h bucket');
+const unknownShape = JSON.parse(currentJson);
+unknownShape.command.data.groups.push(null, {name: 'Future group', buckets: [null, 9, {window: 'daily'}]});
+equal(parseAgyUsage(JSON.stringify(unknownShape)).windows.length, 6, 'malformed entries degrade; partial future quota survives');
+equal(parseAgyUsage('Gemini 4 Argon\tGemini 4 Argon Weekly Limit\t0.80%\tunknown').windows.length,
+    1, 'legacy custom bucket name survives without inferring a period');
 const extended = JSON.parse(json);
 extended.command.data.groups[0].buckets.push({id: 'extra', window: 'daily'});
 equal(parseAgyUsage(JSON.stringify(extended)).windows.length, 5, 'extra partial bucket preserved');
@@ -132,6 +147,8 @@ async function runAsyncTests() {
         provider._lookupKeyringSecret = async () => { throw new Error('Keyring absent'); };
         provider._runAgy = async () => json;
         equal((await provider.fetchUsage({force: true})).windows.length, 4, 'CLI works without extension Keyring lookup');
+        provider._runAgy = async () => currentJson;
+        equal((await provider.fetchUsage({force: true})).windows.length, 5, 'provider summary carries Argon end to end');
         const manager = Object.create(ProviderManager.prototype);
         let forceSeen = false;
         manager.getEnabledProviders = () => [{id: 'antigravity', fetchUsage: async options => {

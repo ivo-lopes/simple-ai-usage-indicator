@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-// Antigravity 1.2.17: command.data.groups[].buckets[]. See tests/fixtures/.
+// Antigravity 1.2.17–1.4.12: command.data.groups[].buckets[]. See tests/fixtures/.
 // Only observed quota fields are normalized; window duration never predicts reset.
 export function parseAgyUsage(output) {
     if (typeof output !== 'string' || !output.trim())
@@ -19,7 +19,7 @@ export function parseAgyUsage(output) {
             return null;
         if (payload.command?.name === 'usage' && Array.isArray(payload.command.data?.groups)) {
             const windows = [];
-            for (const group of payload.command.data.groups) {
+            for (const [groupIndex, group] of payload.command.data.groups.entries()) {
                 if (!group || !Array.isArray(group.buckets))
                     continue;
                 for (const bucket of group.buckets) {
@@ -27,6 +27,7 @@ export function parseAgyUsage(output) {
                         continue;
                     windows.push({
                         ...normalizeBucket(group.name, bucket, 'agy-json'),
+                        groupId: `group-${groupIndex}`,
                         groupDescription: typeof group.description === 'string' ? group.description : null,
                         raw: bucket,
                     });
@@ -49,6 +50,7 @@ function normalizeBucket(groupName, bucket, source) {
     return {
         id: typeof bucket.id === 'string' ? bucket.id : null,
         groupName: typeof groupName === 'string' ? groupName : 'Unknown group',
+        bucketName: typeof bucket.name === 'string' ? bucket.name : null,
         label: `${typeof groupName === 'string' ? groupName : 'Unknown group'} · ${bucket.name || period || 'Quota'}`,
         period,
         windowSeconds: period === '5h' ? 18000 : period === 'weekly' ? 604800 : null,
@@ -70,7 +72,7 @@ function parseLegacy(text) {
         const period = /^Five Hour Limit Remaining$/i.test(name) ? '5h'
             : /^Weekly Limit Remaining$/i.test(name) ? 'weekly' : null;
         const match = percent.match(/^(\d+(?:\.\d+)?)%$/);
-        if (!period || !match)
+        if (!match)
             continue;
         const remaining = fraction(Number(match[1]) / 100);
         if (remaining === null)
@@ -91,7 +93,8 @@ function selectWindows(windows) {
     const candidates = windows.filter(w => w.period === '5h' && w.leftPercent !== null);
     const primary = candidates.reduce((a, b) => !a || b.leftPercent < a.leftPercent ? b : a, null)
         ?? windows.find(w => w.period === '5h') ?? windows[0];
-    const week = windows.find(w => w.period === 'weekly' && w.groupName === primary.groupName) ?? null;
+    const week = windows.find(w => w.period === 'weekly' &&
+        (w.groupId ?? w.groupName) === (primary.groupId ?? primary.groupName)) ?? null;
     return {windows, primary, week, source: windows[0].source};
 }
 

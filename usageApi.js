@@ -98,7 +98,11 @@ export class UsageApiClient {
         ]);
         if (this._destroyed)
             throw new UsageApiError('Usage client destroyed');
-        return normalizeSummary(payload, resetCreditsPayload);
+        const summary = normalizeSummary(payload, resetCreditsPayload);
+        if (summary.percent === null && summary.used === null && summary.windows.length === 0 &&
+            summary.credits?.unlimited !== true && coerceNumber(summary.credits?.balance) === null)
+            throw new UsageApiError(_('Usage payload contains no recognized quota.'));
+        return summary;
     }
 
     destroy() {
@@ -111,10 +115,10 @@ export class UsageApiClient {
         try {
             return await this._getJson(RATE_LIMIT_RESET_CREDITS_ENDPOINT, token, accountId);
         } catch (error) {
-            if (error instanceof UsageApiError && error.statusCode === 429)
-                return null;
-
-            throw error;
+            if (this._destroyed)
+                throw error;
+            // Optional credits must not erase a successful primary usage read.
+            return null;
         }
     }
 
@@ -564,8 +568,11 @@ function collectRateLimitWindows(value, path, output) {
 function normalizeRateLimitWindow(value, path) {
     const used = findLocalFirstNumber(value, NUMBER_KEYS);
     const limit = findLocalFirstNumber(value, LIMIT_KEYS);
-    const percent = normalizePercent(findLocalFirstNumber(value, PERCENT_KEYS), used, limit);
-    const resetAt = coerceNumber(findLocalValueByKey(value, 'reset_at'));
+    const explicitPercent = coerceNumber(value.used_percent);
+    const percent = Object.prototype.hasOwnProperty.call(value, 'used_percent')
+        ? explicitPercent !== null && explicitPercent >= 0 && explicitPercent <= 100 ? explicitPercent / 100 : null
+        : normalizePercent(findLocalFirstNumber(value, PERCENT_KEYS), used, limit);
+    const resetAt = coerceUnixSeconds(findLocalValueByKey(value, 'reset_at'));
     const resetAfterSeconds = coerceNumber(findLocalValueByKey(value, 'reset_after_seconds'));
     const windowSeconds = findWindowSeconds(value, resetAfterSeconds);
     const pathHint = path.some(segment => /window|rate_limit/i.test(segment));
@@ -838,6 +845,8 @@ function normalizeAccountId(accountId) {
 
 function normalizePercent(percent, used, limit) {
     if (percent !== null) {
+        if (!Number.isFinite(percent) || percent < 0 || percent > 100)
+            return null;
         if (used !== null && limit !== null && limit > 0) {
             const ratio = used / limit;
             const directPercent = percent >= 0 && percent <= 1 ? percent : null;

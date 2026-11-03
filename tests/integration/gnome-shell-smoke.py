@@ -123,10 +123,12 @@ def session(root, args):
                     i.menu.box.navigate_focus(null, St.DirectionType.TAB_FORWARD, false);
                     const focus = global.stage.get_key_focus();
                     return {open: i.menu.isOpen, children: i._usageSection.box.get_children().length,
+                        buckets: i._state.summaries.get('antigravity')?.windows?.length,
                         focusName: focus?.accessible_name || focus?.label_actor?.text || null, canFocus: focus?.can_focus};
                 })()'''.replace('UUID', json.dumps(UUID))
                 info = evaluate(code)
                 assert info['open'] and info['children'] > 0 and info['canFocus'], info
+                assert info['buckets'] == 5, info
                 (root / 'cache/popup.json').write_text(json.dumps(info, indent=2))
                 print('PASS: real popup and keyboard focus: ' + str(info['focusName']), flush=True)
             if args.ui:
@@ -143,7 +145,8 @@ def session(root, args):
                 if args.ui:
                     subprocess.run(['gjs', '-m', str(HERE / 'preferences-ui.js'), str(root / 'data/gnome-shell/extensions' / UUID), str(root / 'cache/preferences-controls.json')], check=True, timeout=25)
                     screenshot(root / 'cache/preferences-window.png')
-                    subprocess.run(['gjs', '-m', str(HERE / 'accessibility.js'), str(root / 'cache/atspi.json'), str(root / 'data/gnome-shell/extensions' / UUID)], check=True, timeout=25)
+                    if not args.skip_atspi:
+                        subprocess.run(['gjs', '-m', str(HERE / 'accessibility.js'), str(root / 'cache/atspi.json'), str(root / 'data/gnome-shell/extensions' / UUID)], check=True, timeout=25)
                 if args.orca:
                     listing = subprocess.run(['orca', '--list-apps'], capture_output=True, text=True, timeout=15)
                     (root / 'cache/orca.log').write_text(listing.stdout + listing.stderr)
@@ -202,6 +205,16 @@ def ui_checks(root, args):
         assert info['width'] <= info['stageWidth'] and info['height'] <= info['stageHeight'], info
         results.append(dict(theme=theme, **info))
     (root / 'cache/ui.json').write_text(json.dumps(results, indent=2))
+    scroll = indicator('''const view = i._usageSection._scrollView;
+        const bar = view.get_vscroll_bar?.() ?? view.vscroll;
+        const adjustment = view.get_vadjustment?.() ?? view.vadjustment ?? bar?.get_adjustment?.() ?? bar?.adjustment;
+        if (!adjustment) throw new Error('Native scroll adjustment unavailable');
+        adjustment.value = Math.max(0, adjustment.upper - adjustment.page_size);
+        return {value: adjustment.value, upper: adjustment.upper, pageSize: adjustment.page_size};''')
+    assert scroll['value'] > 0, scroll
+    time.sleep(.3)
+    screenshot(root / 'cache/quota-bottom.png')
+    (root / 'cache/scroll.json').write_text(json.dumps(scroll, indent=2))
     print('PASS: all-provider popup light/dark/high contrast screenshots and bounds', flush=True)
 
 
@@ -238,7 +251,7 @@ def main(args):
     marker = root / 'agy.pid'
     delay = root / 'delay'
     delay.write_text('30')
-    fixture = (HERE.parent / 'fixtures/agy-usage-1.2.17.json').read_text()
+    fixture = (HERE.parent / 'fixtures/agy-usage-1.4.12.json').read_text()
     fake = root / 'bin/agy'
     fake.write_text(f'''#!/usr/bin/gjs -m
 import GLib from 'gi://GLib';
@@ -277,7 +290,7 @@ loop.run();
             stub = subprocess.Popen(['gjs', '-m', str(args.login1_stub)], env=env, stdout=subprocess.PIPE, text=True)
             assert stub.stdout.readline().strip() == 'READY'
     command = ['dbus-run-session', '--', 'python3', str(HERE / 'gnome-shell-smoke.py'), str(args.archive), '--session-root', str(root), '--backend', args.backend, '--monitor', args.monitor, '--ui-scale', str(args.ui_scale)]
-    for option in ('prefs', 'popup', 'ui', 'orca', 'allow_unsupported'):
+    for option in ('prefs', 'popup', 'ui', 'orca', 'allow_unsupported', 'skip_atspi'):
         if getattr(args, option):
             command.append('--' + option.replace('_', '-'))
     try:
@@ -303,7 +316,7 @@ loop.run();
     print(result.stdout.strip())
     log = (root / 'cache/shell.log').read_text(errors='replace') if (root / 'cache/shell.log').exists() else ''
     js_errors = [line for line in (log + result.stderr).splitlines() if any(marker in line for marker in ('JS ERROR', 'Gjs-CRITICAL', 'has been already disposed'))]
-    report = {'shell': version, 'backend': args.backend, 'result': 'FAIL' if result.returncode or js_errors else 'PASS', 'jsErrors': js_errors}
+    report = {'shell': version, 'backend': args.backend, 'result': 'FAIL' if result.returncode or js_errors else 'PASS', 'jsErrors': js_errors, 'atspi': 'SKIPPED' if args.skip_atspi else 'requested' if args.prefs and args.ui else 'not requested'}
     (root / 'cache/result.json').write_text(json.dumps(report, indent=2))
     print('Evidence directory:', root)
     if result.returncode or js_errors:
@@ -321,6 +334,7 @@ parser.add_argument('--baseline-only', action='store_true', help=argparse.SUPPRE
 parser.add_argument('--verify-upgrade', action='store_true', help=argparse.SUPPRESS)
 parser.add_argument('--output-dir', type=Path)
 parser.add_argument('--backend', choices=['wayland', 'x11'], default='wayland')
+parser.add_argument('--skip-atspi', action='store_true', help='Skip the optional AT-SPI reader only; native GTK tests still run')
 parser.add_argument('--monitor', default='1280x720')
 parser.add_argument('--locale', default='C.UTF-8')
 parser.add_argument('--language')

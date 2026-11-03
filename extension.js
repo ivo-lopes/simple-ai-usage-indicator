@@ -30,7 +30,12 @@ import {
     detectEarlyLimitResets,
     formatLimitResetMessage,
 } from './limitReset.js';
-import {formatQuotaReset} from './quotaReset.js';
+import {formatResetCreditExpiryList} from './resetCreditExpiry.js';
+import {formatCreditBalance} from './providers/codexCredits.js';
+import {
+    formatBucketLabel, formatCompact, formatNumber, formatProviderPanelLabel,
+    formatWindowSubtitle, formatWindowValue, getWindowProgressPercent, normalizeProgressPercent,
+} from './usagePresentation.js';
 import {ProviderManager} from './providers/index.js';
 import {format, ngettext} from './i18n.js';
 
@@ -126,9 +131,23 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             this,
         );
         this._settings.connectObject(
+            'changed::accounts-config',
+            () => {
+                this._providerManager.syncAccounts();
+                this._state.summaries.clear();
+                this._state.previousSnapshots.clear();
+                this._renderCurrentState();
+                void this.refresh({force: true});
+            }, this,
+        );
+        this._settings.connectObject(
             'changed::active-provider',
             () => this._renderCurrentState(),
             this,
+        );
+        this._settings.connectObject(
+            'changed::reset-credit-expiry-mode',
+            () => this._renderCurrentState(), this,
         );
         this._settings.connectObject(
             'changed::icon-style',
@@ -232,14 +251,20 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
     }
 
     async _refreshAllUsage(options = {}) {
-        const summaries = await this._providerManager.fetchAllUsage(options);
+        const summaries = await this._providerManager.fetchAllUsage({...options, onSummary: (id, summary) => {
+            if (this._destroyed)
+                return;
+            this._state.summaries.set(id, summary);
+            this._renderCurrentState();
+        }});
         if (this._destroyed)
             return;
         const lastUpdated = GLib.DateTime.new_now_local();
 
-        const codexSummary = summaries.get(PROVIDER_CODEX);
-        if (codexSummary && !codexSummary.error) {
-            const prevSnapshot = this._state.previousSnapshots.get(PROVIDER_CODEX);
+        for (const [instanceId, codexSummary] of summaries) {
+            if ((codexSummary.providerId ?? instanceId) !== PROVIDER_CODEX || codexSummary.error)
+                continue;
+            const prevSnapshot = this._state.previousSnapshots.get(instanceId);
             const currentSnapshot = {
                 accountId: codexSummary.account || 'codex',
                 observedAt: lastUpdated.to_unix(),
@@ -255,7 +280,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                     );
                 }
             }
-            this._state.previousSnapshots.set(PROVIDER_CODEX, currentSnapshot);
+            this._state.previousSnapshots.set(instanceId, currentSnapshot);
         }
 
         this._state.summaries = summaries;
@@ -387,7 +412,7 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
             return;
         }
 
-        const stale = summary.stale || (provider.id === PROVIDER_ANTIGRAVITY &&
+        const stale = summary.stale || ((provider.providerId ?? provider.id) === PROVIDER_ANTIGRAVITY &&
             Date.now() - summary.lastUpdated?.getTime() >= 45000);
         if (summary.cached || stale) {
             this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
@@ -395,13 +420,41 @@ class SimpleAiUsageIndicator extends PanelMenu.Button {
                 {reactive: true, activate: false, hover: false, can_focus: false},
             ));
         }
-        // Antigravity buckets are independent quotas, all labeled by their group.
-        const windows = provider.id === PROVIDER_ANTIGRAVITY && summary.windows
+        if (summary.quotaUnavailable) {
+            this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(_('Quota unavailable'),
+                {reactive: true, activate: false, hover: false, can_focus: false}));
+        }
+        // Non-Codex adapters expose independent buckets without cross-group totals.
+        const windows = (provider.providerId ?? provider.id) !== PROVIDER_CODEX && summary.windows?.length
             ? summary.windows : [summary.primaryWindow, summary.weekWindow].filter(Boolean);
+        let previousGroup = null;
         for (const window of windows) {
+            const group = window.groupId ?? window.groupName;
+            if (group && group !== previousGroup) {
+                const heading = new PopupMenu.PopupMenuItem(window.groupName === 'Unknown group'
+                    ? _('Unknown group') : window.groupName,
+                {reactive: true, activate: false, hover: false, can_focus: false});
+                heading.label.style = MENU_TITLE_STYLE;
+                this._usageSection.addMenuItem(heading);
+                previousGroup = group;
+            }
             this._usageSection.addMenuItem(createUsageProgressMenuItem(
                 formatBucketLabel(window), window, displayMode,
             ));
+        }
+
+        if ((provider.providerId ?? provider.id) === PROVIDER_CODEX) {
+            if (summary.credits) {
+                this._usageSection.addMenuItem(createUsageProgressMenuItem(_('Credit balance'),
+                    {usedFormatted: formatCreditBalance(summary.credits, false, _)}, displayMode));
+            }
+            const expiry = formatResetCreditExpiryList(summary.extraCredits, Date.now() / 1000,
+                this._settings.get_string('reset-credit-expiry-mode'));
+            if (expiry) {
+                this._usageSection.addMenuItem(new PopupMenu.PopupMenuItem(
+                    `${_('Reset credit expiry')}: ${expiry}`,
+                    {reactive: true, activate: false, hover: false, can_focus: false}));
+            }
         }
 
         if (summary.models && summary.models.length > 0) {
@@ -546,6 +599,8 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     titleBox.add_child(titleLabel);
 
     const subtitleParts = [];
+    if (provider.providerName && provider.providerName !== provider.name)
+        subtitleParts.push(provider.providerName);
     if (summary?.planType)
         subtitleParts.push(summary.planType);
     if (summary?.account)
@@ -562,39 +617,6 @@ function createProviderHeaderMenuItem(extensionPath, provider, summary, iconStyl
     row.add_child(titleBox);
     menuItem.add_child(row);
     return menuItem;
-}
-
-function formatBucketLabel(window) {
-    if (!window.source?.startsWith('agy-'))
-        return formatWindowLabel(window.label);
-    const group = window.groupName === 'Unknown group' ? _('Unknown group') : window.groupName;
-    const bucket = window.raw?.name || (window.period === '5h' ? '5-hour window'
-        : window.period === 'weekly' ? 'Weekly limit' : window.period);
-    return `${group} · ${formatWindowLabel(bucket) || _('Quota')}`;
-}
-
-function formatWindowLabel(label) {
-    if (!label)
-        return '';
-    if (label === 'Five Hour Limit Remaining')
-        return _('5-hour window');
-    if (label === 'Weekly Limit Remaining')
-        return _('Weekly limit');
-    if (label === '5h')
-        return _('5-hour window');
-    if (label === 'Week')
-        return _('Weekly limit');
-    if (label === 'Window')
-        return _('Window');
-    if (label === 'Weekly tokens')
-        return _('Weekly tokens');
-    if (label === '5-hour window')
-        return _('5-hour window');
-    if (label === 'Weekly limit')
-        return _('Weekly limit');
-    if (label === 'Tokens today')
-        return _('Tokens today');
-    return label;
 }
 
 function createUsageProgressMenuItem(title, window, displayMode) {
@@ -623,7 +645,8 @@ function createUsageProgressMenuItem(title, window, displayMode) {
     }));
 
     const progressPercent = getWindowProgressPercent(window, displayMode);
-    content.add_child(createProgressBar(progressPercent, `${title}: ${formatWindowValue(window, displayMode)}`));
+    if (progressPercent !== null)
+        content.add_child(createProgressBar(progressPercent, `${title}: ${formatWindowValue(window, displayMode)}`));
 
     const subtitle = formatWindowSubtitle(window);
     if (subtitle) {
@@ -733,126 +756,10 @@ function createProgressBar(percent, accessibleName) {
     return bar;
 }
 
-function formatProviderPanelLabel(provider, summary, displayMode) {
-    if (!summary)
-        return '--';
-
-    if (summary.quotaUnavailable)
-        return '?';
-    if (summary.error)
-        return '!';
-
-    if (summary.percent !== null) {
-        if (displayMode === DISPLAY_MODE_USED) {
-            return `${Math.round(summary.percent * 100)}%`;
-        } else if (displayMode === DISPLAY_MODE_PERCENT) {
-            return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}%`;
-        } else {
-            return `${Math.round((summary.leftPercent ?? (1 - summary.percent)) * 100)}% ${_('left')}`;
-        }
-    }
-
-    const val = displayMode === DISPLAY_MODE_USED ? summary.used : summary.left;
-    if (val !== null && val !== undefined) {
-        const suffix = displayMode === DISPLAY_MODE_USED ? _('used') : _('left');
-        return `${formatCompact(val)} ${suffix}`;
-    }
-
-    if (summary.primaryWindow?.status)
-        return summary.primaryWindow.status;
-
-    if (summary.primaryWindow?.usedFormatted)
-        return summary.primaryWindow.usedFormatted;
-
-    return provider.id === PROVIDER_ANTIGRAVITY ? '?' : _('OK');
-}
-
 function formatLastUpdatedValue(lastUpdated) {
     if (!lastUpdated)
         return _('never');
 
     return new Date(lastUpdated.to_unix() * 1000).toLocaleString(undefined, {dateStyle: 'short', timeStyle: 'short'});
-}
-
-function formatWindowValue(window, displayMode) {
-    if (window.status)
-        return window.status;
-
-    if (window.usedFormatted)
-        return window.usedFormatted;
-
-    if (displayMode === DISPLAY_MODE_USED) {
-        if (window.used !== null && window.used !== undefined)
-            return `${formatCompact(window.used)} ${_('used')}`;
-
-        if (window.usedPercent !== null && window.usedPercent !== undefined)
-            return `${Math.round(window.usedPercent * 100)}% ${_('used')}`;
-    } else {
-        if (window.left !== null && window.left !== undefined)
-            return `${formatCompact(window.left)} ${_('remaining')}`;
-
-        if (window.leftPercent !== null && window.leftPercent !== undefined)
-            return `${Math.round(window.leftPercent * 100)}% ${_('remaining')}`;
-
-        if (window.usedPercent !== null && window.usedPercent !== undefined)
-            return `${Math.round((1 - window.usedPercent) * 100)}% ${_('remaining')}`;
-    }
-
-    return _('Unknown');
-}
-
-function formatWindowSubtitle(window) {
-    const parts = [];
-
-    const resetText = formatWindowReset(window);
-    if (resetText)
-        parts.push(resetText);
-
-    if (window.limit !== null && window.limit !== undefined)
-        parts.push(`${formatNumber(window.limit)} ${_('total')}`);
-
-    if (window.used !== null && window.used !== undefined)
-        parts.push(`${formatNumber(window.used)} ${_('used')}`);
-
-    return parts.join('  •  ');
-}
-
-function formatWindowReset(window) {
-    return formatQuotaReset(window, {translate: _});
-}
-
-function getWindowProgressPercent(window, displayMode) {
-    if (window.usedPercent !== null && window.usedPercent !== undefined) {
-        return displayMode === DISPLAY_MODE_USED
-            ? window.usedPercent
-            : Math.max(1 - window.usedPercent, 0);
-    }
-
-    if (window.percent !== null && window.percent !== undefined) {
-        return displayMode === DISPLAY_MODE_USED
-            ? window.percent
-            : Math.max(1 - window.percent, 0);
-    }
-
-    return null;
-}
-
-function normalizeProgressPercent(percent) {
-    if (typeof percent !== 'number' || !Number.isFinite(percent))
-        return null;
-
-    return Math.max(0, Math.min(percent, 1));
-}
-
-
-function formatNumber(value) {
-    return new Intl.NumberFormat().format(Math.round(value));
-}
-
-function formatCompact(value) {
-    return new Intl.NumberFormat(undefined, {
-        notation: 'compact',
-        maximumFractionDigits: 1,
-    }).format(value);
 }
 

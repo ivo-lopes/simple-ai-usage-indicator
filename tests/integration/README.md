@@ -58,3 +58,23 @@ A lifecycle smoke validates the loaded extension with real native widgets; it do
 not validate a complete GDM desktop, actual provider credentials/backend availability,
 hardware HiDPI, speech output or every distro theme. Keep those separate in
 PRE_SUBMISSION.md. Do not turn absent integration dependencies into PASS.
+
+The current fixture is sanitized agy 1.4.12 with three groups/five buckets;
+the native popup test requires all five. The native GTK test also adds, renames,
+disables, reorders and removes a logical account against an empty private directory.
+If the optional AT-SPI reader cannot connect to the private accessibility bus, retain
+that failed result. A separate `--skip-atspi` run can validate the remaining native
+Shell/GTK controls; its report explicitly records AT-SPI as SKIPPED, never PASS.
+
+The UI laboratory also scrolls the actual native popup to its bottom and captures
+quota-bottom.png, checking that long grouped quotas remain reachable with fixed actions.
+
+To check the independent process timeout without credentials or a compositor:
+
+```sh
+gjs -m tests/integration/agy-timeout.js
+```
+
+This launches a synthetic `sleep 60` executable through the real provider subprocess,
+requires its independent 12-second deadline to terminate/reap it, and counts GJS main
+loop ticks while waiting. It is a controlled integration test, not a live CLI test.

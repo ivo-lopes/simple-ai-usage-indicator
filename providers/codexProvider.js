@@ -73,6 +73,8 @@ export class CodexProvider extends BaseProvider {
             if (this._destroyed)
                 throw new Error('Provider destroyed');
             const primaryWindow = summary.primaryWindow ? {
+                rootKey: summary.primaryWindow.rootKey,
+                left: summary.primaryWindow.left,
                 label: summary.primaryWindow.label || '5-hour window',
                 used: summary.primaryWindow.used,
                 limit: summary.primaryWindow.limit,
@@ -84,6 +86,8 @@ export class CodexProvider extends BaseProvider {
             } : null;
 
             const weekWindow = summary.weekWindow ? {
+                rootKey: summary.weekWindow.rootKey,
+                left: summary.weekWindow.left,
                 label: summary.weekWindow.label || 'Weekly limit',
                 used: summary.weekWindow.used,
                 limit: summary.weekWindow.limit,

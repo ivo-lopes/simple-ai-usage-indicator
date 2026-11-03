@@ -7,6 +7,7 @@ import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
 import {BaseProvider} from './baseProvider.js';
+import {parseClaudeUsage} from './claudeUsage.js';
 import {
     CLAUDE_API_BASE_URL,
     CLAUDE_BETA_HEADER,
@@ -19,7 +20,7 @@ Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish'
 Gio._promisify(Soup.Session.prototype, 'send_and_read_async', 'send_and_read_finish');
 
 export class ClaudeProvider extends BaseProvider {
-    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir(), apiBaseUrl = CLAUDE_API_BASE_URL, proxyResolver = null} = {}) {
+    constructor({readJsonFile = null, getenv = GLib.getenv, homeDir = GLib.get_home_dir(), configDir = null, apiBaseUrl = CLAUDE_API_BASE_URL, proxyResolver = null} = {}) {
         super({
             id: PROVIDER_CLAUDE,
             name: 'Claude Code',
@@ -32,6 +33,9 @@ export class ClaudeProvider extends BaseProvider {
         this._readFile = readJsonFile;
         this._getenv = getenv;
         this._homeDir = homeDir;
+        this._configDir = configDir || getenv('CLAUDE_CONFIG_DIR') || null;
+        // Explicit instances never fall back to a shared process credential.
+        this._allowEnvToken = configDir === null;
         this._apiBaseUrl = apiBaseUrl;
         const sessionProperties = {timeout: 20};
         if (proxyResolver)
@@ -46,15 +50,15 @@ export class ClaudeProvider extends BaseProvider {
     }
 
     getCredentialsPath() {
-        return GLib.build_filenamev([this._homeDir, '.claude', '.credentials.json']);
+        return GLib.build_filenamev([this._configDir || GLib.build_filenamev([this._homeDir, '.claude']), '.credentials.json']);
     }
 
     getConfigPath() {
-        return GLib.build_filenamev([this._homeDir, '.claude.json']);
+        return GLib.build_filenamev([this._configDir || this._homeDir, '.claude.json']);
     }
 
     getStatsCachePath() {
-        return GLib.build_filenamev([this._homeDir, '.claude', 'stats-cache.json']);
+        return GLib.build_filenamev([this._configDir || GLib.build_filenamev([this._homeDir, '.claude']), 'stats-cache.json']);
     }
 
     async checkAuth() {
@@ -133,7 +137,7 @@ export class ClaudeProvider extends BaseProvider {
         const stored = payload?.claudeAiOauth?.accessToken;
         if (typeof stored === 'string' && stored.trim())
             return stored.trim();
-        const env = this._getenv('CLAUDE_CODE_OAUTH_TOKEN');
+        const env = this._allowEnvToken ? this._getenv('CLAUDE_CODE_OAUTH_TOKEN') : null;
         return typeof env === 'string' && env.trim() ? env.trim() : null;
     }
 
@@ -171,36 +175,18 @@ export class ClaudeProvider extends BaseProvider {
     }
 
     _normalizeApiSummary(apiData, statsPayload, account, planType) {
-        const fiveHour = apiData?.five_hour || apiData?.fiveHour || null;
-        const sevenDay = apiData?.seven_day || apiData?.sevenDay || null;
-
-        const fiveHourUsedPercent = typeof fiveHour?.used_percentage === 'number'
-            ? normalizePercentValue(fiveHour.used_percentage)
-            : null;
-
-        const sevenDayUsedPercent = typeof sevenDay?.used_percentage === 'number'
-            ? normalizePercentValue(sevenDay.used_percentage)
-            : null;
-
-        const primaryWindow = fiveHour ? {
-            label: '5-hour window',
-            usedPercent: fiveHourUsedPercent,
-            percent: fiveHourUsedPercent,
-            leftPercent: fiveHourUsedPercent !== null ? Math.max(1 - fiveHourUsedPercent, 0) : null,
-            resetsAt: formatUnixTime(fiveHour.resets_at),
-            resetAfterSeconds: calculateSecondsUntil(fiveHour.resets_at),
-        } : null;
-
-        const weekWindow = sevenDay ? {
-            label: 'Weekly limit',
-            usedPercent: sevenDayUsedPercent,
-            percent: sevenDayUsedPercent,
-            leftPercent: sevenDayUsedPercent !== null ? Math.max(1 - sevenDayUsedPercent, 0) : null,
-            resetsAt: formatUnixTime(sevenDay.resets_at),
-            resetAfterSeconds: calculateSecondsUntil(sevenDay.resets_at),
-        } : null;
-
-        const activeWindow = primaryWindow ?? weekWindow;
+        const parsed = parseClaudeUsage(apiData);
+        if (!parsed)
+            throw new Error('Claude quota payload has no recognized metrics');
+        const windows = parsed.windows.map(window => ({...window,
+            label: window.period === '5h' ? '5-hour window'
+                : window.id === 'seven_day' || window.id === 'sevenDay' ? 'Weekly limit'
+                    : `${_('Weekly limit')} · ${window.id.replace(/^seven_day_/, '')}`,
+        }));
+        const primaryWindow = windows.find(w => w.id === parsed.primary?.id) ?? null;
+        const weekWindow = windows.find(w => w.id === parsed.week?.id) ?? null;
+        const activeWindow = primaryWindow && primaryWindow.usedPercent !== null ? primaryWindow
+            : weekWindow ?? windows.find(w => w.usedPercent !== null);
         const percent = activeWindow?.usedPercent ?? null;
         const leftPercent = percent !== null ? Math.max(1 - percent, 0) : null;
 
@@ -219,6 +205,7 @@ export class ClaudeProvider extends BaseProvider {
             resetAfterSeconds: activeWindow?.resetAfterSeconds ?? null,
             primaryWindow,
             weekWindow,
+            windows,
             models: extractModelUsage(statsPayload),
             extraCredits: null,
             raw: apiData,
@@ -238,6 +225,7 @@ export class ClaudeProvider extends BaseProvider {
             iconFileName: this.iconFileName,
             planType: planType || 'Claude Code',
             account,
+            quotaUnavailable: true,
             used: todayTokens,
             limit: null,
             left: null,
@@ -290,26 +278,6 @@ export class ClaudeProvider extends BaseProvider {
             return null;
         }
     }
-}
-
-function normalizePercentValue(val) {
-    if (val > 1)
-        return Math.min(Math.max(val / 100, 0), 1);
-    return Math.min(Math.max(val, 0), 1);
-}
-
-function calculateSecondsUntil(unixTimestamp) {
-    if (!unixTimestamp)
-        return null;
-    const now = Math.floor(Date.now() / 1000);
-    return Math.max(unixTimestamp - now, 0);
-}
-
-function formatUnixTime(unixTimestamp) {
-    if (!unixTimestamp)
-        return null;
-    const date = new Date(unixTimestamp * 1000);
-    return date.toISOString();
 }
 
 function formatClaudePlan(tier) {

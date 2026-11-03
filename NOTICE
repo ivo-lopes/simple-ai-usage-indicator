@@ -43,3 +43,7 @@ asserted for inherited files. Existing copyright notices are preserved.
 The program is distributed without warranty; see LICENSE for full terms.
 Corresponding development sources and translation sources are available at:
 https://github.com/ivo-lopes/simple-ai-usage-indicator
+
+Full upstream integration on 2026-11-03 includes Denny Huang's Codex credit
+presentation (60e1513/c0008d1) and the upstream reset-credit expiry preference
+(c22087d), adapted to independent provider/account instances. See UPSTREAM.md.

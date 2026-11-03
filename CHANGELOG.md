@@ -5,6 +5,41 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+## v23 — 2026-11-03
+
+- Extract pure quota/panel presentation from extension.js for focused tests and
+  smaller Shell review scope (partial SAUI-14).
+
+- Strengthen Claude percentage/reset parsing and unknown-payload handling; preserve
+  independent model windows and mark local statistics as unavailable quota. Codex
+  explicit percentages and optional reset-credit failures now degrade safely.
+
+- Merge upstream through `5096c4f`, preserving fork identity and ancestry. Add
+  Codex credit-balance popup/panel near main quota exhaustion and relative/absolute
+  reset-credit expiry; retain independent model quota semantics.
+
+- Add independent Codex/Claude account instances using existing CLI directories,
+  Preferences account management, safe legacy migration, incremental refresh and
+  cancellation per instance. Antigravity remains a single shared session until
+  an independent authentication selector is verified (GitHub #1).
+
+- Antigravity: regression fixture from CLI 1.4.12 with three groups/five buckets,
+  independent Argon weekly quota, group headings, two-decimal popup percentages
+  and no availability bar for missing metrics. Backend fractions/resets remain exact;
+  the topbar retains its most constrained five-hour policy (GitHub #2 / SAUI-3).
+
+### Validation and known limits
+
+- Eighteen automated GJS tests, lint, schemas, Portuguese catalogs and package checks passed.
+- Native popup/Preferences/lifecycle/scroll checks passed on GNOME Shell 48.7.
+  The declared 45–51 matrix has historical evidence and was not repeated for v23;
+  AT-SPI failed on the private bus and was explicitly skipped in the final run.
+- Independent Antigravity accounts remain unsupported; GitHub #1 stays open.
+  Codex/Claude isolation passed synthetic-file/loopback tests; two live accounts
+  per provider and authenticated Claude quota were not available.
+- GitHub #2 has real agy 1.4.12, five-bucket parser and native popup evidence.
+  See docs/validation/2026-11-03/README.md and docs/ACCOUNTS.md.
+
 ## v22 — 2026-10-05
 
 ### Added

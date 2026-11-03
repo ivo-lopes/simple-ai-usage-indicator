@@ -1,0 +1,7 @@
+{
+  "shell": "GNOME Shell 48.7",
+  "backend": "wayland",
+  "result": "FAIL",
+  "jsErrors": [],
+  "limitation": "AT-SPI private bus SIGTRAP"
+}

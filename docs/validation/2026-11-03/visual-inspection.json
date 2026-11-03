@@ -1,0 +1,22 @@
+[
+  {
+    "file": "/tmp/saui-final-scroll48/cache/prefer-light.png",
+    "sha256": "d4c8425c74c90a69f861d2177e3fdd0f233e58813cc592ee7344a54c5aae26d6",
+    "observation": "Native popup within stage; labels and footer readable; quotas remain scrollable"
+  },
+  {
+    "file": "/tmp/saui-final-scroll48/cache/prefer-dark.png",
+    "sha256": "ee453f383dc040b0f78db08fb92e803c86a6e572ca4f5cb02322ff18c665d927",
+    "observation": "Native popup within stage; labels and footer readable; quotas remain scrollable"
+  },
+  {
+    "file": "/tmp/saui-final-scroll48/cache/high-contrast.png",
+    "sha256": "c28a4fd3e95c9478c1b9959874245de298b102257d957fdedf6705087d2606a6",
+    "observation": "Native popup within stage; labels and footer readable; quotas remain scrollable"
+  },
+  {
+    "file": "/tmp/saui-final-scroll48/cache/quota-bottom.png",
+    "sha256": "9ebb3b7729ea3d93ee304ad713514d8635831527a03ed6a12082665e881cbccd",
+    "observation": "Native 800x600; inherited readable foreground; scroll reaches Argon 0.80%; Refresh/Settings fixed and visible"
+  }
+]

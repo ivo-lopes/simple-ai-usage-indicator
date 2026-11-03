@@ -30,4 +30,6 @@ await page._testProvider({fetchUsage: async () => ({percent: .5})}, row, expande
 assert(row.subtitle === 'Sucesso! 50% usado', 'Actual Preferences success/usage text translated');
 await page._testProvider({fetchUsage: async () => ({error: 'fixture'})}, row, expander);
 assert(row.subtitle === 'Erro: fixture', 'Actual Preferences error prefix translated');
+await page._testProvider({fetchUsage: async () => ({quotaUnavailable: true, percent: null})}, row, expander);
+assert(expander.subtitle === 'Failed', 'Local statistics cannot pass a quota connection test');
 print('i18n tests passed: actual prefs, notifications/plurals, long reset and reordered placeholders');

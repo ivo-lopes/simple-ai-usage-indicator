@@ -87,6 +87,7 @@ async function runTests() {
         'user@example.com',
         'Claude Team',
     );
+    assert(localSummary.quotaUnavailable === true, 'Local statistics are never advertised as available quota');
     assert(localSummary.primaryWindow.label === 'Tokens today', 'Local primary label');
     assert(localSummary.primaryWindow.usedFormatted === '9.0k', 'Local formatted tokens');
 
@@ -127,6 +128,8 @@ async function runTests() {
     assert(!read('schemas/org.gnome.shell.extensions.simple-ai-usage-indicator.gschema.xml').includes('claude-token'), 'Schema stores no Claude secret');
     assert(!read('prefs.js').includes('PasswordEntryRow'), 'Preferences offers no persisted token');
     assert(!read('providers/claudeProvider.js').includes('get_string'), 'Provider does not read GSettings');
+    provider._fetchUsageApi = async () => ({unknown_contract: true});
+    assert((await provider.fetchUsage()).quotaUnavailable === true, 'changed API payload produces controlled unavailable state');
     provider.destroy();
     print('claudeProvider tests passed (offline)');
 }
