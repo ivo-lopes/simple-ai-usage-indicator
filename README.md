@@ -111,6 +111,41 @@ license provenance.
 
 ## Installation
 
+### Automatic installation (recommended)
+
+From a terminal in your GNOME desktop, download and run the release installer:
+
+```bash
+curl --fail --location --output install.sh \
+  https://github.com/ivo-lopes/simple-ai-usage-indicator/releases/latest/download/install.sh
+bash install.sh
+```
+
+Run as your ordinary desktop user, without `sudo`. Required commands: Bash,
+Python 3, curl, GJS, `gnome-shell`, `gnome-extensions` and `glib-compile-schemas`.
+The installer resolves the latest release once, downloads its ZIP and SHA256SUMS,
+checks the checksum/UUID/Shell compatibility and compiles schemas before replacing
+the installed files. Preferences and CLI credentials are preserved. The script is
+a separate release asset; it is excluded from the extension's runtime ZIP.
+
+It requests activation immediately and saves activation for the next session.
+**Log out and back in if this is a new extension or an update:** GNOME may need a
+new session to discover the UUID or load changed JavaScript. No further enable
+command is needed. The installer never logs you out or changes GNOME's global
+user-extension switch; if that switch is off, enable it in the Extensions app.
+
+Select a release or install a downloaded ZIP offline:
+
+```bash
+bash install.sh --version v25
+bash install.sh --archive ./simple-ai-usage-indicator@ivo-lopes.github.com.shell-extension.zip \
+  --checksum ./SHA256SUMS
+```
+
+Offline mode requires the release checksum file. SHA256 detects corrupted or
+mismatched downloads; it is not a publisher signature. Existing symlinked
+development installations are preserved and require manual installation.
+
 ### Method 1: Local Development Installation
 
 1. Clone or copy the repository into your GNOME Shell extensions directory:

@@ -29,6 +29,15 @@ python3 tests/integration/gnome-shell-smoke.py *.shell-extension.zip \
   --monitor 800x600 --output-dir /tmp/saui-ui-NEW-DIRECTORY
 ```
 
+Add `--installer "$PWD/install.sh"` to exercise the actual standalone installer:
+an offline fresh install on a private session bus before Shell starts, automatic
+activation on the next real Shell session, and an update/reactivation while the
+Shell is running. The ZIP/checksum and all files/settings are private to the lab.
+This mode does not use live provider credentials or download public releases.
+`python3 tests/installer.test.py` separately checks real hashes/ZIPs/schemas and
+GSettings with mocked Shell/network CLIs; those controlled tests are not a real
+Shell or live-download validation.
+
 Use `--monitor 1600x1200 --ui-scale 2` to check native St 200% theme rendering.
 This changes the theme scale in the disposable compositor, not hardware DPI or a
 real monitor configuration. `--ui` records light/dark/high-contrast screenshots,

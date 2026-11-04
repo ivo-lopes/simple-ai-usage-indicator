@@ -9,7 +9,7 @@ ID to match a GitHub tag. EGO manages its version on upload.
 3. Commit and push validated code with a clean tree. Wait for CI on that exact commit and download/inspect its ZIP artifact.
 4. Check PRE_SUBMISSION.md and remaining blockers. Update Unreleased with the chosen tag/date only when actually preparing a release.
 5. Create an annotated tag for the reviewed commit. Publish a GitHub release only after an explicit operator instruction.
-6. Attach the inspected `.shell-extension.zip` and `SHA256SUMS` (`sha256sum ZIP > SHA256SUMS`, then `sha256sum -c SHA256SUMS`). Confirm tag/commit, assets and hashes after publication.
+6. Attach the inspected `.shell-extension.zip`, standalone `install.sh` and `SHA256SUMS` (`sha256sum ZIP install.sh > SHA256SUMS`, then `sha256sum -c SHA256SUMS`). Compare both assets to the exact-commit CI artifact. The installer is excluded from the runtime ZIP. Confirm tag/commit, assets and hashes after publication.
 7. EGO upload is a separate **manual** operation requiring an explicit instruction and the EGO checklist. Do not upload automatically or alter a pending submission as a side effect.
 
 CI validates and produces an artifact; it does not publish GitHub releases or upload

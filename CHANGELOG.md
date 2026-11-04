@@ -3,6 +3,25 @@
 GitHub tags identify source/releases; EGO's internal version is assigned by EGO.
 This file summarizes relevant snapshots rather than reconstructing every old commit.
 
+## v25 — 2026-11-04
+
+- Add a user installer as a separate release asset: resolve/download a release,
+  verify SHA256, UUID, safe ZIP paths and GNOME compatibility, compile schemas,
+  replace the extension locally and request activation. Support offline ZIPs.
+- Preserve preferences, other extensions and provider credentials; save activation
+  for the next session when GNOME has not discovered the UUID. Updates explicitly
+  request logout/login to load fresh JavaScript; no forced session restart or sudo.
+- Add controlled installer regression tests and a real-Shell installation/update
+  mode to the isolated integration laboratory. Installer syntax/tests run in CI;
+  CI artifacts now include the standalone script alongside the runtime ZIP.
+- Validation: eight controlled installer tests and 18 GJS tests passed, along with
+  lint, schemas, translations and the 37-file ZIP inspection. A real GNOME 48.7
+  session passed automatic activation after installation, update/reactivation,
+  popup/Preferences/UI and cancellation. AT-SPI was skipped; the 45–51 matrix was
+  not repeated. No live provider authentication was used.
+- Upstream refs were refreshed; `5096c4f` remains fully integrated with no new
+  upstream commits to incorporate. Provider behavior and v24 artwork are retained.
+
 ## v24 — 2026-11-04
 
 - Replace the generic provider symbols with downloaded OpenAI artwork from
