@@ -34,6 +34,13 @@ JavaScript does not provide guaranteed secret-memory zeroization.
 
 [SECURITY.md](SECURITY.md) documents removal of the old Claude dconf value.
 
+The optional standalone `install.sh` downloads release metadata/assets from
+api.github.com and github.com (including GitHub's HTTPS asset redirects). Offline
+`--archive` mode makes no network requests. It writes extension files under the
+user's XDG data directory, compiles schemas and updates only this UUID's entries
+in GNOME's enabled/disabled extension lists. It never reads provider credentials,
+performs provider login/logout, uploads local files or changes account settings.
+
 Explicit Codex/Claude accounts use the selected CLI configuration directory instead
 of the default paths above. GSettings stores only logical IDs, names, enabled state,
 order and directory references. Explicit Claude instances never use a shared OAuth

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Real Shell integration; private XDG/home/buses and a synthetic agy, never host accounts."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -92,6 +93,20 @@ def session(root, args):
             if args.verify_upgrade:
                 assert subprocess.check_output(['gsettings', 'get', 'org.gnome.shell.extensions.simple-ai-usage-indicator', 'update-interval-seconds'], text=True).strip() == '480'
                 print('PASS: v21 ordinary settings preserved; no legacy secret read or migrated', flush=True)
+            if args.installer:
+                # The offline installer saved activation before this compositor
+                # started. No CLI enable of the target has occurred in this session.
+                wait(lambda: any('State: ' + state in cli('info', UUID) for state in ('ACTIVE', 'ENABLED')))
+                wait(marker.exists)
+                first_pid = marker.read_text()
+                result = subprocess.run(['bash', str(args.installer), '--archive', str(args.archive.resolve()),
+                                         '--checksum', str(root / 'cache/SHA256SUMS')],
+                                        capture_output=True, text=True, timeout=30)
+                (root / 'cache/installer-update.stdout').write_text(result.stdout)
+                (root / 'cache/installer-update.stderr').write_text(result.stderr)
+                assert result.returncode == 0, result.stderr
+                wait(lambda: marker.exists() and marker.read_text() != first_pid)
+                print('PASS: real installer fresh install, next-session automatic activation and in-session update/reactivation', flush=True)
             cli('enable', UUID)
             wait(marker.exists)
             pid = int(marker.read_text())
@@ -244,7 +259,12 @@ def main(args):
     root = args.output_dir.resolve() if args.output_dir else Path(tempfile.mkdtemp(prefix='saui-shell-smoke-'))
     root.mkdir(parents=True, exist_ok=True)
     extension = root / 'data/gnome-shell/extensions' / UUID
-    install(args.upgrade_from or args.archive, extension)
+    if args.installer:
+        if args.upgrade_from:
+            raise SystemExit('--installer and --upgrade-from are separate test modes')
+        extension.parent.mkdir(parents=True)
+    else:
+        install(args.upgrade_from or args.archive, extension)
     for directory in ('config', 'cache', 'runtime', 'bin', 'home'):
         (root / directory).mkdir(mode=0o755 if directory == 'cache' else 0o700)
     if args.popup or args.ui:
@@ -298,7 +318,19 @@ loop.run();
     for option in ('prefs', 'popup', 'ui', 'orca', 'allow_unsupported', 'skip_atspi'):
         if getattr(args, option):
             command.append('--' + option.replace('_', '-'))
+    if args.installer:
+        command.extend(['--installer', str(args.installer.resolve())])
     try:
+        if args.installer:
+            digest = hashlib.sha256(args.archive.read_bytes()).hexdigest()
+            (root / 'cache/SHA256SUMS').write_text(digest + '  ' + UUID + '.shell-extension.zip\n')
+            offline = subprocess.run(['dbus-run-session', '--', 'bash', str(args.installer.resolve()),
+                                      '--archive', str(args.archive.resolve()),
+                                      '--checksum', str(root / 'cache/SHA256SUMS')],
+                                     env=env, capture_output=True, text=True, timeout=30)
+            (root / 'cache/installer-offline.stdout').write_text(offline.stdout)
+            (root / 'cache/installer-offline.stderr').write_text(offline.stderr)
+            assert offline.returncode == 0, offline.stderr
         if args.upgrade_from:
             baseline = subprocess.run(command + ['--baseline-only'], env=env, capture_output=True, text=True, timeout=90)
             (root / 'cache/v21-session.stderr').write_text(baseline.stderr)
@@ -335,6 +367,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('archive', type=Path)
 parser.add_argument('--expected-major')
 parser.add_argument('--upgrade-from', type=Path)
+parser.add_argument('--installer', type=Path, help='Test install.sh before Shell discovery and during a live update, in private XDG/buses')
 parser.add_argument('--baseline-only', action='store_true', help=argparse.SUPPRESS)
 parser.add_argument('--verify-upgrade', action='store_true', help=argparse.SUPPRESS)
 parser.add_argument('--output-dir', type=Path)
