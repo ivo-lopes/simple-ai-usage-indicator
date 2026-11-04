@@ -186,6 +186,16 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         credits.add_suffix(new Gtk.LinkButton({label: 'Flaticon',
             uri: 'https://www.flaticon.com/free-icon/chat-gpt_11865326', valign: Gtk.Align.CENTER}));
         group.add(credits);
+        const claudeCredits = new Adw.ActionRow({title: _('Icon credits'), use_markup: false,
+            subtitle: _('Claude symbol by Icons8')});
+        claudeCredits.add_suffix(new Gtk.LinkButton({label: 'Icons8',
+            uri: 'https://icons8.com/icon/1G3UNEZHMjPH/claude-ai', valign: Gtk.Align.CENTER}));
+        group.add(claudeCredits);
+        const antigravityCredits = new Adw.ActionRow({title: _('Icon credits'), use_markup: false,
+            subtitle: _('Antigravity symbol from Google press assets')});
+        antigravityCredits.add_suffix(new Gtk.LinkButton({label: 'Google',
+            uri: 'https://antigravity.google/press/', valign: Gtk.Align.CENTER}));
+        group.add(antigravityCredits);
         return group;
     }
 

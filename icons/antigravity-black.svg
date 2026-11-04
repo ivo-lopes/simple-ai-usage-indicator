@@ -1,8 +1,5 @@
-<!-- SPDX-License-Identifier: GPL-3.0-only -->
-<!-- Original generic artwork for Simple AI Usage Indicator; see ASSETS.md. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <title>Usage chart</title>
-  <g fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 20V4m0 16h16M8 16v-4m5 4V8m5 8V5"/>
-  </g>
-</svg>
+<!-- SPDX-License-Identifier: LicenseRef-Google-Brand -->
+<!-- Google Antigravity press asset; see ASSETS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+<title>Google Antigravity</title><g transform="scale(0.1333333333333333)"><path d="M144.248 149.062C151.748 154.688 162.998 150.938 152.685 140.625C121.748 110.625 128.31 28.125 89.8727 28.125C51.4352 28.125 57.9977 110.625 27.0602 140.625C15.8102 151.875 27.9977 154.688 35.4977 149.062C64.5602 129.375 62.6852 94.6875 89.8727 94.6875C117.06 94.6875 115.185 129.375 144.248 149.062Z" fill="#000000" />
+</g></svg>

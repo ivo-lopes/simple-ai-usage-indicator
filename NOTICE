@@ -48,7 +48,16 @@ Full upstream integration on 2026-11-03 includes Denny Huang's Codex credit
 presentation (60e1513/c0008d1) and the upstream reset-credit expiry preference
 (c22087d), adapted to independent provider/account instances. See UPSTREAM.md.
 
-Icon preparation after v23: the Codex symbol is adapted from Chat Gpt by
-Magnific / Flaticon (icon 11865326), using the maintainer's stated specific
-authorization. This artwork has separate terms; the project GPL notice does not
-relicense it. See ASSETS.md for source, attribution and the exact scope recorded.
+Provider artwork in v24:
+- OpenAI / Codex: Chat Gpt by Magnific / Flaticon, icon 11865326.
+  https://www.flaticon.com/free-icon/chat-gpt_11865326
+- Claude: Claude Ai by Icons8, icon 1G3UNEZHMjPH.
+  https://icons8.com/icon/1G3UNEZHMjPH/claude-ai
+- Antigravity: Google Antigravity press assets.
+  https://antigravity.google/press/
+
+These assets retain separate artwork/brand terms, relying on the maintainer's
+stated authorization for this icon replacement; the project GPL notice does not
+relicense them. Preserve source credits and consult ASSETS.md for downloads,
+hashes, adaptations and the recorded scope. Provider marks belong to their
+respective owners; identification does not imply endorsement.

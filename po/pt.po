@@ -621,3 +621,11 @@ msgstr "Créditos dos ícones"
 #: prefs.js
 msgid "OpenAI symbol by Magnific / Flaticon"
 msgstr "Símbolo OpenAI por Magnific / Flaticon"
+
+#: prefs.js
+msgid "Claude symbol by Icons8"
+msgstr "Símbolo Claude por Icons8"
+
+#: prefs.js
+msgid "Antigravity symbol from Google press assets"
+msgstr "Símbolo Antigravity dos materiais de imprensa do Google"

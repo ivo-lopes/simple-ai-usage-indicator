@@ -194,16 +194,21 @@ def ui_checks(root, args):
         evaluate("(async () => {const {default: St} = await import('gi://St'); St.ThemeContext.get_for_stage(global.stage).scale_factor = " + str(args.ui_scale) + "; return true;})()")
         indicator('i._updateScrollMaxHeight(); return true;')
     results = []
-    for theme in ('prefer-light', 'prefer-dark', 'high-contrast'):
-        subprocess.run(['gsettings', 'set', 'org.gnome.desktop.interface', 'color-scheme', 'prefer-dark' if theme == 'high-contrast' else theme], check=True)
-        subprocess.run(['gsettings', 'set', 'org.gnome.desktop.a11y.interface', 'high-contrast', str(theme == 'high-contrast').lower()], check=True)
-        time.sleep(1)
-        indicator('i.menu.open(); return true;')
-        time.sleep(.5)
-        screenshot(root / f'cache/{theme}.png')
-        info = indicator('return {name: i.accessible_name, width: i.menu.actor.width, height: i.menu.actor.height, stageWidth: global.stage.width, stageHeight: global.stage.height};')
-        assert info['width'] <= info['stageWidth'] and info['height'] <= info['stageHeight'], info
-        results.append(dict(theme=theme, **info))
+    for style in ('symbolic', 'black', 'color'):
+        subprocess.run(['gsettings', 'set', 'org.gnome.shell.extensions.simple-ai-usage-indicator', 'icon-style', style], check=True)
+        for theme in ('prefer-light', 'prefer-dark', 'high-contrast'):
+            subprocess.run(['gsettings', 'set', 'org.gnome.desktop.interface', 'color-scheme', 'prefer-dark' if theme == 'high-contrast' else theme], check=True)
+            subprocess.run(['gsettings', 'set', 'org.gnome.desktop.a11y.interface', 'high-contrast', str(theme == 'high-contrast').lower()], check=True)
+            time.sleep(1)
+            indicator('i.menu.open(); return true;')
+            time.sleep(.5)
+            filename = theme if style == 'symbolic' else f'{style}-{theme}'
+            screenshot(root / f'cache/{filename}.png')
+            info = indicator('return {name: i.accessible_name, width: i.menu.actor.width, height: i.menu.actor.height, stageWidth: global.stage.width, stageHeight: global.stage.height};')
+            assert info['width'] <= info['stageWidth'] and info['height'] <= info['stageHeight'], info
+            results.append(dict(style=style, theme=theme, **info))
+    subprocess.run(['gsettings', 'set', 'org.gnome.shell.extensions.simple-ai-usage-indicator', 'icon-style', 'symbolic'], check=True)
+    time.sleep(.5)
     (root / 'cache/ui.json').write_text(json.dumps(results, indent=2))
     scroll = indicator('''const view = i._usageSection._scrollView;
         const bar = view.get_vscroll_bar?.() ?? view.vscroll;
@@ -215,7 +220,7 @@ def ui_checks(root, args):
     time.sleep(.3)
     screenshot(root / 'cache/quota-bottom.png')
     (root / 'cache/scroll.json').write_text(json.dumps(scroll, indent=2))
-    print('PASS: all-provider popup light/dark/high contrast screenshots and bounds', flush=True)
+    print('PASS: all-provider popup, three icon modes, light/dark/high contrast screenshots and bounds', flush=True)
 
 
 def install(archive, extension):

@@ -34,7 +34,7 @@ license provenance.
 - **Customizable Icon Styles (White, Black, or Color)**:
   - **Symbolic (theme color)**: Inherits the foreground color for light, dark and high-contrast Shell themes.
   - **Monochrome Black (Black)**: Sleek high-contrast dark style, ideal for light panel themes or customized setups.
-  - **Color**: Provider icon colors. The Codex symbol comes from Flaticon; Claude/Antigravity retain their original generic symbols pending matching assets. See [ASSETS.md](ASSETS.md).
+  - **Color**: Provider icon colors. Sources: [OpenAI by Magnific / Flaticon](https://www.flaticon.com/free-icon/chat-gpt_11865326), [Claude by Icons8](https://icons8.com/icon/1G3UNEZHMjPH/claude-ai), and [Google Antigravity press assets](https://antigravity.google/press/). See [ASSETS.md](ASSETS.md) for attribution and separate artwork terms.
   - **Consistent icon dimensions**: All color variations adhere to exact dimensions, bounding boxes, and panel spacing taking the symbolic white icons as reference.
 - **Internationalization (i18n)**:
   - Native Brazilian Portuguese (`pt_BR` / `pt`) translation support via GNU Gettext.
@@ -178,7 +178,7 @@ gnome-extensions prefs simple-ai-usage-indicator@ivo-lopes.github.com
 - **Icon style**:
   - `Symbolic (theme color)`: Uses the current Shell foreground color.
   - `Monochrome black (Black)`: High-contrast black icons.
-  - `Colored icons (Color)`: Flaticon OpenAI symbol and the current conversation/usage-chart symbols.
+  - `Colored icons (Color)`: OpenAI, Claude and Google Antigravity symbols in color.
 - **Top bar layout**:
   - `Show all enabled assistants`: Shows multiple icons side-by-side.
   - `Show selected assistant`: Displays the assistant selected in Preferences.

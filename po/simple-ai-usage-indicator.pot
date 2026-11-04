@@ -609,3 +609,11 @@ msgstr ""
 #: prefs.js
 msgid "OpenAI symbol by Magnific / Flaticon"
 msgstr ""
+
+#: prefs.js
+msgid "Claude symbol by Icons8"
+msgstr ""
+
+#: prefs.js
+msgid "Antigravity symbol from Google press assets"
+msgstr ""

@@ -3,11 +3,18 @@
 GitHub tags identify source/releases; EGO's internal version is assigned by EGO.
 This file summarizes relevant snapshots rather than reconstructing every old commit.
 
-## Unreleased
+## v24 — 2026-11-04
 
-- Prepare the Codex icon replacement from Flaticon's Chat Gpt artwork with explicit
-  source/authorization attribution and the existing three icon modes. A complete
-  icon release remains pending corresponding Claude/Google Antigravity assets.
+- Replace the generic provider symbols with downloaded OpenAI artwork from
+  Magnific / Flaticon, Claude artwork from Icons8 and Google's Antigravity press
+  assets. Preserve symbolic theme inheritance, black and color modes.
+- Add visible source links for all three providers in Preferences, Portuguese
+  translations and source hashes/attribution in ASSETS.md and NOTICE. Artwork
+  retains separate terms; the code remains GPL-3.0-only.
+- Validate all 18 GJS tests, lint, strict schemas, translations and ZIP contents.
+  Native GNOME 48.7 UI/lifecycle results are recorded in ASSETS.md; the full
+  declared 45–51 matrix was not repeated. Existing multi-account limits in v23
+  remain unchanged (GitHub #1 stays open).
 
 ## v23 — 2026-11-03
 
