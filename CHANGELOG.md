@@ -5,6 +5,10 @@ This file summarizes relevant snapshots rather than reconstructing every old com
 
 ## Unreleased
 
+- Prepare the Codex icon replacement from Flaticon's Chat Gpt artwork with explicit
+  source/authorization attribution and the existing three icon modes. A complete
+  icon release remains pending corresponding Claude/Google Antigravity assets.
+
 ## v23 — 2026-11-03
 
 - Extract pure quota/panel presentation from extension.js for focused tests and

@@ -597,3 +597,15 @@ msgstr ""
 #: prefs.js
 msgid "Usage payload contains no recognized quota."
 msgstr ""
+
+#: prefs.js
+msgid "Choose themed symbolic, black, or colored provider icons in the panel and menu."
+msgstr ""
+
+#: prefs.js
+msgid "Icon credits"
+msgstr ""
+
+#: prefs.js
+msgid "OpenAI symbol by Magnific / Flaticon"
+msgstr ""
