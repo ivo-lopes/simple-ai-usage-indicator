@@ -159,7 +159,7 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
         const iconStyleRow = new Adw.ComboRow({
             use_markup: false,
             title: _('Icon style'),
-            subtitle: _('Choose themed symbolic, black, or colored generic icons in the panel and menu.'),
+            subtitle: _('Choose themed symbolic, black, or colored provider icons in the panel and menu.'),
             model: Gtk.StringList.new([
                 _('Symbolic (theme color)'),
                 _('Monochrome black (Black)'),
@@ -181,6 +181,21 @@ class SimpleAiUsagePreferencesPage extends Adw.PreferencesPage {
             this._settings.set_string('reset-credit-expiry-mode', combo.selected === 1 ? 'date' : 'left');
         });
         group.add(expiry);
+        const credits = new Adw.ActionRow({title: _('Icon credits'), use_markup: false,
+            subtitle: _('OpenAI symbol by Magnific / Flaticon')});
+        credits.add_suffix(new Gtk.LinkButton({label: 'Flaticon',
+            uri: 'https://www.flaticon.com/free-icon/chat-gpt_11865326', valign: Gtk.Align.CENTER}));
+        group.add(credits);
+        const claudeCredits = new Adw.ActionRow({title: _('Icon credits'), use_markup: false,
+            subtitle: _('Claude symbol by Icons8')});
+        claudeCredits.add_suffix(new Gtk.LinkButton({label: 'Icons8',
+            uri: 'https://icons8.com/icon/1G3UNEZHMjPH/claude-ai', valign: Gtk.Align.CENTER}));
+        group.add(claudeCredits);
+        const antigravityCredits = new Adw.ActionRow({title: _('Icon credits'), use_markup: false,
+            subtitle: _('Antigravity symbol from Google press assets')});
+        antigravityCredits.add_suffix(new Gtk.LinkButton({label: 'Google',
+            uri: 'https://antigravity.google/press/', valign: Gtk.Align.CENTER}));
+        group.add(antigravityCredits);
         return group;
     }
 

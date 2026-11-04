@@ -42,7 +42,7 @@
     <key name="icon-style" type="s">
       <default>'symbolic'</default>
       <summary>Icon style</summary>
-      <description>Icon theme appearance: 'symbolic' (monochrome white), 'black' (monochrome black), or 'color' (colored generic icons).</description>
+      <description>Icon theme appearance: 'symbolic' (theme foreground), 'black' (monochrome black), or 'color' (provider colors).</description>
     </key>
   </schema>
 </schemalist>

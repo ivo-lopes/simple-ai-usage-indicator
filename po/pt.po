@@ -609,3 +609,23 @@ msgstr "Data e hora"
 #: prefs.js
 msgid "Usage payload contains no recognized quota."
 msgstr "A resposta de uso não contém uma quota reconhecida."
+
+#: prefs.js
+msgid "Choose themed symbolic, black, or colored provider icons in the panel and menu."
+msgstr "Escolha ícones de provedores simbólicos, pretos ou coloridos no painel e no menu."
+
+#: prefs.js
+msgid "Icon credits"
+msgstr "Créditos dos ícones"
+
+#: prefs.js
+msgid "OpenAI symbol by Magnific / Flaticon"
+msgstr "Símbolo OpenAI por Magnific / Flaticon"
+
+#: prefs.js
+msgid "Claude symbol by Icons8"
+msgstr "Símbolo Claude por Icons8"
+
+#: prefs.js
+msgid "Antigravity symbol from Google press assets"
+msgstr "Símbolo Antigravity dos materiais de imprensa do Google"

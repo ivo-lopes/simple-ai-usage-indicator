@@ -1,5 +1,8 @@
 # Pré-submissão — Simple AI Usage Indicator
 
+> A v24 troca os ícones dos três provedores; fontes e escopo de validação estão em
+> [ASSETS.md](ASSETS.md). Não houve submissão EGO.
+>
 > Relatório histórico de 05/10/2026. A preparação da v23 usa a
 > [validação de 03/11/2026](docs/validation/2026-11-03/README.md), com teste nativo
 > novo somente no GNOME 48.7 e limitações AT-SPI/contas reais explícitas.

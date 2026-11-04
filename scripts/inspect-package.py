@@ -21,4 +21,4 @@ with zipfile.ZipFile(root / name) as archive:
             svg = ET.fromstring(data)
             assert not any(e.tag.split('}')[-1] in ('image', 'script') for e in svg.iter()), f'Embedded content: {name}'
     assert len([n for n in files if n.endswith('.svg')]) == 9
-print(f'PASS: {len(files)} archive files match sources; original SVGs and bounded credential-pattern scan')
+print(f'PASS: {len(files)} archive files match sources; audited SVGs and bounded credential-pattern scan')
